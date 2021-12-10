@@ -1,5 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "common", "common", "{37BF5D9D-10D2-4E57-A82D-A6C2C3D69638}"
+ProjectSection(SolutionItems) = preProject
+	.gitignore = .gitignore
+	Directory.Build.props = Directory.Build.props
+	Directory.Build.targets = Directory.Build.targets
+	README.md = README.md
+EndProjectSection
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gooseberry.ExcelStreaming", "src\Gooseberry.ExcelStreaming\Gooseberry.ExcelStreaming.csproj", "{44C781D7-B006-4502-96A4-549451DB216B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{9843128B-E847-4ECE-9D6D-257BD715EBFB}"

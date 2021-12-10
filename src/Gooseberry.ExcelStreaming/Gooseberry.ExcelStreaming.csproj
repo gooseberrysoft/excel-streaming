@@ -4,4 +4,9 @@
         <TargetFramework>net5.0</TargetFramework>
     </PropertyGroup>
 
+    <ItemGroup>
+        <!-- ToDo Remove it after move to .net6.0 https://github.com/dotnet/runtime/pull/49373 -->
+        <PackageReference Include="System.Text.Encodings.Web" Version="6.0.0" />
+    </ItemGroup>
+    
 </Project>
