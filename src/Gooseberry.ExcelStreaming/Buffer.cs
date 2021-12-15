@@ -1,6 +1,7 @@
 using System;
 using System.Buffers;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Gooseberry.ExcelStreaming
@@ -42,9 +43,9 @@ namespace Gooseberry.ExcelStreaming
             _bufferIndex += count;
         }
 
-        public async ValueTask FlushTo(Stream stream)
+        public async ValueTask FlushTo(Stream stream, CancellationToken token)
         {
-            await stream.WriteAsync(_buffer.AsMemory(0, _bufferIndex));
+            await stream.WriteAsync(_buffer.AsMemory(0, _bufferIndex), token);
             _bufferIndex = 0;
         }
 

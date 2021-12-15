@@ -4,6 +4,7 @@ using System.Buffers.Text;
 using System.IO;
 using System.Text;
 using System.Text.Encodings.Web;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Gooseberry.ExcelStreaming
@@ -130,11 +131,11 @@ namespace Gooseberry.ExcelStreaming
             }
         }
 
-        public ValueTask FlushCompleted(Stream stream)
-            => _buffersChain.FlushCompleted(stream);
+        public ValueTask FlushCompleted(Stream stream, CancellationToken token)
+            => _buffersChain.FlushCompleted(stream, token);
 
-        public ValueTask FlushAll(Stream stream)
-            => _buffersChain.FlushAll(stream);
+        public ValueTask FlushAll(Stream stream, CancellationToken token)
+            => _buffersChain.FlushAll(stream, token);
 
         public void FlushAll(Span<byte> span)
             => _buffersChain.FlushAll(span);

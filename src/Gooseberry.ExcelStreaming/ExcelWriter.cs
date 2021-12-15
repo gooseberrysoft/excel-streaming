@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Gooseberry.ExcelStreaming.Styles;
 
@@ -15,6 +16,7 @@ namespace Gooseberry.ExcelStreaming
         private readonly List<(string Name, int Id, string RelationshipId)> _sheets = new();
 
         private readonly StylesSheet _styles;
+        private readonly CancellationToken _token;
 
         private readonly ZipArchive _zipArchive;
         private readonly BufferedWriter _bufferedWriter;
@@ -22,7 +24,11 @@ namespace Gooseberry.ExcelStreaming
         private bool _rowStarted = false;
         private bool _isCompleted = false;
 
-        public ExcelWriter(Stream outputStream, StylesSheet? styles = null, int bufferSize = Constants.DefaultBufferSize)
+        public ExcelWriter(
+            Stream outputStream,
+            StylesSheet? styles = null,
+            int bufferSize = Constants.DefaultBufferSize,
+            CancellationToken token = default)
         {
             if (outputStream == null)
                 throw new ArgumentNullException(nameof(outputStream));
@@ -34,6 +40,7 @@ namespace Gooseberry.ExcelStreaming
             _styles = styles ?? StylesSheetBuilder.Default;
 
             _bufferedWriter = new BufferedWriter(bufferSize, Constants.DefaultBufferFlushThreshold);
+            _token = token;
         }
 
         public async ValueTask StartSheet(string name, params Column[] columns)
@@ -194,8 +201,8 @@ namespace Gooseberry.ExcelStreaming
 
         public async ValueTask DisposeAsync()
         {
-            if (_sheetStream != null)
-                await _sheetStream.DisposeAsync();
+            if (!_isCompleted)
+                await Complete();
 
             _zipArchive?.Dispose();
         }
@@ -204,7 +211,7 @@ namespace Gooseberry.ExcelStreaming
         {
             _rowStarted = false;
             _bufferedWriter.Write(Constants.Worksheet.SheetData.Row.Postfix);
-            return _bufferedWriter.FlushCompleted(_sheetStream!);
+            return _bufferedWriter.FlushCompleted(_sheetStream!, _token);
         }
 
         private async ValueTask EndSheet()
@@ -212,7 +219,7 @@ namespace Gooseberry.ExcelStreaming
             _bufferedWriter.Write(Constants.Worksheet.SheetData.Postfix);
             _bufferedWriter.Write(Constants.Worksheet.Postfix);
 
-            await _bufferedWriter.FlushAll(_sheetStream!);
+            await _bufferedWriter.FlushAll(_sheetStream!, _token);
             await _sheetStream!.DisposeAsync();
             _sheetStream = null;
         }
@@ -290,7 +297,7 @@ namespace Gooseberry.ExcelStreaming
             }
 
             _bufferedWriter.Write(Constants.Workbook.Postfix);
-            await _bufferedWriter.FlushAll(stream);
+            await _bufferedWriter.FlushAll(stream, _token);
         }
 
         private async ValueTask AddContentTypes()
@@ -308,7 +315,7 @@ namespace Gooseberry.ExcelStreaming
             }
 
             _bufferedWriter.Write(Constants.ContentTypes.Postfix);
-            await _bufferedWriter.FlushAll(stream);
+            await _bufferedWriter.FlushAll(stream, _token);
         }
 
         private async ValueTask AddWorkbookRelationships()
@@ -328,7 +335,7 @@ namespace Gooseberry.ExcelStreaming
             }
 
             _bufferedWriter.Write(Constants.WorkbookRelationships.Postfix);
-            await _bufferedWriter.FlushAll(stream);
+            await _bufferedWriter.FlushAll(stream, _token);
         }
 
         private async ValueTask AddStyles()
@@ -344,7 +351,7 @@ namespace Gooseberry.ExcelStreaming
             _bufferedWriter.Write(Constants.XmlPrefix);
             _bufferedWriter.Write(Constants.Relationships);
 
-            await _bufferedWriter.FlushAll(stream);
+            await _bufferedWriter.FlushAll(stream, _token);
         }
 
         private Stream OpenEntry(string entryName)

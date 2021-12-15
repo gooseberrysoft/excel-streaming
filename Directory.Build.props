@@ -1,9 +1,31 @@
 <Project>
   <PropertyGroup>
+    <VersionPrefix>1.0.1</VersionPrefix>
+    <Version>1.0.1</Version>
+    
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>CS1591</NoWarn>
+
+    <!-- Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+
+    <!-- Embed source files that are not tracked by the source control manager in the PDB -->
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+
+    <Copyright>Copyright 2021 © Gooseberry Team</Copyright>
+    <Company>Gooseberry</Company>
+    <Authors>Gooseberry Team</Authors>
+    <PackageTags>excel;stream</PackageTags>
+    <PackageProjectUrl>https://github.com/gooseberrysoft/excel-streaming</PackageProjectUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>    
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>  
 </Project>

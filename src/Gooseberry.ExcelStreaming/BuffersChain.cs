@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Gooseberry.ExcelStreaming
@@ -48,22 +49,22 @@ namespace Gooseberry.ExcelStreaming
         public void Advance(int count)
             => CurrentBuffer.Advance(count);
 
-        public async ValueTask FlushCompleted(Stream stream)
+        public async ValueTask FlushCompleted(Stream stream, CancellationToken token)
         {
             for (var bufferIndex = 0; bufferIndex < _currentBuffer; bufferIndex++)
-                await _buffers[bufferIndex].FlushTo(stream);
+                await _buffers[bufferIndex].FlushTo(stream, token);
 
             (_buffers[0], _buffers[_currentBuffer]) = (_buffers[_currentBuffer], _buffers[0]);
             _currentBuffer = 0;
 
             if (CurrentBuffer.Saturation >= _flushThreshold)
-                await CurrentBuffer.FlushTo(stream);
+                await CurrentBuffer.FlushTo(stream, token);
         }
 
-        public async ValueTask FlushAll(Stream stream)
+        public async ValueTask FlushAll(Stream stream, CancellationToken token)
         {
             foreach (var buffer in _buffers)
-                await buffer.FlushTo(stream);
+                await buffer.FlushTo(stream, token);
 
             _currentBuffer = 0;
         }
