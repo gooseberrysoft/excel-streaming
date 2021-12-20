@@ -170,6 +170,16 @@ namespace Gooseberry.ExcelStreaming.Styles
                 if (font.Bold)
                     _writer.Write(Constants.Styles.Fonts.Item.Bold);
 
+                if (font.Italic)
+                    _writer.Write(Constants.Styles.Fonts.Item.Italic);
+
+                if (font.Strike)
+                    _writer.Write(Constants.Styles.Fonts.Item.Strike);
+                
+                _writer.Write(Constants.Styles.Fonts.Item.Underline.Prefix);
+                _writer.Write(font.Underline.ToString().ToLower());
+                _writer.Write(Constants.Styles.Fonts.Item.Underline.Postfix);
+
                 _writer.Write(Constants.Styles.Fonts.Item.Postfix);
             }
 

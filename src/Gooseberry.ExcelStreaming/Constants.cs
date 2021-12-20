@@ -220,6 +220,17 @@ namespace Gooseberry.ExcelStreaming
                     }
 
                     public static readonly byte[] Bold = Encoding.UTF8.GetBytes("<b val=\"1\"/>");
+                    
+                    public static readonly byte[] Italic = Encoding.UTF8.GetBytes("<i val=\"1\"/>");
+                    
+                    public static readonly byte[] Strike = Encoding.UTF8.GetBytes("<strike val=\"1\"/>");
+                    
+                    public static class Underline
+                    {
+                        public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<u val=\"");
+
+                        public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"/>");
+                    }
                 }
             }
 
