@@ -6,7 +6,7 @@ namespace Gooseberry.ExcelStreaming.Styles
     [StructLayout(LayoutKind.Auto)]
     public readonly struct Fill : IEquatable<Fill>
     {
-        public Fill(Color? color, FillPattern pattern = FillPattern.Solid)
+        public Fill(Color? color = null, FillPattern pattern = FillPattern.Solid)
         {
             Color = color;
             Pattern = pattern;
