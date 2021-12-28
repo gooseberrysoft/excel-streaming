@@ -11,6 +11,7 @@ using Alignment = Gooseberry.ExcelStreaming.Styles.Alignment;
 using Border = Gooseberry.ExcelStreaming.Styles.Border;
 using Borders = Gooseberry.ExcelStreaming.Styles.Borders;
 using Color = Gooseberry.ExcelStreaming.Styles.Color;
+using Column = Gooseberry.ExcelStreaming.Configuration.Column;
 using Fill = Gooseberry.ExcelStreaming.Styles.Fill;
 using Font = Gooseberry.ExcelStreaming.Styles.Font;
 using Underline = DocumentFormat.OpenXml.Spreadsheet.Underline;

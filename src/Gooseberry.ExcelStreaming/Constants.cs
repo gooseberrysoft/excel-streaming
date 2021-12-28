@@ -72,6 +72,27 @@ namespace Gooseberry.ExcelStreaming
                 }
             }
 
+            public static class Merges
+            {
+                public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<mergeCells>");
+
+                public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</mergeCells>");
+
+                public static class Merge
+                {
+                    public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<mergeCell ref=\"");
+
+                    public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"/>");
+                }
+            }
+
+            public static class View
+            {
+                public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<sheetViews><sheetView workbookViewId=\"0\"><pane ySplit=\"1\" topLeftCell=\"");
+
+                public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\" activePane=\"bottomRight\" state=\"frozen\"/></sheetView></sheetViews>");
+            }
+            
             public static class SheetData
             {
                 public static readonly byte[] Prefix = Encoding.UTF8.GetBytes($"<sheetData>");

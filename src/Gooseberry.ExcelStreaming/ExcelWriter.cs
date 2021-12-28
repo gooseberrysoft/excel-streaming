@@ -5,6 +5,7 @@ using System.IO.Compression;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Gooseberry.ExcelStreaming.Configuration;
 using Gooseberry.ExcelStreaming.Styles;
 
 namespace Gooseberry.ExcelStreaming
@@ -21,6 +22,7 @@ namespace Gooseberry.ExcelStreaming
         private readonly ZipArchive _zipArchive;
         private readonly BufferedWriter _bufferedWriter;
         private Stream? _sheetStream;
+        private SheetConfiguration? _sheetConfiguration;
         private bool _rowStarted = false;
         private bool _isCompleted = false;
 
@@ -43,7 +45,7 @@ namespace Gooseberry.ExcelStreaming
             _token = token;
         }
 
-        public async ValueTask StartSheet(string name, params Column[] columns)
+        public async ValueTask StartSheet(string name, SheetConfiguration? configuration = null)
         {
             EnsureNotCompleted();
 
@@ -59,7 +61,14 @@ namespace Gooseberry.ExcelStreaming
 
             _sheetStream = OpenEntry($"xl/worksheets/{relationshipId}.xml");
             _bufferedWriter.Write(Constants.Worksheet.Prefix);
-            AddColumns(columns);
+
+            _sheetConfiguration = configuration;
+            if (_sheetConfiguration?.TopLeftUnpinnedCell != null)
+                AddTopLeftUnpinnedCell(_sheetConfiguration.Value.TopLeftUnpinnedCell.Value);
+
+            if (_sheetConfiguration?.Columns != null)
+                AddColumns(_sheetConfiguration.Value.Columns);
+            
             _bufferedWriter.Write(Constants.Worksheet.SheetData.Prefix);
         }
 
@@ -217,16 +226,21 @@ namespace Gooseberry.ExcelStreaming
         private async ValueTask EndSheet()
         {
             _bufferedWriter.Write(Constants.Worksheet.SheetData.Postfix);
+            
+            if (_sheetConfiguration?.Merges != null)
+                AddMerges(_sheetConfiguration.Value.Merges);                
+            
             _bufferedWriter.Write(Constants.Worksheet.Postfix);
 
             await _bufferedWriter.FlushAll(_sheetStream!, _token);
             await _sheetStream!.DisposeAsync();
             _sheetStream = null;
+            _sheetConfiguration = null;
         }
-
-        private void AddColumns(Column[] columns)
+        
+        private void AddColumns(IReadOnlyCollection<Column> columns)
         {
-            if (columns.Length == 0)
+            if (columns.Count == 0)
                 return;
 
             _bufferedWriter.Write(Constants.Worksheet.Columns.Prefix);
@@ -256,6 +270,31 @@ namespace Gooseberry.ExcelStreaming
             _bufferedWriter.Write(Constants.Worksheet.Columns.Postfix);
         }
 
+        private void AddMerges(IReadOnlyCollection<Merge> merges)
+        {
+            if (merges.Count == 0)
+                return;
+            
+            _bufferedWriter.Write(Constants.Worksheet.Merges.Prefix);
+
+            foreach (var merge in merges)
+            {
+                _bufferedWriter.Write(Constants.Worksheet.Merges.Merge.Prefix);
+                _bufferedWriter.Write(merge.Value);
+                _bufferedWriter.Write(Constants.Worksheet.Merges.Merge.Postfix);
+            }
+            
+            _bufferedWriter.Write(Constants.Worksheet.Merges.Postfix);
+        }
+
+        private void AddTopLeftUnpinnedCell(CellReference cellReference)
+        {
+            _bufferedWriter.Write(Constants.Worksheet.View.Prefix);
+            // ToDo parse cellReference for ySplit and xSplit
+            _bufferedWriter.Write(cellReference.Value);
+            _bufferedWriter.Write(Constants.Worksheet.View.Postfix);
+        }
+        
         private void WriteCellPrefix(ReadOnlyMemory<byte> type, StyleReference? style = null)
         {
             EnsureNotCompleted();
