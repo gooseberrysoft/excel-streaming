@@ -43,10 +43,12 @@ namespace Gooseberry.ExcelStreaming
             _bufferIndex += count;
         }
 
-        public async ValueTask FlushTo(Stream stream, CancellationToken token)
+        public ValueTask FlushTo(Stream stream, CancellationToken token)
         {
-            await stream.WriteAsync(_buffer.AsMemory(0, _bufferIndex), token);
+            var buffer = _buffer.AsMemory(0, _bufferIndex);
             _bufferIndex = 0;
+
+            return stream.WriteAsync(buffer, token);
         }
 
         public void FlushTo(Span<byte> span)
