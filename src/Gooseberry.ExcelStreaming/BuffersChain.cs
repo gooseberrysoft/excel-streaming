@@ -17,7 +17,8 @@ namespace Gooseberry.ExcelStreaming
         public BuffersChain(int bufferSize, double flushThreshold)
         {
             if (flushThreshold is <= 0 or > 1.0)
-                throw new ArgumentOutOfRangeException(nameof(flushThreshold), "Flush threshold should be in range (0..1].");
+                throw new ArgumentOutOfRangeException(nameof(flushThreshold),
+                    "Flush threshold should be in range (0..1].");
 
             _bufferSize = bufferSize;
             _flushThreshold = flushThreshold;
@@ -51,14 +52,28 @@ namespace Gooseberry.ExcelStreaming
 
         public async ValueTask FlushCompleted(Stream stream, CancellationToken token)
         {
-            for (var bufferIndex = 0; bufferIndex < _currentBuffer; bufferIndex++)
-                await _buffers[bufferIndex].FlushTo(stream, token);
+            if (_currentBuffer == 0)
+            {
+                var buffer = _buffers[0];
 
+                if (buffer.Saturation >= _flushThreshold)
+                    await buffer.FlushTo(stream, token);
+                
+                return;
+            }
+
+            for (var bufferIndex = 0; bufferIndex <= _currentBuffer; bufferIndex++)
+            {
+                var buffer = _buffers[bufferIndex];
+                var needFlush = bufferIndex < _currentBuffer ||
+                                buffer.Saturation >= _flushThreshold;
+
+                if (needFlush)
+                    await buffer.FlushTo(stream, token);
+            }
+            
             (_buffers[0], _buffers[_currentBuffer]) = (_buffers[_currentBuffer], _buffers[0]);
             _currentBuffer = 0;
-
-            if (CurrentBuffer.Saturation >= _flushThreshold)
-                await CurrentBuffer.FlushTo(stream, token);
         }
 
         public async ValueTask FlushAll(Stream stream, CancellationToken token)
