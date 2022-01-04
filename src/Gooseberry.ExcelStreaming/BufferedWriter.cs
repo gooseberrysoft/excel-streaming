@@ -17,6 +17,7 @@ namespace Gooseberry.ExcelStreaming
         private static readonly int DoubleMaximumChars = double.MinValue.ToString().Length;
 
         private readonly BuffersChain _buffersChain;
+        private readonly Encoder _encoder = Encoding.UTF8.GetEncoder();
 
         public BufferedWriter(int bufferSize, double flushThreshold)
             => _buffersChain = new BuffersChain(bufferSize, flushThreshold);
@@ -66,7 +67,7 @@ namespace Gooseberry.ExcelStreaming
 
         public void Write(ReadOnlySpan<char> data)
         {
-            var encoder = Encoding.UTF8.GetEncoder();
+            _encoder.Reset();
 
             var source = data;
             var isCompleted = false;
@@ -74,7 +75,7 @@ namespace Gooseberry.ExcelStreaming
             {
                 var destination = _buffersChain.GetSpan();
 
-                encoder.Convert(source, destination, true, out var charsConsumed, out var bytesWritten, out isCompleted);
+                _encoder.Convert(source, destination, true, out var charsConsumed, out var bytesWritten, out isCompleted);
 
                 if (charsConsumed > 0)
                     source = source.Slice(charsConsumed);

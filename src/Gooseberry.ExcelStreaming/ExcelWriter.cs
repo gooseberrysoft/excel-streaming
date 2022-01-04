@@ -106,7 +106,7 @@ namespace Gooseberry.ExcelStreaming
             if (data.HasValue)
                 AddCell(data.Value, style);
             else
-                AddEmptyCell();
+                AddEmptyCell(style);
         }
 
         public void AddCell(long data, StyleReference? style = null)
@@ -124,7 +124,7 @@ namespace Gooseberry.ExcelStreaming
             if (data.HasValue)
                 AddCell(data.Value, style);
             else
-                AddEmptyCell();
+                AddEmptyCell(style);
         }
 
         public void AddCell(decimal data, StyleReference? style = null)
@@ -142,7 +142,7 @@ namespace Gooseberry.ExcelStreaming
             if (data.HasValue)
                 AddCell(data.Value, style);
             else
-                AddEmptyCell();
+                AddEmptyCell(style);
         }
 
         public void AddCell(DateTime data, StyleReference? style = null)
@@ -160,7 +160,7 @@ namespace Gooseberry.ExcelStreaming
             if (data.HasValue)
                 AddCell(data.Value, style);
             else
-                AddEmptyCell();
+                AddEmptyCell(style);
         }
 
         public void AddCell(ReadOnlySpan<char> data, StyleReference? style = null)
