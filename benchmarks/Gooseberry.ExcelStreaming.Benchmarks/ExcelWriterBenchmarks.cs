@@ -37,7 +37,7 @@ namespace Gooseberry.ExcelStreaming.Benchmarks
         public int RowsCount { get; set; }
         
         [Benchmark]
-        public async ValueTask ExcelWriter()
+        public async Task ExcelWriter()
         {
             await using var outputStream = new NoneStream();
             
@@ -62,9 +62,9 @@ namespace Gooseberry.ExcelStreaming.Benchmarks
         }
 
         [Benchmark]
-        public async ValueTask OpenXml()
+        public void OpenXml()
         {
-            await using var outputStream = new NoneStream();
+            using var outputStream = new NoneStream();
             var package = Package.Open(outputStream, FileMode.Create, FileAccess.Write);
 
             using var document = SpreadsheetDocument.Create(package, SpreadsheetDocumentType.Workbook);

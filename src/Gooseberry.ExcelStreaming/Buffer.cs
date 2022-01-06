@@ -30,16 +30,16 @@ namespace Gooseberry.ExcelStreaming
 
         public Span<byte> GetSpan(int? sizeHint = null)
         {
-            if (!sizeHint.HasValue)
-                return _buffer.AsSpan(_bufferIndex);
-
-            EnsureBufferHas(sizeHint.Value);
-            return _buffer.AsSpan(_bufferIndex, sizeHint.Value);
+            return !sizeHint.HasValue 
+                ? _buffer.AsSpan(_bufferIndex) 
+                : _buffer.AsSpan(_bufferIndex, sizeHint.GetValueOrDefault());
         }
 
         public void Advance(int count)
         {
-            EnsureBufferHas(count);
+            if (count > RemainingCapacity)
+                throw new InvalidOperationException($"Buffer haven't enough size to write data. " +
+                                                    $"Buffer remaining capacity is {RemainingCapacity} and data size is {count}.");
             _bufferIndex += count;
         }
 
@@ -59,12 +59,5 @@ namespace Gooseberry.ExcelStreaming
 
         public void Dispose()
             => ArrayPool<byte>.Shared.Return(_buffer);
-
-        private void EnsureBufferHas(int size)
-        {
-            if (size > RemainingCapacity)
-                throw new InvalidOperationException($"Buffer haven't enough size to write data. " +
-                    $"Buffer remaining capacity is {RemainingCapacity} and data size is {size}.");
-        }
     }
 }
