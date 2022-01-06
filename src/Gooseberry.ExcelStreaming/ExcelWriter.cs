@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -63,7 +64,27 @@ namespace Gooseberry.ExcelStreaming
             _bufferedWriter.Write(Constants.Worksheet.SheetData.Prefix);
         }
 
-        public async ValueTask StartRow(decimal? height = null)
+        private static readonly byte[] RowCloseAndStart =
+            Constants.Worksheet.SheetData.Row.Postfix
+                .Concat(Constants.Worksheet.SheetData.Row.Open.Prefix)
+                .Concat(Constants.Worksheet.SheetData.Row.Open.Postfix)
+                .ToArray();
+
+        private static readonly byte[] RowStart =
+           Constants.Worksheet.SheetData.Row.Open.Prefix
+                .Concat(Constants.Worksheet.SheetData.Row.Open.Postfix)
+                .ToArray();
+
+        private static readonly DecimalElementWriter RowHeightWriter =
+            new DecimalElementWriter(
+                Constants.Worksheet.SheetData.Row.Open.Prefix
+                    .Concat(Constants.Worksheet.SheetData.Row.Open.Height.Prefix)
+                    .ToArray(),
+                Constants.Worksheet.SheetData.Row.Open.Height.Postfix
+                    .Concat(Constants.Worksheet.SheetData.Row.Open.Postfix)
+                    .ToArray());
+
+        public ValueTask StartRow(decimal? height = null)
         {
             EnsureNotCompleted();
 
@@ -73,32 +94,68 @@ namespace Gooseberry.ExcelStreaming
             if (_sheetStream == null)
                 throw new InvalidOperationException("Cannot start row before start sheet.");
 
-            if (_rowStarted)
-                await EndRow();
+            if (_rowStarted && !height.HasValue)
+            {
+                _bufferedWriter.Write(RowCloseAndStart);
+            }
+            else
+            {
+                if (_rowStarted)
+                    _bufferedWriter.Write(Constants.Worksheet.SheetData.Row.Postfix);
+
+                
+                if (height.HasValue)
+                {
+                    RowHeightWriter.Write(height.Value, _bufferedWriter.InternalWriter);
+                }
+                else
+                {
+                    _bufferedWriter.Write(RowStart);
+                }
+            }
 
             _rowStarted = true;
 
-            _bufferedWriter.Write(Constants.Worksheet.SheetData.Row.Open.Prefix);
-            if (height.HasValue)
-            {
-                _bufferedWriter.Write(Constants.Worksheet.SheetData.Row.Open.Height.Prefix);
-                _bufferedWriter.Write(height.Value);
-                _bufferedWriter.Write(Constants.Worksheet.SheetData.Row.Open.Height.Postfix);
-            }
-            _bufferedWriter.Write(Constants.Worksheet.SheetData.Row.Open.Postfix);
+            return _bufferedWriter.FlushCompleted(_sheetStream!, _token);
         }
 
+        private static readonly StringElementWriter StringCellWriter = new(
+            Constants.Worksheet.SheetData.Row.Cell.Prefix
+                .Concat(Constants.Worksheet.SheetData.Row.Cell.StringDataType)
+                .Concat(Constants.Worksheet.SheetData.Row.Cell.Middle)
+                .ToArray(),
+            Constants.Worksheet.SheetData.Row.Cell.Postfix);
+
         public void AddCell(string data, StyleReference? style = null)
-            => AddCell(data.AsSpan(), style);
+        {
+            CheckWriteCell();
+
+            // https://support.microsoft.com/en-us/office/excel-specifications-and-limits-1672b34d-7043-467e-8e27-269d656771c3?ui=en-us&rs=en-us&ad=us#ID0EBABAAA=Excel_2016-2013
+            if (data.Length > 32_767)
+                throw new ArgumentException("Data length more than total number of characters that a cell can contain.");
+
+            StringCellWriter.Write(data, _bufferedWriter.InternalWriter);
+            //AddCell(data.AsSpan(), style);
+        }
+
+
+        private static readonly IntElementWriter IntCellWriter = new(
+            Constants.Worksheet.SheetData.Row.Cell.Prefix
+                .Concat(Constants.Worksheet.SheetData.Row.Cell.NumberDataType)
+                .Concat(Constants.Worksheet.SheetData.Row.Cell.Middle)
+                .ToArray(),
+            Constants.Worksheet.SheetData.Row.Cell.Postfix);
 
         public void AddCell(int data, StyleReference? style = null)
         {
-            WriteCellPrefix(
-                Constants.Worksheet.SheetData.Row.Cell.NumberDataType,
-                style ?? _styles.GeneralStyle);
+            CheckWriteCell();
+            IntCellWriter.Write(data, _bufferedWriter.InternalWriter);
+            //WriteCellPrefix(
+            //    Constants.Worksheet.SheetData.Row.Cell.NumberDataType,
+            //    style ?? _styles.GeneralStyle);
 
-            _bufferedWriter.Write(data);
-            WriteCellPostfix();
+            //_bufferedWriter.Write(data);
+            //WriteCellPostfix();
         }
 
         public void AddCell(int? data, StyleReference? style = null)
@@ -109,14 +166,24 @@ namespace Gooseberry.ExcelStreaming
                 AddEmptyCell(style);
         }
 
+
+        private static readonly LongElementWriter LongCellWriter = new(
+            Constants.Worksheet.SheetData.Row.Cell.Prefix
+                .Concat(Constants.Worksheet.SheetData.Row.Cell.NumberDataType)
+                .Concat(Constants.Worksheet.SheetData.Row.Cell.Middle)
+                .ToArray(),
+            Constants.Worksheet.SheetData.Row.Cell.Postfix);
+
         public void AddCell(long data, StyleReference? style = null)
         {
-            WriteCellPrefix(
-                Constants.Worksheet.SheetData.Row.Cell.NumberDataType,
-                style ?? _styles.GeneralStyle);
+            CheckWriteCell();
+            LongCellWriter.Write(data, _bufferedWriter.InternalWriter);
+            //WriteCellPrefix(
+            //    Constants.Worksheet.SheetData.Row.Cell.NumberDataType,
+            //    style ?? _styles.GeneralStyle);
 
-            _bufferedWriter.Write(data);
-            WriteCellPostfix();
+            //_bufferedWriter.Write(data);
+            //WriteCellPostfix();
         }
 
         public void AddCell(long? data, StyleReference? style = null)
@@ -145,14 +212,23 @@ namespace Gooseberry.ExcelStreaming
                 AddEmptyCell(style);
         }
 
+        private static readonly DateTimeElementWriter DateTimeCellWriter = new(
+            Constants.Worksheet.SheetData.Row.Cell.Prefix
+                .Concat(Constants.Worksheet.SheetData.Row.Cell.DateTimeDataType)
+                .Concat(Constants.Worksheet.SheetData.Row.Cell.Middle)
+                .ToArray(),
+            Constants.Worksheet.SheetData.Row.Cell.Postfix);
+
         public void AddCell(DateTime data, StyleReference? style = null)
         {
-            WriteCellPrefix(
-                Constants.Worksheet.SheetData.Row.Cell.DateTimeDataType,
-                style ?? _styles.DefaultDateStyle);
+            CheckWriteCell();
+            DateTimeCellWriter.Write(data, _bufferedWriter.InternalWriter);
+            //WriteCellPrefix(
+            //    Constants.Worksheet.SheetData.Row.Cell.DateTimeDataType,
+            //    style ?? _styles.DefaultDateStyle);
 
-            _bufferedWriter.Write(data);
-            WriteCellPostfix();
+            //_bufferedWriter.Write(data);
+            //WriteCellPostfix();
         }
 
         public void AddCell(DateTime? data, StyleReference? style = null)
@@ -364,6 +440,15 @@ namespace Gooseberry.ExcelStreaming
         {
             if (_isCompleted)
                 throw new InvalidOperationException("Cannot use excel writer. It is completed already.");
+        }
+
+        private void CheckWriteCell()
+        {
+            EnsureNotCompleted();
+
+            if (!_rowStarted)
+                throw new InvalidOperationException("Cannot add cell before start row.");
+
         }
     }
 }

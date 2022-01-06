@@ -27,6 +27,9 @@ namespace Gooseberry.ExcelStreaming
         public int Written
             => _buffersChain.Written;
 
+        public BuffersChain InternalWriter
+            => _buffersChain;
+
         public void Write(int data)
         {
             var span = _buffersChain.GetSpan(IntMaximumChars);
@@ -89,8 +92,9 @@ namespace Gooseberry.ExcelStreaming
         [SkipLocalsInit]
         public void WriteEscaped(ReadOnlySpan<char> data)
         {
+            //TODO think better about formula eg special cases when len = 1
             // we assume that 5% of symbols will be escaped by 6 characters each
-            var bufferSize = Math.Min(data.Length + data.Length / 3, 32 * 1024);
+            var bufferSize = Math.Min(data.Length + data.Length / 3 + 16, 32 * 1024);
 
             if (bufferSize <= StackCharsThreshold)
             {
@@ -266,6 +270,36 @@ namespace Gooseberry.ExcelStreaming
         }
     }
 
+    internal sealed class DecimalElementWriter : ElementWriter<decimal>
+    {
+        private static readonly int MaximumChars = decimal.MinValue.ToString().Length;
+
+        public DecimalElementWriter(byte[] prefix, byte[] postfix)
+            : base(prefix, postfix)
+        {
+        }
+
+        protected override void WriteValue(in decimal value, BuffersChain bufferWriter, ref Span<byte> destination, ref int written)
+        {
+            if (Utf8Formatter.TryFormat(value, destination, out var encodedBytes))
+            {
+                destination = destination.Slice(encodedBytes);
+                written += encodedBytes;
+                return;
+            }
+
+            bufferWriter.Advance(written);
+            destination = bufferWriter.GetSpan(MaximumChars);
+            written = 0;
+
+            if (!Utf8Formatter.TryFormat(value, destination, out encodedBytes))
+                throw new InvalidOperationException("Can't format decimal. Not enough memory");
+
+            destination = destination.Slice(encodedBytes);
+            written += encodedBytes;
+        }
+    }
+
     internal sealed class LongElementWriter : ElementWriter<long>
     {
         private static readonly int MaximumChars = long.MinValue.ToString().Length;
@@ -337,21 +371,19 @@ namespace Gooseberry.ExcelStreaming
         {
         }
 
+        [SkipLocalsInit]
         protected override void WriteValue(in string value, BuffersChain bufferWriter, ref Span<byte> destination, ref int written)
         {
             _encoder.Reset();
+            var data = value.AsSpan();
 
-        }
-
-        [SkipLocalsInit]
-        private void WriteEscaped(ReadOnlySpan<char> data, BuffersChain bufferWriter, ref Span<byte> destination, ref int written)
-        {
+            //TODO think better about formula
             // we assume that 5% of symbols will be escaped by 6 characters each
-            var bufferSize = Math.Min(data.Length + data.Length / 3, 32 * 1024);
+            var bufferSize = Math.Min(data.Length + data.Length / 3 + 16, 32 * 1024);
             var allocOnStack = bufferSize <= StackCharsThreshold;
             var pooledBuffer = allocOnStack ? null : ArrayPool<char>.Shared.Rent(bufferSize);
 
-            Span<char> buffer = allocOnStack ? stackalloc char[bufferSize] : pooledBuffer;
+            var buffer = allocOnStack ? stackalloc char[bufferSize] : pooledBuffer;
 
             try
             {
@@ -401,10 +433,5 @@ namespace Gooseberry.ExcelStreaming
                     ArrayPool<char>.Shared.Return(pooledBuffer);
             }
         }
-
-        
-        
-
-        
     }
 }
