@@ -11,6 +11,7 @@ namespace Gooseberry.ExcelStreaming
 {
     internal sealed class BufferedWriter : IDisposable
     {
+        private const int StackCharsThreshold = 256;
         private static readonly int IntMaximumChars = int.MinValue.ToString().Length;
         private static readonly int LongMaximumChars = long.MinValue.ToString().Length;
         private static readonly int DecimalMaximumChars = decimal.MinValue.ToString().Length;
@@ -24,6 +25,8 @@ namespace Gooseberry.ExcelStreaming
 
         public int Written
             => _buffersChain.Written;
+
+        public BuffersChain InternalBuffer => _buffersChain;
 
         public void Write(int data)
         {
@@ -87,33 +90,47 @@ namespace Gooseberry.ExcelStreaming
         public void WriteEscaped(ReadOnlySpan<char> data)
         {
             // we assume that 5% of symbols will be escaped by 6 characters each
-            var temporaryBufferSize = Math.Min(data.Length + data.Length / 3, 32 * 1024);
-            var temporaryBuffer = ArrayPool<char>.Shared.Rent(temporaryBufferSize);
+            var bufferSize = Math.Min(data.Length + data.Length / 3, 32 * 1024);
+
+            if (bufferSize <= StackCharsThreshold)
+            {
+                Span<char> stackBuffer = stackalloc char[bufferSize];
+                WriteEscaped(data, stackBuffer);
+
+                return;
+            }
+
+            var pooledBuffer = ArrayPool<char>.Shared.Rent(bufferSize);
             try
             {
-                var source = data;
-                var lastResult = OperationStatus.DestinationTooSmall;
-                while (lastResult == OperationStatus.DestinationTooSmall)
-                {
-                    lastResult = HtmlEncoder.Default.Encode(
-                        source,
-                        temporaryBuffer,
-                        out var bytesConsumed,
-                        out var bytesWritten,
-                        isFinalBlock: false);
-
-                    if (lastResult == OperationStatus.InvalidData)
-                        throw new InvalidOperationException($"Cannot write escaped string {data.ToString()}");
-
-                    if (bytesConsumed > 0)
-                        source = source.Slice(bytesConsumed);
-                    if (bytesWritten > 0)
-                        Write(temporaryBuffer.AsSpan(0, bytesWritten));
-                }
+                WriteEscaped(data, pooledBuffer);
             }
             finally
             {
-                ArrayPool<char>.Shared.Return(temporaryBuffer);
+                ArrayPool<char>.Shared.Return(pooledBuffer);
+            }
+        }
+
+        private void WriteEscaped(ReadOnlySpan<char> data, Span<char> buffer)
+        {
+            var source = data;
+            var lastResult = OperationStatus.DestinationTooSmall;
+            while (lastResult == OperationStatus.DestinationTooSmall)
+            {
+                lastResult = HtmlEncoder.Default.Encode(
+                    source,
+                    buffer,
+                    out var bytesConsumed,
+                    out var bytesWritten,
+                    isFinalBlock: false);
+
+                if (lastResult == OperationStatus.InvalidData)
+                    throw new InvalidOperationException($"Cannot write escaped string {data.ToString()}");
+
+                if (bytesConsumed > 0)
+                    source = source.Slice(bytesConsumed);
+                if (bytesWritten > 0)
+                    Write(buffer.Slice(0, bytesWritten));
             }
         }
 
