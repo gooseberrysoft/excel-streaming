@@ -27,8 +27,6 @@ namespace Gooseberry.ExcelStreaming
         public int Written
             => _buffersChain.Written;
 
-        public BuffersChain InternalBuffer => _buffersChain;
-
         public void Write(int data)
         {
             var span = _buffersChain.GetSpan(IntMaximumChars);
@@ -88,6 +86,7 @@ namespace Gooseberry.ExcelStreaming
             }
         }
 
+        [SkipLocalsInit]
         public void WriteEscaped(ReadOnlySpan<char> data)
         {
             // we assume that 5% of symbols will be escaped by 6 characters each
@@ -239,7 +238,7 @@ namespace Gooseberry.ExcelStreaming
 
     internal sealed class IntElementWriter : ElementWriter<int>
     {
-        private static readonly int IntMaximumChars = int.MinValue.ToString().Length;
+        private static readonly int MaximumChars = int.MinValue.ToString().Length;
 
         public IntElementWriter(byte[] prefix, byte[] postfix) 
             : base(prefix, postfix)
@@ -250,17 +249,162 @@ namespace Gooseberry.ExcelStreaming
         {
             if (Utf8Formatter.TryFormat(value, destination, out var encodedBytes))
             {
+                destination = destination.Slice(encodedBytes);
                 written += encodedBytes;
                 return;
             }
 
             bufferWriter.Advance(written);
-
-            destination = bufferWriter.GetSpan(IntMaximumChars);
+            destination = bufferWriter.GetSpan(MaximumChars);
             written = 0;
 
-            if (!Utf8Formatter.TryFormat(value, destination, out var encodedBytes))
-                throw new InvalidOperationException("Cannot format int to string.");
+            if (!Utf8Formatter.TryFormat(value, destination, out encodedBytes))
+                throw new InvalidOperationException("Can't format int. Not enough memory");
+            
+            destination = destination.Slice(encodedBytes);
+            written += encodedBytes;
         }
+    }
+
+    internal sealed class LongElementWriter : ElementWriter<long>
+    {
+        private static readonly int MaximumChars = long.MinValue.ToString().Length;
+
+        public LongElementWriter(byte[] prefix, byte[] postfix)
+            : base(prefix, postfix)
+        {
+        }
+
+        protected override void WriteValue(in long value, BuffersChain bufferWriter, ref Span<byte> destination, ref int written)
+        {
+            if (Utf8Formatter.TryFormat(value, destination, out var encodedBytes))
+            {
+                destination = destination.Slice(encodedBytes);
+                written += encodedBytes;
+                return;
+            }
+
+            bufferWriter.Advance(written);
+            destination = bufferWriter.GetSpan(MaximumChars);
+            written = 0;
+
+            if (!Utf8Formatter.TryFormat(value, destination, out encodedBytes))
+                throw new InvalidOperationException("Can't format long. Not enough memory");
+
+            destination = destination.Slice(encodedBytes);
+            written += encodedBytes;
+        }
+    }
+
+    internal sealed class DateTimeElementWriter : ElementWriter<DateTime>
+    {
+        private static readonly int MaximumChars = double.MinValue.ToString().Length + 2;
+
+        public DateTimeElementWriter(byte[] prefix, byte[] postfix)
+            : base(prefix, postfix)
+        {
+        }
+
+        protected override void WriteValue(in DateTime value, BuffersChain bufferWriter, ref Span<byte> destination, ref int written)
+        {
+            var oaDate = value.ToOADate();
+            if (Utf8Formatter.TryFormat(oaDate, destination, out var encodedBytes))
+            {
+                destination = destination.Slice(encodedBytes);
+                written += encodedBytes;
+                return;
+            }
+
+            bufferWriter.Advance(written);
+            destination = bufferWriter.GetSpan(MaximumChars);
+            written = 0;
+
+            if (!Utf8Formatter.TryFormat(oaDate, destination, out encodedBytes))
+                throw new InvalidOperationException("Can't format datetime. Not enough memory");
+
+            destination = destination.Slice(encodedBytes);
+            written += encodedBytes;
+        }
+    }
+
+    internal sealed class StringElementWriter : ElementWriter<string>
+    {
+        private const int StackCharsThreshold = 256;
+        private readonly Encoder _encoder = Encoding.UTF8.GetEncoder();
+
+        public StringElementWriter(byte[] prefix, byte[] postfix)
+            : base(prefix, postfix)
+        {
+        }
+
+        protected override void WriteValue(in string value, BuffersChain bufferWriter, ref Span<byte> destination, ref int written)
+        {
+            _encoder.Reset();
+
+        }
+
+        [SkipLocalsInit]
+        private void WriteEscaped(ReadOnlySpan<char> data, BuffersChain bufferWriter, ref Span<byte> destination, ref int written)
+        {
+            // we assume that 5% of symbols will be escaped by 6 characters each
+            var bufferSize = Math.Min(data.Length + data.Length / 3, 32 * 1024);
+            var allocOnStack = bufferSize <= StackCharsThreshold;
+            var pooledBuffer = allocOnStack ? null : ArrayPool<char>.Shared.Rent(bufferSize);
+
+            Span<char> buffer = allocOnStack ? stackalloc char[bufferSize] : pooledBuffer;
+
+            try
+            {
+                var source = data;
+                var lastResult = OperationStatus.DestinationTooSmall;
+                while (lastResult == OperationStatus.DestinationTooSmall)
+                {
+                    lastResult = HtmlEncoder.Default.Encode(
+                        source,
+                        buffer,
+                        out var bytesConsumed,
+                        out var bytesWritten,
+                        isFinalBlock: false);
+
+                    if (lastResult == OperationStatus.InvalidData)
+                        throw new InvalidOperationException($"Cannot write escaped string {data.ToString()}");
+
+                    if (bytesConsumed > 0)
+                        source = source.Slice(bytesConsumed);
+                    if (bytesWritten > 0)
+                    {
+                        var sourceChars = buffer.Slice(0, bytesWritten);
+           
+                        while (true)
+                        {
+                            _encoder.Convert(sourceChars, destination, true, out var charsConsumed, out var bytesCharsWritten, out var isCompleted);
+                            written += bytesCharsWritten;
+               
+                            if (isCompleted)
+                            {
+                                destination = destination.Slice(bytesCharsWritten);
+                                break;
+                            }
+
+                            sourceChars = sourceChars.Slice(charsConsumed);
+                            bufferWriter.Advance(written);
+
+                            destination = bufferWriter.GetSpan(24);
+                            written = 0;
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                if(pooledBuffer != null)
+                    ArrayPool<char>.Shared.Return(pooledBuffer);
+            }
+        }
+
+        
+        
+
+        
     }
 }

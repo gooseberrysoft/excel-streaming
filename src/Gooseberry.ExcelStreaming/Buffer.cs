@@ -1,6 +1,7 @@
 using System;
 using System.Buffers;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -26,11 +27,13 @@ namespace Gooseberry.ExcelStreaming
             => _bufferIndex;
 
         public double Saturation
-            => (double) Written / (_buffer.Length);
+            => (double) Written / _buffer.Length;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Span<byte> GetSpan() 
             => _buffer.AsSpan(_bufferIndex);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Advance(int count)
         {
             if (count > RemainingCapacity)

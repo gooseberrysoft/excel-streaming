@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -42,14 +43,25 @@ namespace Gooseberry.ExcelStreaming
             }
         }
 
-        public Span<byte> GetSpan(int? sizeHint = null)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Span<byte> GetSpan(int minSize)
         {
-            if (_currentBuffer.RemainingCapacity < (sizeHint ?? 1))
+            if (_currentBuffer.RemainingCapacity < minSize)
                 MoveToNextBuffer();
-
-            return _currentBuffer.GetSpan(sizeHint);
+            //TODO check minsize?
+            return _currentBuffer.GetSpan();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Span<byte> GetSpan()
+        {
+            if (_currentBuffer.RemainingCapacity == 0)
+                MoveToNextBuffer();
+
+            return _currentBuffer.GetSpan();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Advance(int count)
             => _currentBuffer.Advance(count);
 
@@ -61,11 +73,12 @@ namespace Gooseberry.ExcelStreaming
                     await _buffers[bufferIndex].FlushTo(stream, token);
 
                 (_buffers[0], _buffers[_currentBufferIndex]) = (_buffers[_currentBufferIndex], _buffers[0]);
-                _currentBuffer = 0;
+
+                SetCurrentBuffer(0);
             }
 
             if (_currentBuffer.Saturation >= _flushThreshold)
-                await CurrentBuffer.FlushTo(stream, token);
+                await _currentBuffer.FlushTo(stream, token);
         }
 
         public async ValueTask FlushAll(Stream stream, CancellationToken token)
