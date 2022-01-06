@@ -28,12 +28,8 @@ namespace Gooseberry.ExcelStreaming
         public double Saturation
             => (double) Written / (_buffer.Length);
 
-        public Span<byte> GetSpan(int? sizeHint = null)
-        {
-            return !sizeHint.HasValue 
-                ? _buffer.AsSpan(_bufferIndex) 
-                : _buffer.AsSpan(_bufferIndex, sizeHint.GetValueOrDefault());
-        }
+        public Span<byte> GetSpan() 
+            => _buffer.AsSpan(_bufferIndex);
 
         public void Advance(int count)
         {

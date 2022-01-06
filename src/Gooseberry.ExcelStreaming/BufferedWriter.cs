@@ -2,6 +2,7 @@ using System;
 using System.Buffers;
 using System.Buffers.Text;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading;
@@ -160,5 +161,106 @@ namespace Gooseberry.ExcelStreaming
 
         public void Dispose()
             => _buffersChain.Dispose();
+    }
+
+    internal abstract class ElementWriter<T>
+    {
+        private readonly byte[] _prefix;
+        private readonly byte[] _postfix;
+
+        protected ElementWriter(byte[] prefix, byte[] postfix)
+        {
+            _prefix = prefix ?? throw new ArgumentNullException(nameof(prefix));
+            _postfix = postfix;
+        }
+
+        public void Write(in T value, BuffersChain bufferWriter)
+        {
+            var span = bufferWriter.GetSpan();
+            var written = 0;
+
+            Write(_prefix, bufferWriter, ref span, ref written);
+            WriteValue(value, bufferWriter, ref span, ref written);
+            Write(_postfix, bufferWriter, ref span, ref written);
+
+            bufferWriter.Advance(written);
+        }
+
+        protected abstract void WriteValue(
+            in T value,
+            BuffersChain bufferWriter,
+            ref Span<byte> destination,
+            ref int written);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected static void Write(
+            ReadOnlySpan<byte> data,
+            BuffersChain bufferWriter,
+            ref Span<byte> destination,
+            ref int written)
+        {
+            if (data.Length <= destination.Length)
+            {
+                data.CopyTo(destination);
+
+                written += data.Length;
+                destination = destination.Slice(data.Length);
+
+                return;
+            }
+
+            WriteBlocks(data, bufferWriter, ref destination, ref written);
+        }
+
+        private static void WriteBlocks(ReadOnlySpan<byte> data, BuffersChain bufferWriter, ref Span<byte> destination, ref int written)
+        {
+            var remainingData = data;
+            while (true)
+            {
+                var copyLength = Math.Min(remainingData.Length, destination.Length);
+
+                remainingData.Slice(0, copyLength).CopyTo(destination);
+                written += copyLength;
+
+                if (remainingData.Length - copyLength == 0)
+                {
+                    destination = destination.Slice(copyLength);
+                    return;
+                }
+
+                remainingData = remainingData.Slice(copyLength);
+                bufferWriter.Advance(written);
+
+                destination = bufferWriter.GetSpan();
+                written = 0;
+            }
+        }
+    }
+
+    internal sealed class IntElementWriter : ElementWriter<int>
+    {
+        private static readonly int IntMaximumChars = int.MinValue.ToString().Length;
+
+        public IntElementWriter(byte[] prefix, byte[] postfix) 
+            : base(prefix, postfix)
+        {
+        }
+
+        protected override void WriteValue(in int value, BuffersChain bufferWriter, ref Span<byte> destination, ref int written)
+        {
+            if (Utf8Formatter.TryFormat(value, destination, out var encodedBytes))
+            {
+                written += encodedBytes;
+                return;
+            }
+
+            bufferWriter.Advance(written);
+
+            destination = bufferWriter.GetSpan(IntMaximumChars);
+            written = 0;
+
+            if (!Utf8Formatter.TryFormat(value, destination, out var encodedBytes))
+                throw new InvalidOperationException("Cannot format int to string.");
+        }
     }
 }

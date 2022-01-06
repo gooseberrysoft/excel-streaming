@@ -55,16 +55,16 @@ namespace Gooseberry.ExcelStreaming
 
         public async ValueTask FlushCompleted(Stream stream, CancellationToken token)
         {
-            if (_currentBuffer > 0)
+            if (_currentBufferIndex > 0)
             {
-                for (var bufferIndex = 0; bufferIndex < _currentBuffer; bufferIndex++)
+                for (var bufferIndex = 0; bufferIndex < _currentBufferIndex; bufferIndex++)
                     await _buffers[bufferIndex].FlushTo(stream, token);
 
-                (_buffers[0], _buffers[_currentBuffer]) = (_buffers[_currentBuffer], _buffers[0]);
+                (_buffers[0], _buffers[_currentBufferIndex]) = (_buffers[_currentBufferIndex], _buffers[0]);
                 _currentBuffer = 0;
             }
 
-            if (CurrentBuffer.Saturation >= _flushThreshold)
+            if (_currentBuffer.Saturation >= _flushThreshold)
                 await CurrentBuffer.FlushTo(stream, token);
         }
 
