@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Gooseberry.ExcelStreaming.Styles;
+using Gooseberry.ExcelStreaming.Writers;
+using StringWriter = Gooseberry.ExcelStreaming.Writers.StringWriter;
 
 namespace Gooseberry.ExcelStreaming
 {
@@ -75,14 +77,13 @@ namespace Gooseberry.ExcelStreaming
                 .Concat(Constants.Worksheet.SheetData.Row.Open.Postfix)
                 .ToArray();
 
-        private static readonly DecimalElementWriter RowHeightWriter =
-            new DecimalElementWriter(
-                Constants.Worksheet.SheetData.Row.Open.Prefix
-                    .Concat(Constants.Worksheet.SheetData.Row.Open.Height.Prefix)
-                    .ToArray(),
-                Constants.Worksheet.SheetData.Row.Open.Height.Postfix
-                    .Concat(Constants.Worksheet.SheetData.Row.Open.Postfix)
-                    .ToArray());
+        private static readonly ElementWriter<decimal, DecimalWriter> RowHeightWriter = new(
+            Constants.Worksheet.SheetData.Row.Open.Prefix
+                .Concat(Constants.Worksheet.SheetData.Row.Open.Height.Prefix)
+                .ToArray(),
+            Constants.Worksheet.SheetData.Row.Open.Height.Postfix
+                .Concat(Constants.Worksheet.SheetData.Row.Open.Postfix)
+                .ToArray());
 
         public ValueTask StartRow(decimal? height = null)
         {
@@ -119,7 +120,7 @@ namespace Gooseberry.ExcelStreaming
             return _bufferedWriter.FlushCompleted(_sheetStream!, _token);
         }
 
-        private static readonly StringElementWriter StringCellWriter = new(
+        private static readonly ElementWriter<string,StringWriter> StringCellWriter = new(
             Constants.Worksheet.SheetData.Row.Cell.Prefix
                 .Concat(Constants.Worksheet.SheetData.Row.Cell.StringDataType)
                 .Concat(Constants.Worksheet.SheetData.Row.Cell.Middle)
@@ -139,7 +140,7 @@ namespace Gooseberry.ExcelStreaming
         }
 
 
-        private static readonly IntElementWriter IntCellWriter = new(
+        private static readonly ElementWriter<int,IntWriter> IntCellWriter = new(
             Constants.Worksheet.SheetData.Row.Cell.Prefix
                 .Concat(Constants.Worksheet.SheetData.Row.Cell.NumberDataType)
                 .Concat(Constants.Worksheet.SheetData.Row.Cell.Middle)
@@ -167,7 +168,7 @@ namespace Gooseberry.ExcelStreaming
         }
 
 
-        private static readonly LongElementWriter LongCellWriter = new(
+        private static readonly ElementWriter<long, LongWriter> LongCellWriter = new(
             Constants.Worksheet.SheetData.Row.Cell.Prefix
                 .Concat(Constants.Worksheet.SheetData.Row.Cell.NumberDataType)
                 .Concat(Constants.Worksheet.SheetData.Row.Cell.Middle)
@@ -212,7 +213,7 @@ namespace Gooseberry.ExcelStreaming
                 AddEmptyCell(style);
         }
 
-        private static readonly DateTimeElementWriter DateTimeCellWriter = new(
+        private static readonly ElementWriter<DateTime, DateTimeWriter>  DateTimeCellWriter = new(
             Constants.Worksheet.SheetData.Row.Cell.Prefix
                 .Concat(Constants.Worksheet.SheetData.Row.Cell.DateTimeDataType)
                 .Concat(Constants.Worksheet.SheetData.Row.Cell.Middle)

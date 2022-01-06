@@ -48,6 +48,7 @@ namespace Gooseberry.ExcelStreaming
         {
             if (_currentBuffer.RemainingCapacity < minSize)
                 MoveToNextBuffer();
+           
             //TODO check minsize?
             return _currentBuffer.GetSpan();
         }
