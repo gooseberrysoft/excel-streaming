@@ -1,20 +1,19 @@
 using System;
 using System.Buffers;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Text.Encodings.Web;
 
 namespace Gooseberry.ExcelStreaming.Writers;
 
-internal sealed class StringWriter : IValueWriter<string>
+internal readonly struct StringWriter : IValueWriter<string>
 {
     private const int StackCharsThreshold = 256;
-    private readonly Encoder _encoder = Encoding.UTF8.GetEncoder();
-    
+
     [SkipLocalsInit]
     public void WriteValue(in string value, BuffersChain bufferWriter, ref Span<byte> destination, ref int written)
     {
-        _encoder.Reset();
+        var encoder = bufferWriter.Encoder;
+        encoder.Reset();
         var data = value.AsSpan();
 
         //TODO think better about formula
@@ -46,12 +45,13 @@ internal sealed class StringWriter : IValueWriter<string>
                 if (bytesWritten > 0)
                 {
                     var sourceChars = buffer.Slice(0, bytesWritten);
-           
+
                     while (true)
                     {
-                        _encoder.Convert(sourceChars, destination, true, out var charsConsumed, out var bytesCharsWritten, out var isCompleted);
+                        encoder.Convert(sourceChars, destination, true, out var charsConsumed,
+                            out var bytesCharsWritten, out var isCompleted);
                         written += bytesCharsWritten;
-               
+
                         if (isCompleted)
                         {
                             destination = destination.Slice(bytesCharsWritten);
@@ -69,7 +69,7 @@ internal sealed class StringWriter : IValueWriter<string>
         }
         finally
         {
-            if(pooledBuffer != null)
+            if (pooledBuffer != null)
                 ArrayPool<char>.Shared.Return(pooledBuffer);
         }
     }

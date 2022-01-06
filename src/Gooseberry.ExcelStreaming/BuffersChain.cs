@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,6 +16,9 @@ namespace Gooseberry.ExcelStreaming
         private readonly List<Buffer> _buffers = new();
         private int _currentBufferIndex;
         private Buffer _currentBuffer;
+
+        //TODO: howto fix
+        public readonly Encoder Encoder = Encoding.UTF8.GetEncoder();
 
         public BuffersChain(int bufferSize, double flushThreshold)
         {

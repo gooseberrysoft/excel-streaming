@@ -77,7 +77,7 @@ namespace Gooseberry.ExcelStreaming
                 .Concat(Constants.Worksheet.SheetData.Row.Open.Postfix)
                 .ToArray();
 
-        private static readonly ElementWriter<decimal, DecimalWriter> RowHeightWriter = new(
+        private static readonly ElementWriter<decimal, ValueWriter<decimal, DecimalFormatter>> RowHeightWriter = new(
             Constants.Worksheet.SheetData.Row.Open.Prefix
                 .Concat(Constants.Worksheet.SheetData.Row.Open.Height.Prefix)
                 .ToArray(),
@@ -120,7 +120,7 @@ namespace Gooseberry.ExcelStreaming
             return _bufferedWriter.FlushCompleted(_sheetStream!, _token);
         }
 
-        private static readonly ElementWriter<string,StringWriter> StringCellWriter = new(
+        private static readonly ElementWriter<string, StringWriter> StringCellWriter = new(
             Constants.Worksheet.SheetData.Row.Cell.Prefix
                 .Concat(Constants.Worksheet.SheetData.Row.Cell.StringDataType)
                 .Concat(Constants.Worksheet.SheetData.Row.Cell.Middle)
@@ -140,7 +140,7 @@ namespace Gooseberry.ExcelStreaming
         }
 
 
-        private static readonly ElementWriter<int,IntWriter> IntCellWriter = new(
+        private static readonly ElementWriter<int,ValueWriter<int,IntFormatter>> IntCellWriter = new(
             Constants.Worksheet.SheetData.Row.Cell.Prefix
                 .Concat(Constants.Worksheet.SheetData.Row.Cell.NumberDataType)
                 .Concat(Constants.Worksheet.SheetData.Row.Cell.Middle)
@@ -168,7 +168,7 @@ namespace Gooseberry.ExcelStreaming
         }
 
 
-        private static readonly ElementWriter<long, LongWriter> LongCellWriter = new(
+        private static readonly ElementWriter<long, ValueWriter<long,LongFormatter>> LongCellWriter = new(
             Constants.Worksheet.SheetData.Row.Cell.Prefix
                 .Concat(Constants.Worksheet.SheetData.Row.Cell.NumberDataType)
                 .Concat(Constants.Worksheet.SheetData.Row.Cell.Middle)
@@ -213,7 +213,7 @@ namespace Gooseberry.ExcelStreaming
                 AddEmptyCell(style);
         }
 
-        private static readonly ElementWriter<DateTime, DateTimeWriter>  DateTimeCellWriter = new(
+        private static readonly ElementWriter<DateTime, ValueWriter<DateTime,DateTimeFormatter>> DateTimeCellWriter = new(
             Constants.Worksheet.SheetData.Row.Cell.Prefix
                 .Concat(Constants.Worksheet.SheetData.Row.Cell.DateTimeDataType)
                 .Concat(Constants.Worksheet.SheetData.Row.Cell.Middle)
