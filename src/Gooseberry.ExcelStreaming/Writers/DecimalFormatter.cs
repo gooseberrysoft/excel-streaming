@@ -6,7 +6,7 @@ namespace Gooseberry.ExcelStreaming.Writers;
 
 internal readonly struct DecimalFormatter : IValueFormatter<decimal>
 {
-    private static readonly int MaxChars = decimal.MinValue.ToString().Length;
+    private static readonly int MaxChars = decimal.MinValue.ToString().Length + 2;
 
     public int MaximumChars => MaxChars;
 

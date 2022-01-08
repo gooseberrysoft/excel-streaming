@@ -15,8 +15,8 @@ namespace Gooseberry.ExcelStreaming
         private const int StackCharsThreshold = 256;
         private static readonly int IntMaximumChars = int.MinValue.ToString().Length;
         private static readonly int LongMaximumChars = long.MinValue.ToString().Length;
-        private static readonly int DecimalMaximumChars = decimal.MinValue.ToString().Length;
-        private static readonly int DoubleMaximumChars = double.MinValue.ToString().Length;
+        private static readonly int DecimalMaximumChars = decimal.MinValue.ToString().Length + 2;
+        private static readonly int DoubleMaximumChars = double.MinValue.ToString().Length + 2;
 
         private readonly BuffersChain _buffersChain;
         private readonly Encoder _encoder = Encoding.UTF8.GetEncoder();
