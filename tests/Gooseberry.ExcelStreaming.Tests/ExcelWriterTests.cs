@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 using Gooseberry.ExcelStreaming.Tests.Excel;
@@ -53,7 +54,7 @@ namespace Gooseberry.ExcelStreaming.Tests
                     {
                         new Cell("1", CellValueType.Number, Constants.DefaultNumberStyle),
                         new Cell("name", CellValueType.String),
-                        new Cell(now.ToOADate().ToString(), style: Constants.DefaultDateTimeStyle)
+                        new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), style: Constants.DefaultDateTimeStyle)
                     })
                 });
 

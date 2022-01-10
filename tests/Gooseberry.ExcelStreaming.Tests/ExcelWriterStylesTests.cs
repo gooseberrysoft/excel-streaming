@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 using Gooseberry.ExcelStreaming.Tests.Excel;
@@ -77,7 +78,7 @@ namespace Gooseberry.ExcelStreaming.Tests
                         new Cell("1", CellValueType.Number, style),
                         new Cell("2", CellValueType.Number, style),
                         new Cell("3.55", CellValueType.Number, style),
-                        new Cell(now.ToOADate().ToString(), style: style),
+                        new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), style: style),
                         new Cell("", CellValueType.String, style)
                     })
                 });
