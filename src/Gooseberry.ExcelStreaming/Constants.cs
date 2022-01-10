@@ -88,9 +88,30 @@ namespace Gooseberry.ExcelStreaming
 
             public static class View
             {
-                public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<sheetViews><sheetView workbookViewId=\"0\"><pane ySplit=\"1\" topLeftCell=\"");
+                public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<sheetViews><sheetView workbookViewId=\"0\"><pane");
 
-                public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\" activePane=\"bottomRight\" state=\"frozen\"/></sheetView></sheetViews>");
+                public static readonly byte[] Postfix = Encoding.UTF8.GetBytes(" activePane=\"bottomRight\" state=\"frozen\"/></sheetView></sheetViews>");
+
+                public static class TopLeftCell
+                {
+                    public static readonly byte[] Prefix = Encoding.UTF8.GetBytes(" topLeftCell=\"");
+
+                    public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"");
+                }
+                
+                public static class YSplit
+                {
+                    public static readonly byte[] Prefix = Encoding.UTF8.GetBytes(" ySplit=\"");
+
+                    public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"");
+                }
+                
+                public static class XSplit
+                {
+                    public static readonly byte[] Prefix = Encoding.UTF8.GetBytes(" xSplit=\"");
+
+                    public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"");
+                }
             }
             
             public static class SheetData

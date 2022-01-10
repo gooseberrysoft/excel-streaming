@@ -25,6 +25,9 @@ namespace Gooseberry.ExcelStreaming
         private SheetConfiguration? _sheetConfiguration;
         private bool _rowStarted = false;
         private bool _isCompleted = false;
+        private uint _rowCount = 0;
+        private uint _columnCount = 0;
+        private readonly List<Merge> _merges = new List<Merge>();
 
         public ExcelWriter(
             Stream outputStream,
@@ -55,6 +58,10 @@ namespace Gooseberry.ExcelStreaming
             if (_sheetStream != null)
                 await EndSheet();
 
+            _rowCount = 0;
+            _columnCount = 0;
+            _merges.Clear();
+            
             var sheetId = _sheets.Count + 1;
             var relationshipId = $"sheet{sheetId}";
             _sheets.Add((name, sheetId, relationshipId));
@@ -86,7 +93,9 @@ namespace Gooseberry.ExcelStreaming
                 await EndRow();
 
             _rowStarted = true;
-
+            _rowCount += 1;
+            _columnCount = 0;
+            
             _bufferedWriter.Write(Constants.Worksheet.SheetData.Row.Open.Prefix);
             if (height.HasValue)
             {
@@ -97,10 +106,10 @@ namespace Gooseberry.ExcelStreaming
             _bufferedWriter.Write(Constants.Worksheet.SheetData.Row.Open.Postfix);
         }
 
-        public void AddCell(string data, StyleReference? style = null)
-            => AddCell(data.AsSpan(), style);
+        public void AddCell(string data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+            => AddCell(data.AsSpan(), style, rightMerge, downMerge);
 
-        public void AddCell(int data, StyleReference? style = null)
+        public void AddCell(int data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
         {
             WriteCellPrefix(
                 Constants.Worksheet.SheetData.Row.Cell.NumberDataType,
@@ -108,17 +117,20 @@ namespace Gooseberry.ExcelStreaming
 
             _bufferedWriter.Write(data);
             WriteCellPostfix();
+            
+            _columnCount += 1;
+            AddMerge(rightMerge, downMerge);
         }
 
-        public void AddCell(int? data, StyleReference? style = null)
+        public void AddCell(int? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
         {
             if (data.HasValue)
-                AddCell(data.Value, style);
+                AddCell(data.Value, style, rightMerge, downMerge);
             else
-                AddEmptyCell();
+                AddEmptyCell(style, rightMerge, downMerge);
         }
 
-        public void AddCell(long data, StyleReference? style = null)
+        public void AddCell(long data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
         {
             WriteCellPrefix(
                 Constants.Worksheet.SheetData.Row.Cell.NumberDataType,
@@ -126,17 +138,20 @@ namespace Gooseberry.ExcelStreaming
 
             _bufferedWriter.Write(data);
             WriteCellPostfix();
+            
+            _columnCount += 1;
+            AddMerge(rightMerge, downMerge);
         }
 
-        public void AddCell(long? data, StyleReference? style = null)
+        public void AddCell(long? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
         {
             if (data.HasValue)
-                AddCell(data.Value, style);
+                AddCell(data.Value, style, rightMerge, downMerge);
             else
-                AddEmptyCell();
+                AddEmptyCell(style, rightMerge, downMerge);
         }
 
-        public void AddCell(decimal data, StyleReference? style = null)
+        public void AddCell(decimal data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
         {
             WriteCellPrefix(
                 Constants.Worksheet.SheetData.Row.Cell.NumberDataType,
@@ -144,17 +159,20 @@ namespace Gooseberry.ExcelStreaming
 
             _bufferedWriter.Write(data);
             WriteCellPostfix();
+            
+            _columnCount += 1;
+            AddMerge(rightMerge, downMerge);
         }
 
-        public void AddCell(decimal? data, StyleReference? style = null)
+        public void AddCell(decimal? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
         {
             if (data.HasValue)
-                AddCell(data.Value, style);
+                AddCell(data.Value, style, rightMerge, downMerge);
             else
-                AddEmptyCell();
+                AddEmptyCell(style, rightMerge, downMerge);
         }
 
-        public void AddCell(DateTime data, StyleReference? style = null)
+        public void AddCell(DateTime data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
         {
             WriteCellPrefix(
                 Constants.Worksheet.SheetData.Row.Cell.DateTimeDataType,
@@ -162,17 +180,20 @@ namespace Gooseberry.ExcelStreaming
 
             _bufferedWriter.Write(data);
             WriteCellPostfix();
+            
+            _columnCount += 1;
+            AddMerge(rightMerge, downMerge);
         }
 
-        public void AddCell(DateTime? data, StyleReference? style = null)
+        public void AddCell(DateTime? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
         {
             if (data.HasValue)
                 AddCell(data.Value, style);
             else
-                AddEmptyCell();
+                AddEmptyCell(style);
         }
 
-        public void AddCell(ReadOnlySpan<char> data, StyleReference? style = null)
+        public void AddCell(ReadOnlySpan<char> data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
         {
             // https://support.microsoft.com/en-us/office/excel-specifications-and-limits-1672b34d-7043-467e-8e27-269d656771c3?ui=en-us&rs=en-us&ad=us#ID0EBABAAA=Excel_2016-2013
             if (data.Length > 32_767)
@@ -181,12 +202,18 @@ namespace Gooseberry.ExcelStreaming
             WriteCellPrefix(Constants.Worksheet.SheetData.Row.Cell.StringDataType, style);
             _bufferedWriter.WriteEscaped(data);
             WriteCellPostfix();
+
+            _columnCount += 1;
+            AddMerge(rightMerge, downMerge);
         }
 
-        public void AddEmptyCell(StyleReference? style = null)
+        public void AddEmptyCell(StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
         {
             WriteCellPrefix(Constants.Worksheet.SheetData.Row.Cell.StringDataType, style);
             WriteCellPostfix();
+            
+            _columnCount += 1;
+            AddMerge(rightMerge, downMerge);
         }
 
         public async ValueTask Complete()
@@ -213,7 +240,7 @@ namespace Gooseberry.ExcelStreaming
             if (!_isCompleted)
                 await Complete();
 
-            _zipArchive?.Dispose();
+            _zipArchive.Dispose();
         }
 
         private ValueTask EndRow()
@@ -227,8 +254,7 @@ namespace Gooseberry.ExcelStreaming
         {
             _bufferedWriter.Write(Constants.Worksheet.SheetData.Postfix);
             
-            if (_sheetConfiguration?.Merges != null)
-                AddMerges(_sheetConfiguration.Value.Merges);                
+            AddMerges();                
             
             _bufferedWriter.Write(Constants.Worksheet.Postfix);
 
@@ -270,17 +296,17 @@ namespace Gooseberry.ExcelStreaming
             _bufferedWriter.Write(Constants.Worksheet.Columns.Postfix);
         }
 
-        private void AddMerges(IReadOnlyCollection<Merge> merges)
+        private void AddMerges()
         {
-            if (merges.Count == 0)
+            if (_merges.Count == 0)
                 return;
             
             _bufferedWriter.Write(Constants.Worksheet.Merges.Prefix);
 
-            foreach (var merge in merges)
+            foreach (var merge in _merges)
             {
                 _bufferedWriter.Write(Constants.Worksheet.Merges.Merge.Prefix);
-                _bufferedWriter.Write(merge.Value);
+                _bufferedWriter.Write(merge.Alias);
                 _bufferedWriter.Write(Constants.Worksheet.Merges.Merge.Postfix);
             }
             
@@ -290,8 +316,19 @@ namespace Gooseberry.ExcelStreaming
         private void AddTopLeftUnpinnedCell(CellReference cellReference)
         {
             _bufferedWriter.Write(Constants.Worksheet.View.Prefix);
-            // ToDo parse cellReference for ySplit and xSplit
-            _bufferedWriter.Write(cellReference.Value);
+            
+            _bufferedWriter.Write(Constants.Worksheet.View.TopLeftCell.Prefix);
+            _bufferedWriter.Write(cellReference.Alias);
+            _bufferedWriter.Write(Constants.Worksheet.View.TopLeftCell.Postfix);
+            
+            _bufferedWriter.Write(Constants.Worksheet.View.YSplit.Prefix);
+            _bufferedWriter.Write(cellReference.Row - 1);
+            _bufferedWriter.Write(Constants.Worksheet.View.YSplit.Postfix);
+
+            _bufferedWriter.Write(Constants.Worksheet.View.XSplit.Prefix);
+            _bufferedWriter.Write(cellReference.Column - 1);
+            _bufferedWriter.Write(Constants.Worksheet.View.XSplit.Postfix);
+
             _bufferedWriter.Write(Constants.Worksheet.View.Postfix);
         }
         
@@ -318,6 +355,12 @@ namespace Gooseberry.ExcelStreaming
         private void WriteCellPostfix()
             => _bufferedWriter.Write(Constants.Worksheet.SheetData.Row.Cell.Postfix);
 
+        private void AddMerge(uint rightMerge = 0, uint downMerge = 0)
+        {
+            if (rightMerge != 0 || downMerge != 0) 
+                _merges.Add(new Merge(_rowCount, _columnCount, downMerge, rightMerge));
+        }
+        
         private async ValueTask AddWorkbook()
         {
             await using var stream = OpenEntry("xl/workbook.xml");
