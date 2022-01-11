@@ -4,14 +4,27 @@ using System.Runtime.InteropServices;
 namespace Gooseberry.ExcelStreaming.Configuration
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly struct Merge
+    internal readonly struct Merge
     {
+        private readonly uint _fromRow;
+        private readonly uint _fromColumn;
+        private readonly uint _downSize;
+        private readonly uint _rightSize;
+
         public Merge(uint fromRow, uint fromColumn, uint downSize, uint rightSize)
+        {
+            _fromRow = fromRow;
+            _fromColumn = fromColumn;
+            _downSize = downSize;
+            _rightSize = rightSize;
+        }
+
+        public void WriteAlias(BufferedWriter writer)
         {
             Span<char> chars = stackalloc char[21];
 
-            var bottomRow = fromRow + downSize;
-            var rightColumn = fromColumn + rightSize;
+            var bottomRow = _fromRow + _downSize;
+            var rightColumn = _fromColumn + _rightSize;
             
             var written = bottomRow.FormatRowAlias(chars);
             written += rightColumn.FormatColumnAlias(chars[..^written]);
@@ -19,12 +32,10 @@ namespace Gooseberry.ExcelStreaming.Configuration
             written += 1;
             chars[^written] = ':';
             
-            written += fromRow.FormatRowAlias(chars[..^written]);
-            written += fromColumn.FormatColumnAlias(chars[..^written]);
-
-            Alias = chars[^written..].ToString();
+            written += _fromRow.FormatRowAlias(chars[..^written]);
+            written += _fromColumn.FormatColumnAlias(chars[..^written]);  
+            
+            writer.Write(chars[^written..]);
         }
-
-        public string Alias { get; }
     }
 }

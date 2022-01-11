@@ -306,7 +306,7 @@ namespace Gooseberry.ExcelStreaming
             foreach (var merge in _merges)
             {
                 _bufferedWriter.Write(Constants.Worksheet.Merges.Merge.Prefix);
-                _bufferedWriter.Write(merge.Alias);
+                merge.WriteAlias(_bufferedWriter);
                 _bufferedWriter.Write(Constants.Worksheet.Merges.Merge.Postfix);
             }
             
@@ -318,7 +318,7 @@ namespace Gooseberry.ExcelStreaming
             _bufferedWriter.Write(Constants.Worksheet.View.Prefix);
             
             _bufferedWriter.Write(Constants.Worksheet.View.TopLeftCell.Prefix);
-            _bufferedWriter.Write(cellReference.Alias);
+            cellReference.WriteAlias(_bufferedWriter);
             _bufferedWriter.Write(Constants.Worksheet.View.TopLeftCell.Postfix);
             
             _bufferedWriter.Write(Constants.Worksheet.View.YSplit.Prefix);

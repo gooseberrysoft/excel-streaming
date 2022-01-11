@@ -11,30 +11,26 @@ namespace Gooseberry.ExcelStreaming.Configuration
             var (row, column) = alias.Parse();
             Row = row;
             Column = column;
-            Alias = alias;
         }
         
         public CellReference(uint row, uint column)
         {
             Row = row;
             Column = column;
-            Alias = GetAlias(row, column);
         }
 
-        public uint Column { get; }
+        internal readonly uint Column;
         
-        public uint Row { get; }
+        internal readonly uint Row;
         
-        public string Alias { get; }
-        
-        private static string GetAlias(uint row, uint column)
+        internal void WriteAlias(BufferedWriter writer)
         {
             Span<char> chars = stackalloc char[10];
 
-            var written = row.FormatRowAlias(chars);
-            written += column.FormatColumnAlias(chars[..^written]);
+            var written = Row.FormatRowAlias(chars);
+            written += Column.FormatColumnAlias(chars[..^written]);
 
-            return chars[^written..].ToString();
+            writer.Write(chars[^written..]);
         }
     }
 }
