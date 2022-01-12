@@ -11,8 +11,10 @@ using Alignment = Gooseberry.ExcelStreaming.Styles.Alignment;
 using Border = Gooseberry.ExcelStreaming.Styles.Border;
 using Borders = Gooseberry.ExcelStreaming.Styles.Borders;
 using Color = Gooseberry.ExcelStreaming.Styles.Color;
+using Column = Gooseberry.ExcelStreaming.Configuration.Column;
 using Fill = Gooseberry.ExcelStreaming.Styles.Fill;
 using Font = Gooseberry.ExcelStreaming.Styles.Font;
+using Underline = DocumentFormat.OpenXml.Spreadsheet.Underline;
 
 namespace Gooseberry.ExcelStreaming.Tests.Excel
 {
@@ -169,8 +171,20 @@ namespace Gooseberry.ExcelStreaming.Tests.Excel
             var name = font.FontName?.Val?.Value;
             var color = GetColor(font.Color?.Rgb);
             var bold = font.Bold?.Val?.Value ?? false;
+            var italic = font.Italic?.Val?.Value ?? false;
+            var strike = font.Strike?.Val?.Value ?? false;
 
-            return new Font(size, name, color, bold);
+            var underline = font.Underline?.Val?.Value switch
+            {
+                UnderlineValues.None => ExcelStreaming.Styles.Underline.None,
+                UnderlineValues.Single => ExcelStreaming.Styles.Underline.Single,
+                UnderlineValues.Double => ExcelStreaming.Styles.Underline.Double,
+                UnderlineValues.SingleAccounting => ExcelStreaming.Styles.Underline.SingleAccounting,
+                UnderlineValues.DoubleAccounting => ExcelStreaming.Styles.Underline.DoubleAccounting,
+                _ => throw new InvalidCastException($"Cannot convert {font.Underline?.Val?.Value} to Underline.")
+            };
+
+            return new Font(size, name, color, bold, italic, strike, underline);
         }
 
         private static Alignment GetAlignment(DocumentFormat.OpenXml.Spreadsheet.Alignment alignment)

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Gooseberry.ExcelStreaming.Configuration;
 
 namespace Gooseberry.ExcelStreaming.Tests.Excel
 {

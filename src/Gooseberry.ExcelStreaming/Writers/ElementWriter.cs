@@ -21,7 +21,7 @@ internal sealed class ElementWriter<T, TWriter>
         var span = bufferWriter.GetSpan();
         var written = 0;
 
-        _prefix.WriteTo( bufferWriter, ref span, ref written);
+        _prefix.WriteTo(bufferWriter, ref span, ref written);
         _valueWriter.WriteValue(value, bufferWriter, ref span, ref written);
         _postfix.WriteTo(bufferWriter, ref span, ref written);
 

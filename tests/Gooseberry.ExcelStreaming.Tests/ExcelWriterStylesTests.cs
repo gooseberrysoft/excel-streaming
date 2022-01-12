@@ -33,7 +33,7 @@ namespace Gooseberry.ExcelStreaming.Tests
         {
             var style = new Style(
                 format: "General",
-                font: new Font(size: 11, name: "test", color: Color.Black, bold: true),
+                font: new Font(size: 11, name: "test", color: Color.Black, bold: true, italic: true, strike: true, underline: Underline.Single),
                 borders: new Borders(
                     left: new Border(style: BorderStyle.Thin, color: Color.Gray),
                     right: new Border(style: BorderStyle.Thin, color: Color.Gray),

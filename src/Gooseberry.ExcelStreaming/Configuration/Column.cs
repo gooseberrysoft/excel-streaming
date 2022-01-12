@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Gooseberry.ExcelStreaming
+namespace Gooseberry.ExcelStreaming.Configuration
 {
     [StructLayout(LayoutKind.Auto)]
     public readonly struct Column

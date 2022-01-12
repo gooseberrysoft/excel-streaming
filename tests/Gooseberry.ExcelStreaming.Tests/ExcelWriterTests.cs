@@ -5,6 +5,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Gooseberry.ExcelStreaming.Tests.Excel;
 using FluentAssertions;
+using Gooseberry.ExcelStreaming.Configuration;
 using Xunit;
 
 namespace Gooseberry.ExcelStreaming.Tests
@@ -289,8 +290,12 @@ namespace Gooseberry.ExcelStreaming.Tests
             {
                 await writer.StartSheet(
                     "test sheet",
-                    new Column(width: 10m),
-                    new Column(width: 15m));
+                    new SheetConfiguration(
+                        new [] 
+                        {
+                            new Column(width: 10m),
+                            new Column(width: 15m)
+                        }));
 
                 await writer.Complete();
             }

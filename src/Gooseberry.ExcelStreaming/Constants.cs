@@ -72,6 +72,48 @@ namespace Gooseberry.ExcelStreaming
                 }
             }
 
+            public static class Merges
+            {
+                public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<mergeCells>");
+
+                public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</mergeCells>");
+
+                public static class Merge
+                {
+                    public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<mergeCell ref=\"");
+
+                    public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"/>");
+                }
+            }
+
+            public static class View
+            {
+                public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<sheetViews><sheetView workbookViewId=\"0\"><pane");
+
+                public static readonly byte[] Postfix = Encoding.UTF8.GetBytes(" activePane=\"bottomRight\" state=\"frozen\"/></sheetView></sheetViews>");
+
+                public static class TopLeftCell
+                {
+                    public static readonly byte[] Prefix = Encoding.UTF8.GetBytes(" topLeftCell=\"");
+
+                    public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"");
+                }
+                
+                public static class YSplit
+                {
+                    public static readonly byte[] Prefix = Encoding.UTF8.GetBytes(" ySplit=\"");
+
+                    public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"");
+                }
+                
+                public static class XSplit
+                {
+                    public static readonly byte[] Prefix = Encoding.UTF8.GetBytes(" xSplit=\"");
+
+                    public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"");
+                }
+            }
+            
             public static class SheetData
             {
                 public static readonly byte[] Prefix = Encoding.UTF8.GetBytes($"<sheetData>");
@@ -220,6 +262,17 @@ namespace Gooseberry.ExcelStreaming
                     }
 
                     public static readonly byte[] Bold = Encoding.UTF8.GetBytes("<b val=\"1\"/>");
+                    
+                    public static readonly byte[] Italic = Encoding.UTF8.GetBytes("<i val=\"1\"/>");
+                    
+                    public static readonly byte[] Strike = Encoding.UTF8.GetBytes("<strike val=\"1\"/>");
+                    
+                    public static class Underline
+                    {
+                        public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<u val=\"");
+
+                        public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"/>");
+                    }
                 }
             }
 
