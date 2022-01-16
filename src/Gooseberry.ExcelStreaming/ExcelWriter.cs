@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Gooseberry.ExcelStreaming.Configuration;
 using Gooseberry.ExcelStreaming.Styles;
 using Gooseberry.ExcelStreaming.Writers;
-using StringWriter = Gooseberry.ExcelStreaming.Writers.StringWriter;
 
 namespace Gooseberry.ExcelStreaming
 {
@@ -94,7 +93,7 @@ namespace Gooseberry.ExcelStreaming
                 .Concat(Constants.Worksheet.SheetData.Row.Open.Postfix)
                 .ToArray();
 
-        private static readonly ElementWriter<decimal, ValueWriter<decimal, DecimalFormatter>> RowHeightWriter = new(
+        private static readonly ElementWriter<decimal, NumberWriter<decimal, DecimalFormatter>> RowHeightWriter = new(
             Constants.Worksheet.SheetData.Row.Open.Prefix
                 .Concat(Constants.Worksheet.SheetData.Row.Open.Height.Prefix)
                 .ToArray(),
@@ -139,39 +138,13 @@ namespace Gooseberry.ExcelStreaming
             return _bufferedWriter.FlushCompleted(_sheetStream!, _token);
         }
 
-        private static readonly ElementWriter<string, StringWriter> StringCellWriter = new(
-            Constants.Worksheet.SheetData.Row.Cell.Prefix
-                .Concat(Constants.Worksheet.SheetData.Row.Cell.StringDataType)
-                .Concat(Constants.Worksheet.SheetData.Row.Cell.Middle)
-                .ToArray(),
-            Constants.Worksheet.SheetData.Row.Cell.Postfix);
-
-        public void AddCell(string data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
-        {
-            CheckWriteCell();
-
-            // https://support.microsoft.com/en-us/office/excel-specifications-and-limits-1672b34d-7043-467e-8e27-269d656771c3?ui=en-us&rs=en-us&ad=us#ID0EBABAAA=Excel_2016-2013
-            if (data.Length > 32_767)
-                throw new ArgumentException("Data length more than total number of characters that a cell can contain.");
-
-            StringCellWriter.Write(data, _bufferedWriter.InternalWriter);
-            //AddCell(data.AsSpan(), style);
-
-            _columnCount += 1;
-            AddMerge(rightMerge, downMerge);
-        }
-
-        private static readonly ElementWriter<int,ValueWriter<int,IntFormatter>> IntCellWriter = new(
-            Constants.Worksheet.SheetData.Row.Cell.Prefix
-                .Concat(Constants.Worksheet.SheetData.Row.Cell.NumberDataType)
-                .Concat(Constants.Worksheet.SheetData.Row.Cell.Middle)
-                .ToArray(),
-            Constants.Worksheet.SheetData.Row.Cell.Postfix);
+        public void AddCell(string data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0) 
+            => AddCell(data.AsSpan(), style, rightMerge, downMerge);
 
         public void AddCell(int data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
         {
             CheckWriteCell();
-            IntCellWriter.Write(data, _bufferedWriter.InternalWriter);
+            CellWriters.IntCellWriter.Write(data, _bufferedWriter.InternalWriter, style ?? _styles.GeneralStyle);
             //WriteCellPrefix(
             //    Constants.Worksheet.SheetData.Row.Cell.NumberDataType,
             //    style ?? _styles.GeneralStyle);
@@ -190,19 +163,11 @@ namespace Gooseberry.ExcelStreaming
             else
                 AddEmptyCell(style, rightMerge, downMerge);
         }
-
-
-        private static readonly ElementWriter<long, ValueWriter<long,LongFormatter>> LongCellWriter = new(
-            Constants.Worksheet.SheetData.Row.Cell.Prefix
-                .Concat(Constants.Worksheet.SheetData.Row.Cell.NumberDataType)
-                .Concat(Constants.Worksheet.SheetData.Row.Cell.Middle)
-                .ToArray(),
-            Constants.Worksheet.SheetData.Row.Cell.Postfix);
-
+        
         public void AddCell(long data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
         {
             CheckWriteCell();
-            LongCellWriter.Write(data, _bufferedWriter.InternalWriter);
+            CellWriters.LongCellWriter.Write(data, _bufferedWriter.InternalWriter, style ?? _styles.GeneralStyle);
             //WriteCellPrefix(
             //    Constants.Worksheet.SheetData.Row.Cell.NumberDataType,
             //    style ?? _styles.GeneralStyle);
@@ -223,12 +188,14 @@ namespace Gooseberry.ExcelStreaming
 
         public void AddCell(decimal data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
         {
-            WriteCellPrefix(
+            CheckWriteCell();
+            CellWriters.DecimalCellWriter.Write(data, _bufferedWriter.InternalWriter, style ?? _styles.GeneralStyle);
+            /*WriteCellPrefix(
                 Constants.Worksheet.SheetData.Row.Cell.NumberDataType,
                 style ?? _styles.GeneralStyle);
 
             _bufferedWriter.Write(data);
-            WriteCellPostfix();
+            WriteCellPostfix();*/
             
             _columnCount += 1;
             AddMerge(rightMerge, downMerge);
@@ -242,17 +209,10 @@ namespace Gooseberry.ExcelStreaming
                 AddEmptyCell(style, rightMerge, downMerge);
         }
 
-        private static readonly ElementWriter<DateTime, ValueWriter<DateTime,DateTimeFormatter>> DateTimeCellWriter = new(
-            Constants.Worksheet.SheetData.Row.Cell.Prefix
-                .Concat(Constants.Worksheet.SheetData.Row.Cell.DateTimeDataType)
-                .Concat(Constants.Worksheet.SheetData.Row.Cell.Middle)
-                .ToArray(),
-            Constants.Worksheet.SheetData.Row.Cell.Postfix);
-
         public void AddCell(DateTime data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
         {
             CheckWriteCell();
-            DateTimeCellWriter.Write(data, _bufferedWriter.InternalWriter);
+            CellWriters.DateTimeCellWriter.Write(data, _bufferedWriter.InternalWriter, style ?? _styles.DefaultDateStyle);
             //WriteCellPrefix(
             //    Constants.Worksheet.SheetData.Row.Cell.DateTimeDataType,
             //    style ?? _styles.DefaultDateStyle);
@@ -278,9 +238,12 @@ namespace Gooseberry.ExcelStreaming
             if (data.Length > 32_767)
                 throw new ArgumentException("Data length more than total number of characters that a cell can contain.");
 
-            WriteCellPrefix(Constants.Worksheet.SheetData.Row.Cell.StringDataType, style);
+            CheckWriteCell();
+            CellWriters.StringCellWriter.Write(data, _bufferedWriter.InternalWriter, _bufferedWriter.InternalWriter.Encoder, style);
+            
+            /*WriteCellPrefix(Constants.Worksheet.SheetData.Row.Cell.StringDataType, style);
             _bufferedWriter.WriteEscaped(data);
-            WriteCellPostfix();
+            WriteCellPostfix();*/
             
             _columnCount += 1;
             AddMerge(rightMerge, downMerge);

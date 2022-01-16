@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace Gooseberry.ExcelStreaming.Writers;
 
-internal readonly struct DecimalFormatter : IValueFormatter<decimal>
+internal readonly struct DecimalFormatter : INumberFormatter<decimal>
 {
     private static readonly int MaxChars = decimal.MinValue.ToString().Length + 2;
 

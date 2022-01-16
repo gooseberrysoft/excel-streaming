@@ -2,8 +2,8 @@ using System;
 
 namespace Gooseberry.ExcelStreaming.Writers
 {
-    internal readonly struct ValueWriter<T, TFormatter> : IValueWriter<T>
-        where TFormatter : IValueFormatter<T>, new()
+    internal readonly struct NumberWriter<T, TFormatter> : IValueWriter<T>
+        where TFormatter : INumberFormatter<T>, new()
     {
         private readonly TFormatter _formatter = new();
 

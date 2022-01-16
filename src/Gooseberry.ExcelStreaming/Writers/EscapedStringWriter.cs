@@ -1,24 +1,23 @@
 using System;
 using System.Buffers;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Text.Encodings.Web;
 
 namespace Gooseberry.ExcelStreaming.Writers;
 
-internal readonly struct StringWriter : IValueWriter<string>
+internal readonly struct EscapedStringWriter
 {
     private const int StackCharsThreshold = 256;
 
     [SkipLocalsInit]
-    public void WriteValue(in string value, BuffersChain bufferWriter, ref Span<byte> destination, ref int written)
+    public void WriteValue(ReadOnlySpan<char> value, BuffersChain bufferWriter, Encoder encoder, ref Span<byte> destination, ref int written)
     {
-        var encoder = bufferWriter.Encoder;
         encoder.Reset();
-        var data = value.AsSpan();
 
         //TODO think better about formula
         // we assume that 5% of symbols will be escaped by 6 characters each
-        var bufferSize = Math.Min(data.Length + data.Length / 3 + 16, 32 * 1024);
+        var bufferSize = Math.Min(value.Length + value.Length / 3 + 16, 32 * 1024);
         var allocOnStack = bufferSize <= StackCharsThreshold;
         var pooledBuffer = allocOnStack ? null : ArrayPool<char>.Shared.Rent(bufferSize);
 
@@ -26,7 +25,7 @@ internal readonly struct StringWriter : IValueWriter<string>
 
         try
         {
-            var source = data;
+            var source = value;
             var lastResult = OperationStatus.DestinationTooSmall;
             while (lastResult == OperationStatus.DestinationTooSmall)
             {
@@ -38,7 +37,7 @@ internal readonly struct StringWriter : IValueWriter<string>
                     isFinalBlock: false);
 
                 if (lastResult == OperationStatus.InvalidData)
-                    throw new InvalidOperationException($"Cannot write escaped string {data.ToString()}");
+                    throw new InvalidOperationException($"Cannot write escaped string {value.ToString()}");
 
                 if (bytesConsumed > 0)
                     source = source.Slice(bytesConsumed);

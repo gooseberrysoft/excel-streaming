@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace Gooseberry.ExcelStreaming.Writers;
 
-internal readonly struct LongFormatter : IValueFormatter<long>
+internal readonly struct LongFormatter : INumberFormatter<long>
 {
     private static readonly int MaxChars = long.MinValue.ToString().Length;
 

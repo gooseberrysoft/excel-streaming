@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace Gooseberry.ExcelStreaming.Writers
 {
-    internal readonly struct DateTimeFormatter : IValueFormatter<DateTime>
+    internal readonly struct DateTimeFormatter : INumberFormatter<DateTime>
     {
         private static readonly int MaxChars = double.MinValue.ToString().Length + 2;
 
