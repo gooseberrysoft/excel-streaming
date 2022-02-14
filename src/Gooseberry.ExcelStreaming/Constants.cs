@@ -7,7 +7,7 @@ namespace Gooseberry.ExcelStreaming
         public const int DefaultBufferSize = 100 * 1024;
 
         public const double DefaultBufferFlushThreshold = 0.9;
-
+        
         public static readonly byte[] XmlPrefix = Encoding.UTF8.GetBytes("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
 
         public static class Workbook

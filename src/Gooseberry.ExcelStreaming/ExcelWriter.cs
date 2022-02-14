@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,7 +21,8 @@ namespace Gooseberry.ExcelStreaming
         private readonly CancellationToken _token;
 
         private readonly ZipArchive _zipArchive;
-        private readonly BufferedWriter _bufferedWriter;
+        private readonly BuffersChain _buffer;
+        private readonly Encoder _encoder;
         private Stream? _sheetStream;
         private SheetConfiguration? _sheetConfiguration;
         private bool _rowStarted = false;
@@ -46,7 +46,8 @@ namespace Gooseberry.ExcelStreaming
             _zipArchive = new ZipArchive(outputStream, ZipArchiveMode.Create, leaveOpen: true, Encoding.UTF8);
             _styles = styles ?? StylesSheetBuilder.Default;
 
-            _bufferedWriter = new BufferedWriter(bufferSize, Constants.DefaultBufferFlushThreshold);
+            _buffer = new BuffersChain(bufferSize, Constants.DefaultBufferFlushThreshold);
+            _encoder = Encoding.UTF8.GetEncoder();
             _token = token;
         }
 
@@ -69,7 +70,7 @@ namespace Gooseberry.ExcelStreaming
             _sheets.Add((name, sheetId, relationshipId));
 
             _sheetStream = OpenEntry($"xl/worksheets/{relationshipId}.xml");
-            _bufferedWriter.Write(Constants.Worksheet.Prefix);
+            Constants.Worksheet.Prefix.WriteTo(_buffer);
             
             _sheetConfiguration = configuration;
             
@@ -79,27 +80,8 @@ namespace Gooseberry.ExcelStreaming
             if (_sheetConfiguration?.Columns != null)
                 AddColumns(_sheetConfiguration.Value.Columns);
             
-            _bufferedWriter.Write(Constants.Worksheet.SheetData.Prefix);
+            Constants.Worksheet.SheetData.Prefix.WriteTo(_buffer);
         }
-
-        private static readonly byte[] RowCloseAndStart =
-            Constants.Worksheet.SheetData.Row.Postfix
-                .Concat(Constants.Worksheet.SheetData.Row.Open.Prefix)
-                .Concat(Constants.Worksheet.SheetData.Row.Open.Postfix)
-                .ToArray();
-
-        private static readonly byte[] RowStart =
-           Constants.Worksheet.SheetData.Row.Open.Prefix
-                .Concat(Constants.Worksheet.SheetData.Row.Open.Postfix)
-                .ToArray();
-
-        private static readonly ElementWriter<decimal, NumberWriter<decimal, DecimalFormatter>> RowHeightWriter = new(
-            Constants.Worksheet.SheetData.Row.Open.Prefix
-                .Concat(Constants.Worksheet.SheetData.Row.Open.Height.Prefix)
-                .ToArray(),
-            Constants.Worksheet.SheetData.Row.Open.Height.Postfix
-                .Concat(Constants.Worksheet.SheetData.Row.Open.Postfix)
-                .ToArray());
 
         public ValueTask StartRow(decimal? height = null)
         {
@@ -111,31 +93,13 @@ namespace Gooseberry.ExcelStreaming
             if (_sheetStream == null)
                 throw new InvalidOperationException("Cannot start row before start sheet.");
 
-            if (_rowStarted && !height.HasValue)
-            {
-                _bufferedWriter.Write(RowCloseAndStart);
-            }
-            else
-            {
-                if (_rowStarted)
-                    _bufferedWriter.Write(Constants.Worksheet.SheetData.Row.Postfix);
-
-                
-                if (height.HasValue)
-                {
-                    RowHeightWriter.Write(height.Value, _bufferedWriter.InternalWriter);
-                }
-                else
-                {
-                    _bufferedWriter.Write(RowStart);
-                }
-            }
-
+            CellWriters.RowWriter.WriteStartRow(_buffer, _rowStarted, height);
+            
             _rowStarted = true;
             _rowCount += 1;
             _columnCount = 0;
             
-            return _bufferedWriter.FlushCompleted(_sheetStream!, _token);
+            return _buffer.FlushCompleted(_sheetStream!, _token);
         }
 
         public void AddCell(string data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0) 
@@ -144,13 +108,7 @@ namespace Gooseberry.ExcelStreaming
         public void AddCell(int data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
         {
             CheckWriteCell();
-            CellWriters.IntCellWriter.Write(data, _bufferedWriter.InternalWriter, style ?? _styles.GeneralStyle);
-            //WriteCellPrefix(
-            //    Constants.Worksheet.SheetData.Row.Cell.NumberDataType,
-            //    style ?? _styles.GeneralStyle);
-
-            //_bufferedWriter.Write(data);
-            //WriteCellPostfix();
+            CellWriters.IntCellWriter.Write(data, _buffer, style ?? _styles.GeneralStyle);
             
             _columnCount += 1;
             AddMerge(rightMerge, downMerge);
@@ -167,13 +125,8 @@ namespace Gooseberry.ExcelStreaming
         public void AddCell(long data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
         {
             CheckWriteCell();
-            CellWriters.LongCellWriter.Write(data, _bufferedWriter.InternalWriter, style ?? _styles.GeneralStyle);
-            //WriteCellPrefix(
-            //    Constants.Worksheet.SheetData.Row.Cell.NumberDataType,
-            //    style ?? _styles.GeneralStyle);
+            CellWriters.LongCellWriter.Write(data, _buffer, style ?? _styles.GeneralStyle);
 
-            //_bufferedWriter.Write(data);
-            //WriteCellPostfix();
             _columnCount += 1;
             AddMerge(rightMerge, downMerge);
         }
@@ -189,13 +142,7 @@ namespace Gooseberry.ExcelStreaming
         public void AddCell(decimal data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
         {
             CheckWriteCell();
-            CellWriters.DecimalCellWriter.Write(data, _bufferedWriter.InternalWriter, style ?? _styles.GeneralStyle);
-            /*WriteCellPrefix(
-                Constants.Worksheet.SheetData.Row.Cell.NumberDataType,
-                style ?? _styles.GeneralStyle);
-
-            _bufferedWriter.Write(data);
-            WriteCellPostfix();*/
+            CellWriters.DecimalCellWriter.Write(data, _buffer, style ?? _styles.GeneralStyle);
             
             _columnCount += 1;
             AddMerge(rightMerge, downMerge);
@@ -212,13 +159,7 @@ namespace Gooseberry.ExcelStreaming
         public void AddCell(DateTime data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
         {
             CheckWriteCell();
-            CellWriters.DateTimeCellWriter.Write(data, _bufferedWriter.InternalWriter, style ?? _styles.DefaultDateStyle);
-            //WriteCellPrefix(
-            //    Constants.Worksheet.SheetData.Row.Cell.DateTimeDataType,
-            //    style ?? _styles.DefaultDateStyle);
-
-            //_bufferedWriter.Write(data);
-            //WriteCellPostfix();
+            CellWriters.DateTimeCellWriter.Write(data, _buffer, style ?? _styles.DefaultDateStyle);
             
             _columnCount += 1;
             AddMerge(rightMerge, downMerge);
@@ -239,11 +180,7 @@ namespace Gooseberry.ExcelStreaming
                 throw new ArgumentException("Data length more than total number of characters that a cell can contain.");
 
             CheckWriteCell();
-            CellWriters.StringCellWriter.Write(data, _bufferedWriter.InternalWriter, _bufferedWriter.InternalWriter.Encoder, style);
-            
-            /*WriteCellPrefix(Constants.Worksheet.SheetData.Row.Cell.StringDataType, style);
-            _bufferedWriter.WriteEscaped(data);
-            WriteCellPostfix();*/
+            CellWriters.StringCellWriter.Write(data, _buffer, _encoder, style);
             
             _columnCount += 1;
             AddMerge(rightMerge, downMerge);
@@ -251,8 +188,9 @@ namespace Gooseberry.ExcelStreaming
 
         public void AddEmptyCell(StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
         {
-            WriteCellPrefix(Constants.Worksheet.SheetData.Row.Cell.StringDataType, style);
-            WriteCellPostfix();
+            CheckWriteCell();
+
+            CellWriters.EmptyCellWriter.Write(_buffer, style);
             
             _columnCount += 1;
             AddMerge(rightMerge, downMerge);
@@ -282,25 +220,26 @@ namespace Gooseberry.ExcelStreaming
             if (!_isCompleted)
                 await Complete();
 
-            _zipArchive?.Dispose();
+            _buffer.Dispose();
+            _zipArchive.Dispose();
         }
 
         private ValueTask EndRow()
         {
             _rowStarted = false;
-            _bufferedWriter.Write(Constants.Worksheet.SheetData.Row.Postfix);
-            return _bufferedWriter.FlushCompleted(_sheetStream!, _token);
+            CellWriters.RowWriter.WriteEndRow(_buffer);
+            return _buffer.FlushCompleted(_sheetStream!, _token);
         }
 
         private async ValueTask EndSheet()
         {
-            _bufferedWriter.Write(Constants.Worksheet.SheetData.Postfix);
+            Constants.Worksheet.SheetData.Postfix.WriteTo(_buffer);
             
             AddMerges(); 
             
-            _bufferedWriter.Write(Constants.Worksheet.Postfix);
+            Constants.Worksheet.Postfix.WriteTo(_buffer);
 
-            await _bufferedWriter.FlushAll(_sheetStream!, _token);
+            await _buffer.FlushAll(_sheetStream!, _token);
             await _sheetStream!.FlushAsync(_token);
             await _sheetStream!.DisposeAsync();
             _sheetStream = null;
@@ -311,31 +250,37 @@ namespace Gooseberry.ExcelStreaming
             if (columns.Count == 0)
                 return;
 
-            _bufferedWriter.Write(Constants.Worksheet.Columns.Prefix);
-
+            var span = _buffer.GetSpan();
+            var written = 0;
+            
+            Constants.Worksheet.Columns.Prefix.WriteTo(_buffer, ref span, ref written);
+            
             var index = 1;
             foreach (var column in columns)
             {
                 // column width will be applied to columns with indexes between min and max
-                _bufferedWriter.Write(Constants.Worksheet.Columns.Item.Prefix);
+                Constants.Worksheet.Columns.Item.Prefix.WriteTo(_buffer, ref span, ref written);
+                
+                Constants.Worksheet.Columns.Item.Min.Prefix.WriteTo(_buffer, ref span, ref written);
+                index.WriteTo(_buffer, ref span, ref written);
+                Constants.Worksheet.Columns.Item.Min.Postfix.WriteTo(_buffer, ref span, ref written);
+                
+                Constants.Worksheet.Columns.Item.Max.Prefix.WriteTo(_buffer, ref span, ref written);
+                index.WriteTo(_buffer, ref span, ref written);
+                Constants.Worksheet.Columns.Item.Max.Postfix.WriteTo(_buffer, ref span, ref written);
 
-                _bufferedWriter.Write(Constants.Worksheet.Columns.Item.Min.Prefix);
-                _bufferedWriter.Write(index);
-                _bufferedWriter.Write(Constants.Worksheet.Columns.Item.Min.Postfix);
+                Constants.Worksheet.Columns.Item.Width.Prefix.WriteTo(_buffer, ref span, ref written);
+                column.Width.WriteTo(_buffer, ref span, ref written);
+                Constants.Worksheet.Columns.Item.Width.Postfix.WriteTo(_buffer, ref span, ref written);
+                
+                Constants.Worksheet.Columns.Item.Postfix.WriteTo(_buffer, ref span, ref written);
 
-                _bufferedWriter.Write(Constants.Worksheet.Columns.Item.Max.Prefix);
-                _bufferedWriter.Write(index);
-                _bufferedWriter.Write(Constants.Worksheet.Columns.Item.Max.Postfix);
-
-                _bufferedWriter.Write(Constants.Worksheet.Columns.Item.Width.Prefix);
-                _bufferedWriter.Write(column.Width);
-                _bufferedWriter.Write(Constants.Worksheet.Columns.Item.Width.Postfix);
-
-                _bufferedWriter.Write(Constants.Worksheet.Columns.Item.Postfix);
                 index++;
             }
 
-            _bufferedWriter.Write(Constants.Worksheet.Columns.Postfix);
+            Constants.Worksheet.Columns.Postfix.WriteTo(_buffer, ref span, ref written);
+
+            _buffer.Advance(written);
         }
         
         private void AddMerges()
@@ -343,34 +288,45 @@ namespace Gooseberry.ExcelStreaming
             if (_merges.Count == 0)
                 return;
             
-            _bufferedWriter.Write(Constants.Worksheet.Merges.Prefix);
-
+            var span = _buffer.GetSpan();
+            var written = 0;
+            
+            Constants.Worksheet.Merges.Prefix.WriteTo(_buffer, ref span, ref written);
+            
             foreach (var merge in _merges)
             {
-                _bufferedWriter.Write(Constants.Worksheet.Merges.Merge.Prefix);
-                merge.WriteAlias(_bufferedWriter);
-                _bufferedWriter.Write(Constants.Worksheet.Merges.Merge.Postfix);
+                Constants.Worksheet.Merges.Merge.Prefix.WriteTo(_buffer, ref span, ref written);
+                merge.WriteTo(_buffer, ref span, ref written);
+                Constants.Worksheet.Merges.Merge.Postfix.WriteTo(_buffer, ref span, ref written);
             }
             
-            _bufferedWriter.Write(Constants.Worksheet.Merges.Postfix);
+            Constants.Worksheet.Merges.Postfix.WriteTo(_buffer, ref span, ref written);
+            
+            _buffer.Advance(written);            
         }        
+        
         private void AddTopLeftUnpinnedCell(CellReference cellReference)
         {
-            _bufferedWriter.Write(Constants.Worksheet.View.Prefix);
-            
-            _bufferedWriter.Write(Constants.Worksheet.View.TopLeftCell.Prefix);
-            cellReference.WriteAlias(_bufferedWriter);
-            _bufferedWriter.Write(Constants.Worksheet.View.TopLeftCell.Postfix);
-            
-            _bufferedWriter.Write(Constants.Worksheet.View.YSplit.Prefix);
-            _bufferedWriter.Write(cellReference.Row - 1);
-            _bufferedWriter.Write(Constants.Worksheet.View.YSplit.Postfix);
+            var span = _buffer.GetSpan();
+            var written = 0;
 
-            _bufferedWriter.Write(Constants.Worksheet.View.XSplit.Prefix);
-            _bufferedWriter.Write(cellReference.Column - 1);
-            _bufferedWriter.Write(Constants.Worksheet.View.XSplit.Postfix);
+            Constants.Worksheet.View.Prefix.WriteTo(_buffer, ref span, ref written);
+            
+            Constants.Worksheet.View.TopLeftCell.Prefix.WriteTo(_buffer, ref span, ref written);
+            cellReference.WriteTo(_buffer, ref span, ref written);
+            Constants.Worksheet.View.TopLeftCell.Postfix.WriteTo(_buffer, ref span, ref written);
+            
+            Constants.Worksheet.View.YSplit.Prefix.WriteTo(_buffer, ref span, ref written);
+            (cellReference.Row - 1).WriteTo(_buffer, ref span, ref written);
+            Constants.Worksheet.View.YSplit.Postfix.WriteTo(_buffer, ref span, ref written);
+            
+            Constants.Worksheet.View.XSplit.Prefix.WriteTo(_buffer, ref span, ref written);
+            (cellReference.Column - 1).WriteTo(_buffer, ref span, ref written);
+            Constants.Worksheet.View.XSplit.Postfix.WriteTo(_buffer, ref span, ref written);
 
-            _bufferedWriter.Write(Constants.Worksheet.View.Postfix);
+            Constants.Worksheet.View.Postfix.WriteTo(_buffer, ref span, ref written);
+            
+            _buffer.Advance(written);            
         }        
         
         private void AddMerge(uint rightMerge = 0, uint downMerge = 0)
@@ -379,86 +335,97 @@ namespace Gooseberry.ExcelStreaming
                 _merges.Add(new Merge(_rowCount, _columnCount, downMerge, rightMerge));
         }
         
-        private void WriteCellPrefix(ReadOnlyMemory<byte> type, StyleReference? style = null)
-        {
-            EnsureNotCompleted();
-
-            if (!_rowStarted)
-                throw new InvalidOperationException("Cannot add cell before start row.");
-
-            _bufferedWriter.Write(Constants.Worksheet.SheetData.Row.Cell.Prefix);
-            _bufferedWriter.Write(type.Span);
-
-            if (style != null)
-            {
-                _bufferedWriter.Write(Constants.Worksheet.SheetData.Row.Cell.Style.Prefix);
-                _bufferedWriter.Write(style.Value.Value);
-                _bufferedWriter.Write(Constants.Worksheet.SheetData.Row.Cell.Style.Postfix);
-            }
-
-            _bufferedWriter.Write(Constants.Worksheet.SheetData.Row.Cell.Middle);
-        }
-
-        private void WriteCellPostfix()
-            => _bufferedWriter.Write(Constants.Worksheet.SheetData.Row.Cell.Postfix);
-
         private async ValueTask AddWorkbook()
         {
             await using var stream = OpenEntry("xl/workbook.xml");
 
-            _bufferedWriter.Write(Constants.Workbook.Prefix);
-
-            foreach (var sheet in _sheets)
+            Write();
+            
+            await _buffer.FlushAll(stream, _token);
+            
+            void Write()
             {
-                _bufferedWriter.Write(Constants.Workbook.Sheet.StartPrefix);
-                _bufferedWriter.WriteEscaped(sheet.Name);
-                _bufferedWriter.Write(Constants.Workbook.Sheet.EndPrefix);
-                _bufferedWriter.Write(sheet.Id);
-                _bufferedWriter.Write(Constants.Workbook.Sheet.EndPostfix);
-                _bufferedWriter.Write(sheet.RelationshipId);
-                _bufferedWriter.Write(Constants.Workbook.Sheet.Postfix);
-            }
+                var span = _buffer.GetSpan();
+                var written = 0;
 
-            _bufferedWriter.Write(Constants.Workbook.Postfix);
-            await _bufferedWriter.FlushAll(stream, _token);
+                Constants.Workbook.Prefix.WriteTo(_buffer, ref span, ref written);
+
+                foreach (var sheet in _sheets)
+                {
+                    Constants.Workbook.Sheet.StartPrefix.WriteTo(_buffer, ref span, ref written);
+                    sheet.Name.WriteEscapedTo(_buffer, _encoder, ref span, ref written);
+                    Constants.Workbook.Sheet.EndPrefix.WriteTo(_buffer, ref span, ref written);
+                    
+                    sheet.Id.WriteTo(_buffer, ref span, ref written);
+                    Constants.Workbook.Sheet.EndPostfix.WriteTo(_buffer, ref span, ref written);
+                    sheet.RelationshipId.WriteTo(_buffer, _encoder, ref span, ref written);
+                    Constants.Workbook.Sheet.Postfix.WriteTo(_buffer, ref span, ref written);
+                }
+
+                Constants.Workbook.Postfix.WriteTo(_buffer, ref span, ref written);
+
+                _buffer.Advance(written);
+            }
         }
 
         private async ValueTask AddContentTypes()
         {
             await using var stream = OpenEntry("[Content_Types].xml");
-
-            _bufferedWriter.Write(Constants.XmlPrefix);
-            _bufferedWriter.Write(Constants.ContentTypes.Prefix);
-
-            foreach (var sheet in _sheets)
+            
+            Write();
+            
+            await _buffer.FlushAll(stream, _token);
+            
+            void Write()
             {
-                _bufferedWriter.Write(Constants.ContentTypes.Sheet.Prefix);
-                _bufferedWriter.Write(sheet.RelationshipId);
-                _bufferedWriter.Write(Constants.ContentTypes.Sheet.Postfix);
-            }
+                var span = _buffer.GetSpan();
+                var written = 0;
 
-            _bufferedWriter.Write(Constants.ContentTypes.Postfix);
-            await _bufferedWriter.FlushAll(stream, _token);
+                Constants.XmlPrefix.WriteTo(_buffer, ref span, ref written);
+                Constants.ContentTypes.Prefix.WriteTo(_buffer, ref span, ref written);
+                
+                foreach (var sheet in _sheets)
+                {
+                    Constants.ContentTypes.Sheet.Prefix.WriteTo(_buffer, ref span, ref written);
+                    sheet.RelationshipId.WriteTo(_buffer, _encoder, ref span, ref written);
+                    Constants.ContentTypes.Sheet.Postfix.WriteTo(_buffer, ref span, ref written);
+                }
+
+                Constants.ContentTypes.Postfix.WriteTo(_buffer, ref span, ref written);
+                
+                _buffer.Advance(written);
+            }
         }
 
         private async ValueTask AddWorkbookRelationships()
         {
             await using var stream = OpenEntry("xl/_rels/workbook.xml.rels");
 
-            _bufferedWriter.Write(Constants.XmlPrefix);
-            _bufferedWriter.Write(Constants.WorkbookRelationships.Prefix);
+            Write();
+            
+            await _buffer.FlushAll(stream, _token);
 
-            foreach (var sheet in _sheets)
+            void Write()
             {
-                _bufferedWriter.Write(Constants.WorkbookRelationships.Sheet.Prefix);
-                _bufferedWriter.Write(sheet.RelationshipId);
-                _bufferedWriter.Write(Constants.WorkbookRelationships.Sheet.Middle);
-                _bufferedWriter.Write(sheet.RelationshipId);
-                _bufferedWriter.Write(Constants.WorkbookRelationships.Sheet.Postfix);
-            }
+                var span = _buffer.GetSpan();
+                var written = 0;
+                
+                Constants.XmlPrefix.WriteTo(_buffer, ref span, ref written);
+                Constants.WorkbookRelationships.Prefix.WriteTo(_buffer, ref span, ref written);
+                
+                foreach (var sheet in _sheets)
+                {
+                    Constants.WorkbookRelationships.Sheet.Prefix.WriteTo(_buffer, ref span, ref written);
+                    sheet.RelationshipId.WriteTo(_buffer, _encoder, ref span, ref written);
+                    Constants.WorkbookRelationships.Sheet.Middle.WriteTo(_buffer, ref span, ref written);
+                    sheet.RelationshipId.WriteTo(_buffer, _encoder, ref span, ref written);
+                    Constants.WorkbookRelationships.Sheet.Postfix.WriteTo(_buffer, ref span, ref written);
+                }
 
-            _bufferedWriter.Write(Constants.WorkbookRelationships.Postfix);
-            await _bufferedWriter.FlushAll(stream, _token);
+                Constants.WorkbookRelationships.Postfix.WriteTo(_buffer, ref span, ref written);
+                
+                _buffer.Advance(written);
+            }
         }
 
         private async ValueTask AddStyles()
@@ -471,10 +438,20 @@ namespace Gooseberry.ExcelStreaming
         {
             await using var stream = OpenEntry("_rels/.rels");
 
-            _bufferedWriter.Write(Constants.XmlPrefix);
-            _bufferedWriter.Write(Constants.Relationships);
+            Write();
+            
+            await _buffer.FlushAll(stream, _token);
 
-            await _bufferedWriter.FlushAll(stream, _token);
+            void Write()
+            {
+                var span = _buffer.GetSpan();
+                var written = 0;
+
+                Constants.XmlPrefix.WriteTo(_buffer, ref span, ref written);
+                Constants.Relationships.WriteTo(_buffer, ref span, ref written);
+                
+                _buffer.Advance(written);
+            }
         }
 
         private Stream OpenEntry(string entryName)

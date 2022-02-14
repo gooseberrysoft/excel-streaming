@@ -14,7 +14,6 @@ using Color = Gooseberry.ExcelStreaming.Styles.Color;
 using Column = Gooseberry.ExcelStreaming.Configuration.Column;
 using Fill = Gooseberry.ExcelStreaming.Styles.Fill;
 using Font = Gooseberry.ExcelStreaming.Styles.Font;
-using Underline = DocumentFormat.OpenXml.Spreadsheet.Underline;
 
 namespace Gooseberry.ExcelStreaming.Tests.Excel
 {

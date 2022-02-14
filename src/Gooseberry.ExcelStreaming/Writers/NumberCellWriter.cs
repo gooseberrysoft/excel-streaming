@@ -6,8 +6,7 @@ namespace Gooseberry.ExcelStreaming.Writers;
 internal sealed class NumberCellWriter<T, TFormatter>
     where TFormatter : INumberFormatter<T>, new()
 {
-    private readonly NumberWriter<T, TFormatter> _valueWriter = new();
-    private readonly NumberWriter<int, IntFormatter> _styleWriter = new();
+    private readonly TFormatter _formatter = new();
     
     private readonly byte[] _statelessPrefix;
     private readonly byte[] _statePrefix;
@@ -30,27 +29,27 @@ internal sealed class NumberCellWriter<T, TFormatter>
             .ToArray();
     }
     
-    public void Write(in T value, BuffersChain bufferWriter, StyleReference? style = null)
+    public void Write(in T value, BuffersChain buffer, StyleReference? style = null)
     {
-        var span = bufferWriter.GetSpan();
+        var span = buffer.GetSpan();
         var written = 0;
 
         if (style.HasValue)
         {
-            _statePrefix.WriteTo(bufferWriter, ref span, ref written);
-            _styleWriter.WriteValue(style.Value.Value, bufferWriter, ref span, ref written);
-            _statePostfix.WriteTo(bufferWriter, ref span, ref written);
-            _valueWriter.WriteValue(value, bufferWriter, ref span, ref written);
-            Constants.Worksheet.SheetData.Row.Cell.Postfix.WriteTo(bufferWriter, ref span, ref written);
+            _statePrefix.WriteTo(buffer, ref span, ref written);
+            style.Value.Value.WriteTo(buffer, ref span, ref written);
+            _statePostfix.WriteTo(buffer, ref span, ref written);
+            value.WriteTo(_formatter, buffer, ref span, ref written);
+            Constants.Worksheet.SheetData.Row.Cell.Postfix.WriteTo(buffer, ref span, ref written);
             
-            bufferWriter.Advance(written);
+            buffer.Advance(written);
             return;
         }
 
-        _statelessPrefix.WriteTo(bufferWriter, ref span, ref written);
-        _valueWriter.WriteValue(value, bufferWriter, ref span, ref written);
-        Constants.Worksheet.SheetData.Row.Cell.Postfix.WriteTo(bufferWriter, ref span, ref written);
+        _statelessPrefix.WriteTo(buffer, ref span, ref written);
+        value.WriteTo(_formatter, buffer, ref span, ref written);
+        Constants.Worksheet.SheetData.Row.Cell.Postfix.WriteTo(buffer, ref span, ref written);
             
-        bufferWriter.Advance(written);
+        buffer.Advance(written);
     }
 }

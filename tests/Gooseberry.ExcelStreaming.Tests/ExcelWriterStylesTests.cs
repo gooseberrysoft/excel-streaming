@@ -4,7 +4,6 @@ using System.IO;
 using System.Threading.Tasks;
 using Gooseberry.ExcelStreaming.Tests.Excel;
 using Color = System.Drawing.Color;
-using FluentAssertions;
 using Gooseberry.ExcelStreaming.Styles;
 using Xunit;
 
@@ -64,6 +63,9 @@ namespace Gooseberry.ExcelStreaming.Tests
                 await writer.Complete();
             }
 
+            outputStream.Seek(0, SeekOrigin.Begin);
+            using (var file = new FileStream("test.xlsx", FileMode.Create))
+                await outputStream.CopyToAsync(file);
             outputStream.Seek(0, SeekOrigin.Begin);
 
             var sheets = ExcelReader.ReadSheets(outputStream);
