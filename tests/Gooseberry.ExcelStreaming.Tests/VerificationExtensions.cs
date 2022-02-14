@@ -28,6 +28,10 @@ namespace Gooseberry.ExcelStreaming.Tests
                 actual.Columns.Should().HaveCount(expected.Columns.Count);
                 foreach (var (actualColumn, expectedColumn) in actual.Columns.Zip(expected.Columns))
                     actualColumn.Should().BeEquivalentTo(expectedColumn);
+                
+                actual.Merges.Should().HaveCount(expected.Merges.Count);
+                foreach (var (actualMerge, expectedMerge) in actual.Merges.Zip(expected.Merges))
+                    actualMerge.Should().BeEquivalentTo(expectedMerge);
             }
         }
 

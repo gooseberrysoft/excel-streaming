@@ -64,9 +64,6 @@ namespace Gooseberry.ExcelStreaming.Tests
             }
 
             outputStream.Seek(0, SeekOrigin.Begin);
-            using (var file = new FileStream("test.xlsx", FileMode.Create))
-                await outputStream.CopyToAsync(file);
-            outputStream.Seek(0, SeekOrigin.Begin);
 
             var sheets = ExcelReader.ReadSheets(outputStream);
 

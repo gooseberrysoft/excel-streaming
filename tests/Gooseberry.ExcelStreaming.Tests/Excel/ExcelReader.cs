@@ -48,7 +48,8 @@ namespace Gooseberry.ExcelStreaming.Tests.Excel
                     new Sheet(
                         name: sheets[part.RelationshipId],
                         GetRows((WorksheetPart)part.OpenXmlPart),
-                        GetColumns((WorksheetPart)part.OpenXmlPart)))
+                        GetColumns((WorksheetPart)part.OpenXmlPart),
+                        GetMerges((WorksheetPart)part.OpenXmlPart)))
                 .ToArray();
 
             IReadOnlyCollection<Column> GetColumns(WorksheetPart sheetPart)
@@ -65,6 +66,13 @@ namespace Gooseberry.ExcelStreaming.Tests.Excel
                     .ToArray();
             }
 
+            IReadOnlyCollection<string> GetMerges(WorksheetPart sheetPart)
+            {
+                return sheetPart.Worksheet.Descendants<DocumentFormat.OpenXml.Spreadsheet.MergeCell>()
+                    .Select(data => data.Reference!.ToString()!)
+                    .ToArray();
+            }
+            
             IReadOnlyCollection<Cell> GetCells(DocumentFormat.OpenXml.Spreadsheet.Row row)
                 => row.Descendants<DocumentFormat.OpenXml.Spreadsheet.Cell>().Select(GetCell).ToArray();
 

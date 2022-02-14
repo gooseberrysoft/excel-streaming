@@ -29,16 +29,16 @@ internal static class CellAliasWriter
         }
 
         var span = destination.Slice(0, aliasSize);
-            
-        merge.RightBottom.WriteTo(buffer, ref span, ref written);
+
+        WriteAlias(merge.RightBottom, ref span);
             
         span[^1] = Colon;
         span = span[..^1];
-        written++;
         
-        merge.TopLeft.WriteTo(buffer, ref span, ref written);
+        WriteAlias(merge.TopLeft, ref span);
 
-        destination = destination.Slice(written);
+        written += aliasSize;
+        destination = destination.Slice(aliasSize);
     }    
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -57,12 +57,12 @@ internal static class CellAliasWriter
             written = 0;
         }
 
-        var span = destination[..aliasSize];
+        var span = destination.Slice(0, aliasSize);
             
-        WriteAlias(cellReference.Row, cellReference.Column, ref span);
+        WriteAlias(cellReference, ref span);
             
-        written = aliasSize;
-        destination = destination[written..];
+        written += aliasSize;
+        destination = destination.Slice(aliasSize);
     }
 
     private static int CalculateSize(CellReference cellReference)
@@ -84,11 +84,11 @@ internal static class CellAliasWriter
         return size;
     }
     
-    private static void WriteAlias(uint row, uint column, ref Span<byte> destination)
+    private static void WriteAlias(CellReference cellReference, ref Span<byte> destination)
     {
-        Write(row, EncodedRowAlphabet, ref destination);
+        Write(cellReference.Row, EncodedRowAlphabet, ref destination);
         // Column alias A is 1, so pass column - 1
-        Write(column - 1, EncodedColumnAlphabet, ref destination);
+        Write(cellReference.Column - 1, EncodedColumnAlphabet, ref destination);
     }
  
     private static void Write(uint value, byte[] alphabet, ref Span<byte> destination)
