@@ -8,8 +8,8 @@ namespace Gooseberry.ExcelStreaming.Writers;
 
 internal static class CellAliasWriter
 {
-    private static readonly byte[] EncodedRowAlphabet = Encoding.UTF8.GetBytes(AliasExtensions.RowAlphabet);
-    private static readonly byte[] EncodedColumnAlphabet = Encoding.UTF8.GetBytes(AliasExtensions.ColumnAlphabet);
+    private static readonly byte[] EncodedRowAlphabet = Encoding.UTF8.GetBytes(CellReference.RowAlphabet);
+    private static readonly byte[] EncodedColumnAlphabet = Encoding.UTF8.GetBytes(CellReference.ColumnAlphabet);
     private static readonly byte Colon = Encoding.UTF8.GetBytes(":").Single();        
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

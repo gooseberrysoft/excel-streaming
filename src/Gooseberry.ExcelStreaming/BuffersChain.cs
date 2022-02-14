@@ -48,8 +48,10 @@ namespace Gooseberry.ExcelStreaming
         {
             if (_currentBuffer.RemainingCapacity < minSize)
                 MoveToNextBuffer();
-           
-            //TODO check minsize?
+
+            if (_currentBuffer.RemainingCapacity < minSize)
+                throw new InvalidOperationException($"Cannot get span of size {minSize} from buffer.");
+                
             return _currentBuffer.GetSpan();
         }
 

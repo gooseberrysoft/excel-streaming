@@ -9,13 +9,15 @@ namespace Gooseberry.ExcelStreaming
 {
     internal sealed class Buffer : IDisposable
     {
+        public const int MinSize = 24;
+        
         private readonly byte[] _buffer;
         private int _bufferIndex = 0;
 
         public Buffer(int size)
         {
-            if (size <= 0)
-                throw new ArgumentException("Cannot be less or equal 0", nameof(size));
+            if (size < MinSize)
+                throw new ArgumentException($"Cannot be less then {MinSize}.", nameof(size));
 
             _buffer = ArrayPool<byte>.Shared.Rent(size);
         }
@@ -38,7 +40,8 @@ namespace Gooseberry.ExcelStreaming
         {
             if (count > RemainingCapacity)
                 throw new InvalidOperationException($"Buffer haven't enough size to write data. " +
-                                                    $"Buffer remaining capacity is {RemainingCapacity} and data size is {count}.");
+                    $"Buffer remaining capacity is {RemainingCapacity} and data size is {count}.");
+            
             _bufferIndex += count;
         }
 

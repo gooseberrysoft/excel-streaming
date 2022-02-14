@@ -80,7 +80,7 @@ internal static class StringWriter
                         sourceChars = sourceChars.Slice(charsConsumed);
                         buffer.Advance(written);
 
-                        destination = buffer.GetSpan(24);
+                        destination = buffer.GetSpan(Buffer.MinSize);
                         written = 0;
                     }
                 }
@@ -136,7 +136,7 @@ internal static class StringWriter
             sourceChars = sourceChars.Slice(charsConsumed);
             bufferWriter.Advance(written);
 
-            destination = bufferWriter.GetSpan(24);
+            destination = bufferWriter.GetSpan(Buffer.MinSize);
             written = 0;
         }
     }    
