@@ -1,6 +1,7 @@
 using System;
 using System.Buffers;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -8,13 +9,15 @@ namespace Gooseberry.ExcelStreaming
 {
     internal sealed class Buffer : IDisposable
     {
+        public const int MinSize = 24;
+        
         private readonly byte[] _buffer;
         private int _bufferIndex = 0;
 
         public Buffer(int size)
         {
-            if (size <= 0)
-                throw new ArgumentException("Cannot be less or equal 0", nameof(size));
+            if (size < MinSize)
+                throw new ArgumentException($"Cannot be less then {MinSize}.", nameof(size));
 
             _buffer = ArrayPool<byte>.Shared.Rent(size);
         }
@@ -26,20 +29,19 @@ namespace Gooseberry.ExcelStreaming
             => _bufferIndex;
 
         public double Saturation
-            => (double) Written / (_buffer.Length);
+            => (double) Written / _buffer.Length;
 
-        public Span<byte> GetSpan(int? sizeHint = null)
-        {
-            if (!sizeHint.HasValue)
-                return _buffer.AsSpan(_bufferIndex);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Span<byte> GetSpan() 
+            => _buffer.AsSpan(_bufferIndex);
 
-            EnsureBufferHas(sizeHint.Value);
-            return _buffer.AsSpan(_bufferIndex, sizeHint.Value);
-        }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Advance(int count)
         {
-            EnsureBufferHas(count);
+            if (count > RemainingCapacity)
+                throw new InvalidOperationException($"Buffer haven't enough size to write data. " +
+                    $"Buffer remaining capacity is {RemainingCapacity} and data size is {count}.");
+            
             _bufferIndex += count;
         }
 
@@ -59,12 +61,5 @@ namespace Gooseberry.ExcelStreaming
 
         public void Dispose()
             => ArrayPool<byte>.Shared.Return(_buffer);
-
-        private void EnsureBufferHas(int size)
-        {
-            if (size > RemainingCapacity)
-                throw new InvalidOperationException($"Buffer haven't enough size to write data. " +
-                    $"Buffer remaining capacity is {RemainingCapacity} and data size is {size}.");
-        }
     }
 }

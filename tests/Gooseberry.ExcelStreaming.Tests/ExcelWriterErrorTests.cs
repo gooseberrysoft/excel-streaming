@@ -42,7 +42,7 @@ namespace Gooseberry.ExcelStreaming.Tests
 
             await action.Should()
                 .ThrowExactlyAsync<ArgumentOutOfRangeException>()
-                .WithMessage("Height of row cannot be less than 0. (Parameter 'height')");
+                .WithMessage("Height of row cannot be less or equal than 0. (Parameter 'height')");
         }
 
         [Fact]

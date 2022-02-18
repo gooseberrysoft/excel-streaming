@@ -1,270 +1,310 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Gooseberry.ExcelStreaming.Styles.Records;
+using Gooseberry.ExcelStreaming.Writers;
 
 namespace Gooseberry.ExcelStreaming.Styles
 {
     internal sealed class StylesWriter : IDisposable
     {
-        private readonly BufferedWriter _writer;
+        private readonly BuffersChain _buffer;
+        private readonly Encoder _encoder;        
 
         public StylesWriter()
         {
-            _writer = new BufferedWriter(bufferSize: 4 * 1024, flushThreshold: 1.0);
+            _buffer = new BuffersChain(bufferSize: 4 * 1024, flushThreshold: 1.0);
+            _encoder = Encoding.UTF8.GetEncoder();
 
-            _writer.Write(Constants.XmlPrefix);
-            _writer.Write(Constants.Styles.Prefix);
+            Constants.XmlPrefix.WriteTo(_buffer);
+            Constants.Styles.Prefix.WriteTo(_buffer);
         }
 
         public void AddNumberFormats(IReadOnlyCollection<FormatRecord> formats)
         {
-            _writer.Write(Constants.Styles.NumberFormats.Prefix);
+            var span = _buffer.GetSpan();
+            var written = 0;
+     
+            Constants.Styles.NumberFormats.Prefix.WriteTo(_buffer, ref span, ref written);
 
             foreach (var format in formats)
             {
-                _writer.Write(Constants.Styles.NumberFormats.Item.Prefix);
-                _writer.Write(format.Id);
-                _writer.Write(Constants.Styles.NumberFormats.Item.Middle);
-                _writer.WriteEscaped(format.Format);
-                _writer.Write(Constants.Styles.NumberFormats.Item.Postfix);
+                Constants.Styles.NumberFormats.Item.Prefix.WriteTo(_buffer, ref span, ref written);
+                format.Id.WriteTo(_buffer, ref span, ref written);
+                Constants.Styles.NumberFormats.Item.Middle.WriteTo(_buffer, ref span, ref written);
+                format.Format.WriteEscapedTo(_buffer, _encoder, ref span, ref written);
+                Constants.Styles.NumberFormats.Item.Postfix.WriteTo(_buffer, ref span, ref written);    
             }
 
-            _writer.Write(Constants.Styles.NumberFormats.Postfix);
+            Constants.Styles.NumberFormats.Postfix.WriteTo(_buffer, ref span, ref written);
+            
+            _buffer.Advance(written);
         }
 
         public void AddFills(IReadOnlyCollection<Fill> fills)
         {
-            _writer.Write(Constants.Styles.Fills.Prefix);
+            var span = _buffer.GetSpan();
+            var written = 0;
+            
+            Constants.Styles.Fills.Prefix.WriteTo(_buffer, ref span, ref written);
 
             foreach (var fill in fills)
             {
-                _writer.Write(Constants.Styles.Fills.Item.Prefix);
-
-                _writer.Write(Constants.Styles.Fills.Item.Pattern.Prefix);
-                _writer.Write( fill.Pattern.ToString().ToLower());
-                _writer.Write(Constants.Styles.Fills.Item.Pattern.Medium);
+                Constants.Styles.Fills.Item.Prefix.WriteTo(_buffer, ref span, ref written);
+                
+                Constants.Styles.Fills.Item.Pattern.Prefix.WriteTo(_buffer, ref span, ref written);
+                fill.Pattern.ToString().ToLower().WriteTo(_buffer, _encoder, ref span, ref written);
+                Constants.Styles.Fills.Item.Pattern.Medium.WriteTo(_buffer, ref span, ref written);
 
                 if (fill.Color.HasValue)
                 {
-                    _writer.Write(Constants.Styles.Fills.Item.Pattern.Color.Prefix);
-                    _writer.Write( fill.Color.Value.ToString());
-                    _writer.Write(Constants.Styles.Fills.Item.Pattern.Color.Postfix);
+                    Constants.Styles.Fills.Item.Pattern.Color.Prefix.WriteTo(_buffer, ref span, ref written);
+                    fill.Color.Value.ToString().WriteTo(_buffer, _encoder, ref span, ref written);
+                    Constants.Styles.Fills.Item.Pattern.Color.Postfix.WriteTo(_buffer, ref span, ref written);
                 }
 
-                _writer.Write(Constants.Styles.Fills.Item.Pattern.Postfix);
+                Constants.Styles.Fills.Item.Pattern.Postfix.WriteTo(_buffer, ref span, ref written);
 
-                _writer.Write(Constants.Styles.Fills.Item.Postfix);
+                Constants.Styles.Fills.Item.Postfix.WriteTo(_buffer, ref span, ref written);
             }
 
-            _writer.Write(Constants.Styles.Fills.Postfix);
+            Constants.Styles.Fills.Postfix.WriteTo(_buffer, ref span, ref written);
+            
+            _buffer.Advance(written);
         }
 
         public void AddCellStyles(IReadOnlyCollection<StyleRecord> styles)
         {
-            _writer.Write(Constants.Styles.CellStyles.Prefix);
+            var span = _buffer.GetSpan();
+            var written = 0;
+            
+            Constants.Styles.CellStyles.Prefix.WriteTo(_buffer, ref span, ref written);
 
             foreach (var style in styles)
             {
-                _writer.Write(Constants.Styles.CellStyles.Item.Open.Prefix);
+                Constants.Styles.CellStyles.Item.Open.Prefix.WriteTo(_buffer, ref span, ref written);
 
                 if (style.FormatId.HasValue)
                 {
-                    _writer.Write(Constants.Styles.CellStyles.Item.Open.NumberFormatId.Prefix);
-                    _writer.Write(style.FormatId.Value);
-                    _writer.Write(Constants.Styles.CellStyles.Item.Open.NumberFormatId.Postfix);
+                    Constants.Styles.CellStyles.Item.Open.NumberFormatId.Prefix.WriteTo(_buffer, ref span, ref written);
+                    style.FormatId.Value.WriteTo(_buffer, ref span, ref written);
+                    Constants.Styles.CellStyles.Item.Open.NumberFormatId.Postfix.WriteTo(_buffer, ref span, ref written);
                 }
                 else
-                    _writer.Write(Constants.Styles.CellStyles.Item.Open.NumberFormatId.Empty);
+                    Constants.Styles.CellStyles.Item.Open.NumberFormatId.Empty.WriteTo(_buffer, ref span, ref written);
 
                 if (style.FillId.HasValue)
                 {
-                    _writer.Write(Constants.Styles.CellStyles.Item.Open.FillId.Prefix);
-                    _writer.Write(style.FillId.Value);
-                    _writer.Write(Constants.Styles.CellStyles.Item.Open.FillId.Postfix);
+                    Constants.Styles.CellStyles.Item.Open.FillId.Prefix.WriteTo(_buffer, ref span, ref written);
+                    style.FillId.Value.WriteTo(_buffer, ref span, ref written);
+                    Constants.Styles.CellStyles.Item.Open.FillId.Postfix.WriteTo(_buffer, ref span, ref written);
                 }
                 else
-                    _writer.Write(Constants.Styles.CellStyles.Item.Open.FillId.Empty);
+                    Constants.Styles.CellStyles.Item.Open.FillId.Empty.WriteTo(_buffer, ref span, ref written);
 
                 if (style.FontId.HasValue)
                 {
-                    _writer.Write(Constants.Styles.CellStyles.Item.Open.FontId.Prefix);
-                    _writer.Write(style.FontId.Value);
-                    _writer.Write(Constants.Styles.CellStyles.Item.Open.FontId.Postfix);
+                    Constants.Styles.CellStyles.Item.Open.FontId.Prefix.WriteTo(_buffer, ref span, ref written);
+                    style.FontId.Value.WriteTo(_buffer, ref span, ref written);
+                    Constants.Styles.CellStyles.Item.Open.FontId.Postfix.WriteTo(_buffer, ref span, ref written);
                 }
                 else
-                    _writer.Write(Constants.Styles.CellStyles.Item.Open.FontId.Empty);
+                    Constants.Styles.CellStyles.Item.Open.FontId.Empty.WriteTo(_buffer, ref span, ref written);
 
                 if (style.BorderId.HasValue)
                 {
-                    _writer.Write(Constants.Styles.CellStyles.Item.Open.BorderId.Prefix);
-                    _writer.Write(style.BorderId.Value);
-                    _writer.Write(Constants.Styles.CellStyles.Item.Open.BorderId.Postfix);
+                    Constants.Styles.CellStyles.Item.Open.BorderId.Prefix.WriteTo(_buffer, ref span, ref written);
+                    style.BorderId.Value.WriteTo(_buffer, ref span, ref written);
+                    Constants.Styles.CellStyles.Item.Open.BorderId.Postfix.WriteTo(_buffer, ref span, ref written);
                 }
                 else
-                    _writer.Write(Constants.Styles.CellStyles.Item.Open.BorderId.Empty);
+                    Constants.Styles.CellStyles.Item.Open.BorderId.Empty.WriteTo(_buffer, ref span, ref written);
 
                 if (style.Alignment.HasValue)
-                    _writer.Write(Constants.Styles.CellStyles.Item.Open.ApplyAlignment);
+                    Constants.Styles.CellStyles.Item.Open.ApplyAlignment.WriteTo(_buffer, ref span, ref written);
 
-                _writer.Write(Constants.Styles.CellStyles.Item.Open.Postfix);
+                Constants.Styles.CellStyles.Item.Open.Postfix.WriteTo(_buffer, ref span, ref written);
 
                 if (style.Alignment.HasValue)
-                    AddAlignment(style.Alignment.Value);
+                    AddAlignment(style.Alignment.Value, ref span, ref written);
 
-                _writer.Write(Constants.Styles.CellStyles.Item.Postfix);
+                Constants.Styles.CellStyles.Item.Postfix.WriteTo(_buffer, ref span, ref written);
             }
 
-            _writer.Write(Constants.Styles.CellStyles.Postfix);
+            Constants.Styles.CellStyles.Postfix.WriteTo(_buffer, ref span, ref written);
+            
+            _buffer.Advance(written);
         }
 
-        private void AddAlignment(Alignment alignment)
+        private void AddAlignment(Alignment alignment, ref Span<byte> span, ref int written)
         {
-            _writer.Write(Constants.Styles.CellStyles.Item.Open.Alignment.Prefix);
+            Constants.Styles.CellStyles.Item.Open.Alignment.Prefix.WriteTo(_buffer, ref span, ref written);
 
             if (alignment.Horizontal.HasValue)
             {
-                _writer.Write(Constants.Styles.CellStyles.Item.Open.Alignment.Horizontal.Prefix);
-                _writer.Write(alignment.Horizontal.Value.ToString().ToLower());
-                _writer.Write(Constants.Styles.CellStyles.Item.Open.Alignment.Horizontal.Postfix);
+                Constants.Styles.CellStyles.Item.Open.Alignment.Horizontal.Prefix.WriteTo(_buffer, ref span, ref written);
+                alignment.Horizontal.Value.ToString().ToLower().WriteTo(_buffer, _encoder, ref span, ref written);
+                Constants.Styles.CellStyles.Item.Open.Alignment.Horizontal.Postfix.WriteTo(_buffer, ref span, ref written);
             }
 
             if (alignment.Vertical.HasValue)
             {
-                _writer.Write(Constants.Styles.CellStyles.Item.Open.Alignment.Vertical.Prefix);
-                _writer.Write(alignment.Vertical.Value.ToString().ToLower());
-                _writer.Write(Constants.Styles.CellStyles.Item.Open.Alignment.Vertical.Postfix);
+                Constants.Styles.CellStyles.Item.Open.Alignment.Vertical.Prefix.WriteTo(_buffer, ref span, ref written);
+                alignment.Vertical.Value.ToString().ToLower().WriteTo(_buffer, _encoder, ref span, ref written);
+                Constants.Styles.CellStyles.Item.Open.Alignment.Vertical.Postfix.WriteTo(_buffer, ref span, ref written);
             }
 
             if (alignment.WrapText)
-                _writer.Write(Constants.Styles.CellStyles.Item.Open.Alignment.WrapText);
+                Constants.Styles.CellStyles.Item.Open.Alignment.WrapText.WriteTo(_buffer, ref span, ref written);
 
-            _writer.Write(Constants.Styles.CellStyles.Item.Open.Alignment.Postfix);
+            Constants.Styles.CellStyles.Item.Open.Alignment.Postfix.WriteTo(_buffer, ref span, ref written);
         }
 
         public void AddFonts(IReadOnlyCollection<Font> fonts)
         {
-            _writer.Write(Constants.Styles.Fonts.Prefix);
+            var span = _buffer.GetSpan();
+            var written = 0;
+            
+            Constants.Styles.Fonts.Prefix.WriteTo(_buffer, ref span, ref written);
 
             foreach (var font in fonts)
             {
-                _writer.Write(Constants.Styles.Fonts.Item.Prefix);
+                Constants.Styles.Fonts.Item.Prefix.WriteTo(_buffer, ref span, ref written);
 
-                _writer.Write(Constants.Styles.Fonts.Item.Size.Prefix);
-                _writer.Write(font.Size);
-                _writer.Write(Constants.Styles.Fonts.Item.Size.Postfix);
+                Constants.Styles.Fonts.Item.Size.Prefix.WriteTo(_buffer, ref span, ref written);
+                font.Size.WriteTo(_buffer, ref span, ref written);                    
+                Constants.Styles.Fonts.Item.Size.Postfix.WriteTo(_buffer, ref span, ref written);
 
                 if (!string.IsNullOrEmpty(font.Name))
                 {
-                    _writer.Write(Constants.Styles.Fonts.Item.Name.Prefix);
-                    _writer.Write(font.Name);
-                    _writer.Write(Constants.Styles.Fonts.Item.Name.Postfix);
+                    Constants.Styles.Fonts.Item.Name.Prefix.WriteTo(_buffer, ref span, ref written);
+                    font.Name.WriteTo(_buffer, _encoder, ref span, ref written);
+                    Constants.Styles.Fonts.Item.Name.Postfix.WriteTo(_buffer, ref span, ref written);
                 }
 
                 if (font.Color.HasValue)
                 {
-                    _writer.Write(Constants.Styles.Fonts.Item.Color.Prefix);
-                    _writer.Write(font.Color.Value.ToString());
-                    _writer.Write(Constants.Styles.Fonts.Item.Color.Postfix);
+                    Constants.Styles.Fonts.Item.Color.Prefix.WriteTo(_buffer, ref span, ref written);
+                    font.Color.Value.ToString().WriteTo(_buffer, _encoder, ref span, ref written);
+                    Constants.Styles.Fonts.Item.Color.Postfix.WriteTo(_buffer, ref span, ref written);
                 }
 
                 if (font.Bold)
-                    _writer.Write(Constants.Styles.Fonts.Item.Bold);
+                    Constants.Styles.Fonts.Item.Bold.WriteTo(_buffer, ref span, ref written);
 
                 if (font.Italic)
-                    _writer.Write(Constants.Styles.Fonts.Item.Italic);
+                    Constants.Styles.Fonts.Item.Italic.WriteTo(_buffer, ref span, ref written);
 
                 if (font.Strike)
-                    _writer.Write(Constants.Styles.Fonts.Item.Strike);
+                    Constants.Styles.Fonts.Item.Strike.WriteTo(_buffer, ref span, ref written);
                 
-                _writer.Write(Constants.Styles.Fonts.Item.Underline.Prefix);
-                _writer.Write(font.Underline.ToString().ToLower());
-                _writer.Write(Constants.Styles.Fonts.Item.Underline.Postfix);
+                Constants.Styles.Fonts.Item.Underline.Prefix.WriteTo(_buffer, ref span, ref written);                
+                font.Underline.ToString().ToLower().WriteTo(_buffer, _encoder, ref span, ref written);
+                Constants.Styles.Fonts.Item.Underline.Postfix.WriteTo(_buffer, ref span, ref written);                
 
-                _writer.Write(Constants.Styles.Fonts.Item.Postfix);
+                Constants.Styles.Fonts.Item.Postfix.WriteTo(_buffer, ref span, ref written);
             }
 
-            _writer.Write(Constants.Styles.Fonts.Postfix);
+            Constants.Styles.Fonts.Postfix.WriteTo(_buffer, ref span, ref written);
+            
+            _buffer.Advance(written);
         }
 
         public void AddBorders(IReadOnlyCollection<Borders> borders)
         {
-            _writer.Write(Constants.Styles.Borders.Prefix);
-
+            var span = _buffer.GetSpan();
+            var written = 0;
+            
+            Constants.Styles.Borders.Prefix.WriteTo(_buffer, ref span, ref written);
+            
             foreach (var border in borders)
             {
-                _writer.Write(Constants.Styles.Borders.Border.Prefix);
+                Constants.Styles.Borders.Border.Prefix.WriteTo(_buffer, ref span, ref written);
 
                 AddBorder(
                     border.Left,
                     Constants.Styles.Borders.Left.Empty,
                     Constants.Styles.Borders.Left.Prefix,
                     Constants.Styles.Borders.Left.Middle,
-                    Constants.Styles.Borders.Left.Postfix);
+                    Constants.Styles.Borders.Left.Postfix,
+                    ref span,
+                    ref written);
 
                 AddBorder(
                     border.Right,
                     Constants.Styles.Borders.Right.Empty,
                     Constants.Styles.Borders.Right.Prefix,
                     Constants.Styles.Borders.Right.Middle,
-                    Constants.Styles.Borders.Right.Postfix);
+                    Constants.Styles.Borders.Right.Postfix,
+                    ref span,
+                    ref written);
 
                 AddBorder(
                     border.Top,
                     Constants.Styles.Borders.Top.Empty,
                     Constants.Styles.Borders.Top.Prefix,
                     Constants.Styles.Borders.Top.Middle,
-                    Constants.Styles.Borders.Top.Postfix);
+                    Constants.Styles.Borders.Top.Postfix,
+                    ref span,
+                    ref written);
 
                 AddBorder(
                     border.Bottom,
                     Constants.Styles.Borders.Bottom.Empty,
                     Constants.Styles.Borders.Bottom.Prefix,
                     Constants.Styles.Borders.Bottom.Middle,
-                    Constants.Styles.Borders.Bottom.Postfix);
+                    Constants.Styles.Borders.Bottom.Postfix,
+                    ref span,
+                    ref written);
 
-                _writer.Write(Constants.Styles.Borders.Border.Postfix);
+                Constants.Styles.Borders.Border.Postfix.WriteTo(_buffer, ref span, ref written);
             }
 
-            _writer.Write(Constants.Styles.Borders.Postfix);
+            Constants.Styles.Borders.Postfix.WriteTo(_buffer, ref span, ref written);
+            
+            _buffer.Advance(written);
         }
 
         public byte[] GetWrittenData()
         {
-            _writer.Write(Constants.Styles.Postfix);
+            Constants.Styles.Postfix.WriteTo(_buffer);
 
-            var compiledStylesData = new byte[_writer.Written];
-            _writer.FlushAll(compiledStylesData);
+            var compiledStylesData = new byte[_buffer.Written];
+            _buffer.FlushAll(compiledStylesData);
             return compiledStylesData;
         }
 
         public void Dispose()
-            => _writer.Dispose();
+            => _buffer.Dispose();
 
         private void AddBorder(
             Border? border,
-            ReadOnlySpan<byte> empty,
-            ReadOnlySpan<byte> prefix,
-            ReadOnlySpan<byte> middle,
-            ReadOnlySpan<byte> postfix)
+            byte[] empty,
+            byte[] prefix,
+            byte[] middle,
+            byte[] postfix,
+            ref Span<byte> span,
+            ref int written)
         {
             if (!border.HasValue)
             {
-                _writer.Write(empty);
+                empty.WriteTo(_buffer, ref span, ref written);
                 return;
             }
 
-            _writer.Write(prefix);
+            prefix.WriteTo(_buffer, ref span, ref written);
 
-            _writer.Write(Constants.Styles.Borders.Style.Prefix);
-            _writer.Write(border.Value.Style.ToString().ToLower());
-            _writer.Write(Constants.Styles.Borders.Style.Postfix);
-            _writer.Write(middle);
+            Constants.Styles.Borders.Style.Prefix.WriteTo(_buffer, ref span, ref written);
+            border.Value.Style.ToString().ToLower().WriteTo(_buffer, _encoder, ref span, ref written);
+            Constants.Styles.Borders.Style.Postfix.WriteTo(_buffer, ref span, ref written);
 
-            _writer.Write(Constants.Styles.Borders.Color.Prefix);
-            _writer.Write(border.Value.Color.ToString());
-            _writer.Write(Constants.Styles.Borders.Color.Postfix);
+            middle.WriteTo(_buffer, ref span, ref written);
+            
+            Constants.Styles.Borders.Color.Prefix.WriteTo(_buffer, ref span, ref written);
+            border.Value.Color.ToString().WriteTo(_buffer, _encoder, ref span, ref written);
+            Constants.Styles.Borders.Color.Postfix.WriteTo(_buffer, ref span, ref written);
 
-            _writer.Write(postfix);
+            postfix.WriteTo(_buffer, ref span, ref written);
         }
     }
 }

@@ -221,13 +221,14 @@ namespace Gooseberry.ExcelStreaming.Tests
         public async Task AddCellWithDataLongerThanBuffer_WritesCorrectData()
         {
             var outputStream = new MemoryStream();
-
-            await using (var writer = new ExcelWriter(outputStream, bufferSize: 8))
+            var longString = "long long long loong loooong loooooooon loooooooooooooooooooooong very long string";
+            
+            await using (var writer = new ExcelWriter(outputStream, bufferSize: 32))
             {
                 await writer.StartSheet("test");
 
                 await writer.StartRow();
-                writer.AddCell("long long very long string");
+                writer.AddCell(longString);
 
                 await writer.Complete();
             }
@@ -242,7 +243,7 @@ namespace Gooseberry.ExcelStreaming.Tests
                 {
                     new Row(new []
                     {
-                        new Cell("long long very long string", CellValueType.String),
+                        new Cell(longString, CellValueType.String),
                     })
                 });
 
@@ -253,10 +254,11 @@ namespace Gooseberry.ExcelStreaming.Tests
         public async Task StartSheetWithNameLongerThanBuffer_WritesCorrectData()
         {
             var outputStream = new MemoryStream();
+            var longString = "long long long loong loooong loooooooon loooooooooooooooooooooong very long string";
 
-            await using (var writer = new ExcelWriter(outputStream, bufferSize: 8))
+            await using (var writer = new ExcelWriter(outputStream, bufferSize: 32))
             {
-                await writer.StartSheet("long long very long string");
+                await writer.StartSheet(longString);
 
                 await writer.StartRow();
                 writer.AddCell("test");
@@ -269,7 +271,7 @@ namespace Gooseberry.ExcelStreaming.Tests
             var sheets = ExcelReader.ReadSheets(outputStream);
 
             var expectedSheet = new Sheet(
-                "long long very long string",
+                longString,
                 new []
                 {
                     new Row(new []

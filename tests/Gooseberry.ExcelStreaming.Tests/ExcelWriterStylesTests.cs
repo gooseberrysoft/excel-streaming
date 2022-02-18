@@ -4,7 +4,6 @@ using System.IO;
 using System.Threading.Tasks;
 using Gooseberry.ExcelStreaming.Tests.Excel;
 using Color = System.Drawing.Color;
-using FluentAssertions;
 using Gooseberry.ExcelStreaming.Styles;
 using Xunit;
 
