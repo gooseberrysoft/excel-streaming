@@ -19,6 +19,20 @@ internal static class StringWriter
         ref int written)
         => WriteEscapedTo(data.AsSpan(), buffer, encoder, ref destination, ref written);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void WriteEscapedTo(
+        this string data,
+        BuffersChain buffer,
+        Encoder encoder)
+    {
+        var span = buffer.GetSpan();
+        var written = 0;
+
+        WriteEscapedTo(data.AsSpan(), buffer, encoder, ref span, ref written);
+        
+        buffer.Advance(written);
+    }
+
     [SkipLocalsInit]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void WriteEscapedTo(
@@ -101,6 +115,21 @@ internal static class StringWriter
         ref Span<byte> destination,
         ref int written)
         => WriteTo(data.AsSpan(), buffer, encoder, ref destination, ref written);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void WriteTo(
+        this string data,
+        BuffersChain buffer,
+        Encoder encoder)
+    {
+        var span = buffer.GetSpan();
+        var written = 0;
+        
+        WriteTo(data.AsSpan(), buffer, encoder, ref span, ref written);
+        
+        buffer.Advance(written);
+    }
+
     
     [SkipLocalsInit]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

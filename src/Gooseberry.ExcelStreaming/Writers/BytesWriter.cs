@@ -8,15 +8,15 @@ internal static class BytesWriter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteTo(
         this byte[] data,
-        BuffersChain bufferWriter,
+        BuffersChain buffer,
         ref Span<byte> destination,
         ref int written)
-        => WriteTo(data.AsSpan(), bufferWriter, ref destination, ref written);
+        => WriteTo(data.AsSpan(), buffer, ref destination, ref written);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void WriteTo(
         this ReadOnlySpan<byte> data,
-        BuffersChain bufferWriter,
+        BuffersChain buffer,
         ref Span<byte> destination,
         ref int written)
     {
@@ -30,10 +30,13 @@ internal static class BytesWriter
             return;
         }
 
-        WriteBlocks(data, bufferWriter, ref destination, ref written);
+        WriteBlocks(data, buffer, ref destination, ref written);
     }
 
-    private static void WriteBlocks(ReadOnlySpan<byte> data, BuffersChain bufferWriter, ref Span<byte> destination,
+    private static void WriteBlocks(
+        ReadOnlySpan<byte> data, 
+        BuffersChain buffer, 
+        ref Span<byte> destination, 
         ref int written)
     {
         var remainingData = data;
@@ -51,9 +54,9 @@ internal static class BytesWriter
             }
 
             remainingData = remainingData.Slice(copyLength);
-            bufferWriter.Advance(written);
+            buffer.Advance(written);
 
-            destination = bufferWriter.GetSpan();
+            destination = buffer.GetSpan();
             written = 0;
         }
     }

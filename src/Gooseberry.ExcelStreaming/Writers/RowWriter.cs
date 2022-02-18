@@ -4,6 +4,8 @@ namespace Gooseberry.ExcelStreaming.Writers;
 
 internal sealed class RowWriter
 {
+    private readonly NumberWriter<decimal, DecimalFormatter> _rowHeightWriter = new();
+    
     private static readonly byte[] RowCloseAndStart =
         Constants.Worksheet.SheetData.Row.Postfix
             .Concat(Constants.Worksheet.SheetData.Row.Open.Prefix)
@@ -43,7 +45,7 @@ internal sealed class RowWriter
         if (height.HasValue)
         {
             RowHeightPrefix.WriteTo(buffer, ref span, ref written);
-            height.Value.WriteTo(buffer, ref span, ref written);
+            _rowHeightWriter.WriteValue(height.Value, buffer, ref span, ref written);
             RowHeightPostfix.WriteTo(buffer, ref span, ref written);
         }
         else

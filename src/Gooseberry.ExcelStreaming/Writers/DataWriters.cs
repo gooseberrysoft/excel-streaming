@@ -2,8 +2,10 @@ using System;
 
 namespace Gooseberry.ExcelStreaming.Writers;
 
-internal static class CellWriters
+internal static class DataWriters
 {
+    public static readonly SheetWriter SheetWriter = new();
+    
     public static readonly RowWriter RowWriter = new();
     
     public static readonly NumberCellWriter<int, IntFormatter> IntCellWriter =
@@ -21,4 +23,12 @@ internal static class CellWriters
     public static readonly StringCellWriter StringCellWriter = new();
 
     public static readonly EmptyCellWriter EmptyCellWriter = new();
+
+    public static readonly WorkbookWriter WorkbookWriter = new();
+
+    public static readonly ContentTypesWriter ContentTypesWriter = new();
+
+    public static readonly WorkbookRelationshipsWriter WorkbookRelationshipsWriter = new();
+
+    public static readonly RelationshipsWriter RelationshipsWriter = new();
 }

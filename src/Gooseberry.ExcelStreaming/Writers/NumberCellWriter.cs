@@ -6,25 +6,26 @@ namespace Gooseberry.ExcelStreaming.Writers;
 internal sealed class NumberCellWriter<T, TFormatter>
     where TFormatter : INumberFormatter<T>, new()
 {
-    private readonly TFormatter _formatter = new();
+    private readonly NumberWriter<int, IntFormatter> _styleWriter = new();
+    private readonly NumberWriter<T, TFormatter> _valueWriter = new();
     
-    private readonly byte[] _statelessPrefix;
-    private readonly byte[] _statePrefix;
-    private readonly byte[] _statePostfix;
+    private readonly byte[] _stylelessPrefix;
+    private readonly byte[] _stylePrefix;
+    private readonly byte[] _stylePostfix;
     
     public NumberCellWriter(byte[] dataType)
     {
-        _statelessPrefix = Constants.Worksheet.SheetData.Row.Cell.Prefix
+        _stylelessPrefix = Constants.Worksheet.SheetData.Row.Cell.Prefix
             .Concat(dataType)
             .Concat(Constants.Worksheet.SheetData.Row.Cell.Middle)
             .ToArray();
 
-        _statePrefix = Constants.Worksheet.SheetData.Row.Cell.Prefix
+        _stylePrefix = Constants.Worksheet.SheetData.Row.Cell.Prefix
             .Concat(dataType)
             .Concat(Constants.Worksheet.SheetData.Row.Cell.Style.Prefix)
             .ToArray();
         
-        _statePostfix = Constants.Worksheet.SheetData.Row.Cell.Style.Postfix
+        _stylePostfix = Constants.Worksheet.SheetData.Row.Cell.Style.Postfix
             .Concat(Constants.Worksheet.SheetData.Row.Cell.Middle)
             .ToArray();
     }
@@ -36,18 +37,18 @@ internal sealed class NumberCellWriter<T, TFormatter>
 
         if (style.HasValue)
         {
-            _statePrefix.WriteTo(buffer, ref span, ref written);
-            style.Value.Value.WriteTo(buffer, ref span, ref written);
-            _statePostfix.WriteTo(buffer, ref span, ref written);
-            value.WriteTo(_formatter, buffer, ref span, ref written);
+            _stylePrefix.WriteTo(buffer, ref span, ref written);
+            _styleWriter.WriteValue(style.Value.Value, buffer, ref span, ref written);
+            _stylePostfix.WriteTo(buffer, ref span, ref written);
+            _valueWriter.WriteValue(value, buffer, ref span, ref written);
             Constants.Worksheet.SheetData.Row.Cell.Postfix.WriteTo(buffer, ref span, ref written);
             
             buffer.Advance(written);
             return;
         }
 
-        _statelessPrefix.WriteTo(buffer, ref span, ref written);
-        value.WriteTo(_formatter, buffer, ref span, ref written);
+        _stylelessPrefix.WriteTo(buffer, ref span, ref written);
+        _valueWriter.WriteValue(value, buffer, ref span, ref written);
         Constants.Worksheet.SheetData.Row.Cell.Postfix.WriteTo(buffer, ref span, ref written);
             
         buffer.Advance(written);
