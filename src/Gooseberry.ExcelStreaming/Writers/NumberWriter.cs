@@ -5,7 +5,10 @@ namespace Gooseberry.ExcelStreaming.Writers;
 internal readonly struct NumberWriter<T, TFormatter>
     where TFormatter : INumberFormatter<T>, new()
 {
-    private readonly TFormatter _formatter = new();
+    private readonly TFormatter _formatter;
+
+    public NumberWriter() 
+        => _formatter = new();
 
     public void WriteValue(in T value, BuffersChain bufferWriter, ref Span<byte> destination, ref int written)
     {
