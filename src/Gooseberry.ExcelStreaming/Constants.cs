@@ -142,6 +142,8 @@ namespace Gooseberry.ExcelStreaming
                     {
                         public static readonly byte[] StringDataType = Encoding.UTF8.GetBytes(" t=\"str\"");
 
+                        public static readonly byte[] SharedStringDataType = Encoding.UTF8.GetBytes(" t=\"s\"");
+
                         public static readonly byte[] NumberDataType = Encoding.UTF8.GetBytes(" t=\"n\"");
 
                         public static readonly byte[] DateTimeDataType = Encoding.UTF8.GetBytes("");
@@ -171,7 +173,8 @@ namespace Gooseberry.ExcelStreaming
                 "<Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\">" +
                 "<Default Extension=\"xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\" />" +
                 "<Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\" />" +
-                "<Override PartName=\"/xl/styles.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml\"/>");
+                "<Override PartName=\"/xl/styles.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml\"/>" + 
+                "<Override ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml\" PartName=\"/xl/sharedStrings.xml\"/>");
 
             public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</Types>");
 
@@ -190,7 +193,10 @@ namespace Gooseberry.ExcelStreaming
                 Encoding.UTF8.GetBytes("<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">");
 
             public static readonly byte[] Postfix =
-                Encoding.UTF8.GetBytes("<Relationship Id=\"styles1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles\" Target=\"styles.xml\"/></Relationships>");
+                Encoding.UTF8.GetBytes(
+                    "<Relationship Id=\"styles1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles\" Target=\"styles.xml\"/>" +
+                    "<Relationship Id=\"sharedStrings1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings\" Target=\"sharedStrings.xml\"/>" + 
+                    "</Relationships>");
 
             public static class Sheet
             {
@@ -473,6 +479,20 @@ namespace Gooseberry.ExcelStreaming
             }
         }
 
+        public static class SharedStringTable
+        {
+            public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\">");
+            
+            public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</sst>");
+
+            public static class Item
+            {
+                public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<si><t>");
+
+                public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</t></si>");
+            }
+        }
+        
         private const string MainNamespace = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
     }
 }

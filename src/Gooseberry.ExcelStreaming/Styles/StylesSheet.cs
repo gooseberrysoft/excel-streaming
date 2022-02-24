@@ -4,8 +4,7 @@ using System.Threading.Tasks;
 
 namespace Gooseberry.ExcelStreaming.Styles
 {
-    [StructLayout(LayoutKind.Auto)]
-    public readonly struct StylesSheet
+    public sealed class StylesSheet
     {
         private readonly byte[] _preparedData;
 

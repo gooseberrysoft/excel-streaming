@@ -269,9 +269,9 @@ namespace Gooseberry.ExcelStreaming.Styles
         {
             Constants.Styles.Postfix.WriteTo(_buffer);
 
-            var compiledStylesData = new byte[_buffer.Written];
-            _buffer.FlushAll(compiledStylesData);
-            return compiledStylesData;
+            var preparedData = new byte[_buffer.Written];
+            _buffer.FlushAll(preparedData);
+            return preparedData;
         }
 
         public void Dispose()

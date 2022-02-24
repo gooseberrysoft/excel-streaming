@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Gooseberry.ExcelStreaming.Configuration;
+using Gooseberry.ExcelStreaming.SharedStrings;
 using Gooseberry.ExcelStreaming.Styles;
 using Gooseberry.ExcelStreaming.Writers;
 
@@ -18,6 +19,7 @@ namespace Gooseberry.ExcelStreaming
         private readonly List<Sheet> _sheets = new();
 
         private readonly StylesSheet _styles;
+        private readonly SharedStringTable _sharedStringTable;
         private readonly CancellationToken _token;
 
         private readonly ZipArchive _zipArchive;
@@ -33,6 +35,7 @@ namespace Gooseberry.ExcelStreaming
         public ExcelWriter(
             Stream outputStream,
             StylesSheet? styles = null,
+            SharedStringTable? sharedStringTable = null,
             int bufferSize = Constants.DefaultBufferSize,
             CancellationToken token = default)
         {
@@ -44,6 +47,7 @@ namespace Gooseberry.ExcelStreaming
 
             _zipArchive = new ZipArchive(outputStream, ZipArchiveMode.Create, leaveOpen: true, Encoding.UTF8);
             _styles = styles ?? StylesSheetBuilder.Default;
+            _sharedStringTable = sharedStringTable ?? SharedStringTableBuilder.Default;
 
             _buffer = new BuffersChain(bufferSize, Constants.DefaultBufferFlushThreshold);
             _encoder = Encoding.UTF8.GetEncoder();
@@ -171,6 +175,15 @@ namespace Gooseberry.ExcelStreaming
             AddMerge(rightMerge, downMerge);
         }
 
+        public void AddCell(SharedStringReference sharedString, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+        {
+            CheckWriteCell();
+            DataWriters.SharedStringCellWriter.Write(sharedString, _buffer, style);
+            
+            _columnCount += 1;
+            AddMerge(rightMerge, downMerge);
+        }
+        
         public void AddEmptyCell(StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
         {
             CheckWriteCell();
@@ -195,6 +208,7 @@ namespace Gooseberry.ExcelStreaming
             await AddContentTypes();
             await AddWorkbookRelationships();
             await AddStyles();
+            await AddSharedStringTable();
             await AddRelationships();
 
             _isCompleted = true;
@@ -265,6 +279,12 @@ namespace Gooseberry.ExcelStreaming
             await _styles.WriteTo(stream);
         }
 
+        private async ValueTask AddSharedStringTable()
+        {
+            await using var stream = OpenEntry("xl/sharedStrings.xml");
+            await _sharedStringTable.WriteTo(stream);
+        }
+        
         private async ValueTask AddRelationships()
         {
             await using var stream = OpenEntry("_rels/.rels");

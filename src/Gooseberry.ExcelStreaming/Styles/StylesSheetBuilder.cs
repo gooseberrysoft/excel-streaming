@@ -19,8 +19,7 @@ namespace Gooseberry.ExcelStreaming.Styles
         private readonly StyleReference _generalStyle;
         private readonly StyleReference _defaultDateStyle;
 
-        internal static StylesSheet Default
-            => new StylesSheetBuilder().Build();
+        internal static readonly StylesSheet Default = new StylesSheetBuilder().Build();
 
         public StylesSheetBuilder()
         {

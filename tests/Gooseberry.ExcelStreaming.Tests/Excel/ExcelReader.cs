@@ -27,6 +27,16 @@ namespace Gooseberry.ExcelStreaming.Tests.Excel
                 .ToArray();
         }
 
+        public static IReadOnlyCollection<string> ReadSharedStrings(Stream stream)
+        {
+            using var spreadsheet = SpreadsheetDocument.Open(stream, isEditable: false);
+
+            return spreadsheet.WorkbookPart!.SharedStringTablePart!.SharedStringTable
+                !.OfType<SharedStringItem>()
+                .Select(i => i.Text!.Text)
+                .ToArray();
+        }
+        
         public static IReadOnlyCollection<Sheet> ReadSheets(Stream stream)
         {
             using var spreadsheet = SpreadsheetDocument.Open(stream, isEditable: false);
@@ -83,6 +93,7 @@ namespace Gooseberry.ExcelStreaming.Tests.Excel
                     CellValues.String => CellValueType.String,
                     CellValues.Number => CellValueType.Number,
                     CellValues.Date => CellValueType.DateTime,
+                    CellValues.SharedString => CellValueType.SharedString,
                     null => null,
                     _ => throw new InvalidCastException($"Cannot convert {cell.DataType?.Value} to CellValueType.")
                 };

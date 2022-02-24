@@ -4,6 +4,7 @@ namespace Gooseberry.ExcelStreaming.Tests.Excel
     {
         String,
         Number,
-        DateTime
+        DateTime,
+        SharedString
     }
 }

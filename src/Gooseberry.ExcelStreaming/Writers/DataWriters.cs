@@ -22,6 +22,8 @@ internal static class DataWriters
 
     public static readonly StringCellWriter StringCellWriter = new();
 
+    public static readonly SharedStringCellWriter SharedStringCellWriter = new();
+
     public static readonly EmptyCellWriter EmptyCellWriter = new();
 
     public static readonly WorkbookWriter WorkbookWriter = new();
