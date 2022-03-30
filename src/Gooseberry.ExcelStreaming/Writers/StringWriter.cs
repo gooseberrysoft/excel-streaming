@@ -76,6 +76,14 @@ internal static class StringWriter
 
                     while (true)
                     {
+                        if (destination.Length == 0)
+                        {
+                            buffer.Advance(written);
+
+                            destination = buffer.GetSpan(Buffer.MinSize);
+                            written = 0;
+                        }
+                        
                         encoder.Convert(
                             sourceChars, 
                             destination, 
@@ -85,17 +93,11 @@ internal static class StringWriter
                             out var isCompleted);
                         written += bytesCharsWritten;
 
+                        destination = destination.Slice(bytesCharsWritten);
                         if (isCompleted)
-                        {
-                            destination = destination.Slice(bytesCharsWritten);
                             break;
-                        }
 
                         sourceChars = sourceChars.Slice(charsConsumed);
-                        buffer.Advance(written);
-
-                        destination = buffer.GetSpan(Buffer.MinSize);
-                        written = 0;
                     }
                 }
             }
@@ -135,7 +137,7 @@ internal static class StringWriter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void WriteTo(
         this ReadOnlySpan<char> value, 
-        BuffersChain bufferWriter, 
+        BuffersChain buffer, 
         Encoder encoder, 
         ref Span<byte> destination,
         ref int written)
@@ -146,6 +148,14 @@ internal static class StringWriter
 
         while (true)
         {
+            if (destination.Length == 0)
+            {
+                buffer.Advance(written);
+
+                destination = buffer.GetSpan(Buffer.MinSize);
+                written = 0;
+            }
+        
             encoder.Convert(
                 sourceChars, 
                 destination, 
@@ -156,17 +166,11 @@ internal static class StringWriter
             
             written += bytesCharsWritten;
 
+            destination = destination.Slice(bytesCharsWritten);
             if (isCompleted)
-            {
-                destination = destination.Slice(bytesCharsWritten);
                 break;
-            }
 
             sourceChars = sourceChars.Slice(charsConsumed);
-            bufferWriter.Advance(written);
-
-            destination = bufferWriter.GetSpan(Buffer.MinSize);
-            written = 0;
         }
     }    
 }

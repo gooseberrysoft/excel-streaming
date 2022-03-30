@@ -24,7 +24,10 @@ internal sealed class SheetWriter
         buffer.Advance(written);
     }
 
-    public void WriteEndSheet(BuffersChain buffer, IReadOnlyCollection<Merge> merges)
+    public void WriteEndSheet(
+        BuffersChain buffer, 
+        IReadOnlyCollection<Merge> merges, 
+        Dictionary<string, List<CellReference>> hyperlinks)
     {
         var span = buffer.GetSpan();
         var written = 0;
@@ -34,6 +37,9 @@ internal sealed class SheetWriter
         if (merges.Count != 0)
             WriteMerges(merges, buffer, ref span, ref written); 
             
+        if (hyperlinks.Count != 0)
+            WriteHyperlinks(hyperlinks, buffer, ref span, ref written);
+
         Constants.Worksheet.Postfix.WriteTo(buffer, ref span, ref written);        
         
         buffer.Advance(written);        
@@ -113,4 +119,31 @@ internal sealed class SheetWriter
             
         Constants.Worksheet.Merges.Postfix.WriteTo(buffer, ref span, ref written);
     }
+    
+    private static void WriteHyperlinks(
+        Dictionary<string, List<CellReference>> hyperlinks,
+        BuffersChain buffer,
+        ref Span<byte> span,
+        ref int written)
+    {
+        Constants.Worksheet.Hyperlinks.Prefix.WriteTo(buffer, ref span, ref written);
+
+        var count = 0;
+        foreach (var hyperlinkPair in hyperlinks)
+        {
+            foreach (var cellReference in hyperlinkPair.Value)
+            {
+                Constants.Worksheet.Hyperlinks.Hyperlink.StartPrefix.WriteTo(buffer, ref span, ref written);
+                count.WriteTo(buffer, ref span, ref written);
+                Constants.Worksheet.Hyperlinks.Hyperlink.EndPrefix.WriteTo(buffer, ref span, ref written);
+                cellReference.WriteTo(buffer, ref span, ref written);
+                Constants.Worksheet.Hyperlinks.Hyperlink.Postfix.WriteTo(buffer, ref span, ref written);
+            }
+
+            count++;
+        }
+            
+        Constants.Worksheet.Hyperlinks.Postfix.WriteTo(buffer, ref span, ref written);
+    }
+    
 }

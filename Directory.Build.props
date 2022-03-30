@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
-    <VersionPrefix>1.1.0</VersionPrefix>
-    <Version>1.1.0</Version>
+    <VersionPrefix>1.2.0</VersionPrefix>
+    <Version>1.2.0</Version>
     
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
@@ -15,7 +15,7 @@
     <!-- Embed source files that are not tracked by the source control manager in the PDB -->
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
 
-    <Copyright>Copyright 2021 © Gooseberry Team</Copyright>
+    <Copyright>Copyright 2022 © Gooseberry Team</Copyright>
     <Company>Gooseberry</Company>
     <Authors>Gooseberry Team</Authors>
     <PackageTags>excel;stream</PackageTags>

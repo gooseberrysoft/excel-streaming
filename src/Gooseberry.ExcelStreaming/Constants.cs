@@ -32,7 +32,7 @@ namespace Gooseberry.ExcelStreaming
         public static class Worksheet
         {
             public static readonly byte[] Prefix =
-                Encoding.UTF8.GetBytes($"<worksheet xmlns=\"{MainNamespace}\">");
+                Encoding.UTF8.GetBytes($"<worksheet xmlns=\"{MainNamespace}\"  xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">");
 
             public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</worksheet>");
 
@@ -85,7 +85,23 @@ namespace Gooseberry.ExcelStreaming
                     public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"/>");
                 }
             }
+        
+            public static class Hyperlinks
+            {
+                public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<hyperlinks>");
 
+                public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</hyperlinks>");
+
+                public static class Hyperlink
+                {
+                    public static readonly byte[] StartPrefix = Encoding.UTF8.GetBytes("<hyperlink r:id=\"link");
+                    
+                    public static readonly byte[] EndPrefix = Encoding.UTF8.GetBytes("\" ref=\"");
+
+                    public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"/>");
+                }
+            } 
+            
             public static class View
             {
                 public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<sheetViews><sheetView workbookViewId=\"0\"><pane");
@@ -208,6 +224,24 @@ namespace Gooseberry.ExcelStreaming
             }
         }
 
+        public static class SheetRelationships
+        {
+            public static readonly byte[] Prefix =
+                Encoding.UTF8.GetBytes("<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">");
+
+            public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</Relationships>");
+            
+            public static class HyperlinkRelationship
+            {
+                public static readonly byte[] StartPrefix = Encoding.UTF8.GetBytes("<Relationship Id=\"link");
+
+                public static readonly byte[] EndPrefix = 
+                    Encoding.UTF8.GetBytes("\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink\" Target=\"");
+                
+                public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\" TargetMode=\"External\"/>");
+            }
+        }
+        
         public static readonly byte[] Relationships = Encoding.UTF8.GetBytes("<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">" +
              "<Relationship Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument\" Target=\"/xl/workbook.xml\" Id=\"R2196c6c3552b4024\" />" +
              "</Relationships>");

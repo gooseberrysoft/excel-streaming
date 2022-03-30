@@ -31,6 +31,7 @@ namespace Gooseberry.ExcelStreaming
         private uint _rowCount = 0;
         private uint _columnCount = 0;
         private readonly List<Merge> _merges = new();
+        private readonly Dictionary<string, List<CellReference>> _hyperlinks = new();
 
         public ExcelWriter(
             Stream outputStream,
@@ -183,6 +184,16 @@ namespace Gooseberry.ExcelStreaming
             _columnCount += 1;
             AddMerge(rightMerge, downMerge);
         }
+
+        public void AddCell(Hyperlink hyperlink, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+        {
+            CheckWriteCell();
+            DataWriters.StringCellWriter.Write(hyperlink.Text, _buffer, _encoder, style ?? _styles.DefaultHyperlinkStyle);
+            
+            _columnCount += 1;
+            AddMerge(rightMerge, downMerge);
+            AddHyperlink(hyperlink);
+        }
         
         public void AddEmptyCell(StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
         {
@@ -232,12 +243,15 @@ namespace Gooseberry.ExcelStreaming
 
         private async ValueTask EndSheet()
         {
-            DataWriters.SheetWriter.WriteEndSheet(_buffer, _merges);
-
+            DataWriters.SheetWriter.WriteEndSheet(_buffer, _merges, _hyperlinks);
+            
             await _buffer.FlushAll(_sheetStream!, _token);
             await _sheetStream!.FlushAsync(_token);
             await _sheetStream!.DisposeAsync();
             _sheetStream = null;
+            
+            await AddSheetRelationships(_sheets[^1]);
+            _hyperlinks.Clear();
         }
         
         private void AddMerge(uint rightMerge = 0, uint downMerge = 0)
@@ -245,7 +259,18 @@ namespace Gooseberry.ExcelStreaming
             if (rightMerge != 0 || downMerge != 0) 
                 _merges.Add(new Merge(_rowCount, _columnCount, downMerge, rightMerge));
         }
-        
+
+        private void AddHyperlink(Hyperlink hyperlink)
+        {
+            if (!_hyperlinks.TryGetValue(hyperlink.Link, out var references))
+            {
+                references = new List<CellReference>();
+                _hyperlinks[hyperlink.Link] = references;
+            }
+            
+            references.Add(new CellReference(_rowCount, _columnCount));
+        }
+
         private async ValueTask AddWorkbook()
         {
             await using var stream = OpenEntry("xl/workbook.xml");
@@ -294,6 +319,15 @@ namespace Gooseberry.ExcelStreaming
             await _buffer.FlushAll(stream, _token);
         }
 
+        private async ValueTask AddSheetRelationships(Sheet sheet)
+        {
+            await using var stream = OpenEntry($"xl/worksheets/_rels/sheet{sheet.Id}.xml.rels");
+
+            DataWriters.SheetRelationshipsWriter.Write(_hyperlinks.Keys, _buffer, _encoder);
+
+            await _buffer.FlushAll(stream, _token);
+        }
+        
         private Stream OpenEntry(string entryName)
         {
             var entry = _zipArchive.CreateEntry(entryName, DefaultCompressionLevel);

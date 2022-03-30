@@ -33,4 +33,6 @@ internal static class DataWriters
     public static readonly WorkbookRelationshipsWriter WorkbookRelationshipsWriter = new();
 
     public static readonly RelationshipsWriter RelationshipsWriter = new();
+
+    public static readonly SheetRelationshipsWriter SheetRelationshipsWriter = new();
 }
