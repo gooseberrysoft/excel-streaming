@@ -24,7 +24,7 @@ namespace Gooseberry.ExcelStreaming.Tests
             outputStream.Seek(0, SeekOrigin.Begin);
 
             var styles = ExcelReader.ReadStyles(outputStream);
-            styles.ShouldBeEquivalentTo(Constants.DefaultNumberStyle, Constants.DefaultDateTimeStyle);
+            styles.ShouldBeEquivalentTo(Constants.DefaultNumberStyle, Constants.DefaultDateTimeStyle, Constants.DefaultHyperlinkStyle);
         }
 
         [Fact]
