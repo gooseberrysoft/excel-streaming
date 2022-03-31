@@ -1,7 +1,6 @@
 # Gooseberry.ExcelStreaming #
 
-The ExcelSrteaming lets create Excel files with high performance and low memory allocations. 
-It streams data from source to Excel smoothly with minimum memory allocations.
+Create Excel files with high performance and low memory allocations.
 
 ### Create Excel file ###
 
