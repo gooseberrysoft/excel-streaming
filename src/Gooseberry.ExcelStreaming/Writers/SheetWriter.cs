@@ -13,8 +13,8 @@ internal sealed class SheetWriter
         
         Constants.Worksheet.Prefix.WriteTo(buffer, ref span, ref written);
             
-        if (configuration?.TopLeftUnpinnedCell != null)
-            WriteTopLeftUnpinnedCell(configuration.Value.TopLeftUnpinnedCell.Value, buffer, ref span, ref written);
+        if (configuration != null )
+            WriteSheetView(configuration.Value, buffer, ref span, ref written);
 
         if (configuration?.Columns != null && configuration?.Columns.Count != 0)
             WriteColumns(configuration!.Value.Columns, buffer, ref span, ref written);
@@ -44,6 +44,24 @@ internal sealed class SheetWriter
         
         buffer.Advance(written);        
     }
+
+    private static void WriteSheetView(
+        SheetConfiguration configuration,
+        BuffersChain buffer,
+        ref Span<byte> span,
+        ref int written)
+    {
+        Constants.Worksheet.View.Prefix.WriteTo(buffer, ref span, ref written);
+
+        WriteShowGridLines(configuration.ShowGridLines, buffer, ref span, ref written);
+
+        Constants.Worksheet.View.Middle.WriteTo(buffer, ref span, ref written);
+
+        if (configuration.TopLeftUnpinnedCell.HasValue)
+            WriteTopLeftUnpinnedCell(configuration.TopLeftUnpinnedCell.Value, buffer, ref span, ref written);
+
+        Constants.Worksheet.View.Postfix.WriteTo(buffer, ref span, ref written);
+    }
     
     private static void WriteTopLeftUnpinnedCell(
         CellReference cellReference, 
@@ -51,23 +69,30 @@ internal sealed class SheetWriter
         ref Span<byte> span,
         ref int written)
     {
-        Constants.Worksheet.View.Prefix.WriteTo(buffer, ref span, ref written);
-            
-        Constants.Worksheet.View.TopLeftCell.Prefix.WriteTo(buffer, ref span, ref written);
+        Constants.Worksheet.View.Pane.TopLeftCell.Prefix.WriteTo(buffer, ref span, ref written);
         cellReference.WriteTo(buffer, ref span, ref written);
-        Constants.Worksheet.View.TopLeftCell.Postfix.WriteTo(buffer, ref span, ref written);
+        Constants.Worksheet.View.Pane.TopLeftCell.Postfix.WriteTo(buffer, ref span, ref written);
             
-        Constants.Worksheet.View.YSplit.Prefix.WriteTo(buffer, ref span, ref written);
+        Constants.Worksheet.View.Pane.YSplit.Prefix.WriteTo(buffer, ref span, ref written);
         (cellReference.Row - 1).WriteTo(buffer, ref span, ref written);
-        Constants.Worksheet.View.YSplit.Postfix.WriteTo(buffer, ref span, ref written);
+        Constants.Worksheet.View.Pane.YSplit.Postfix.WriteTo(buffer, ref span, ref written);
             
-        Constants.Worksheet.View.XSplit.Prefix.WriteTo(buffer, ref span, ref written);
+        Constants.Worksheet.View.Pane.XSplit.Prefix.WriteTo(buffer, ref span, ref written);
         (cellReference.Column - 1).WriteTo(buffer, ref span, ref written);
-        Constants.Worksheet.View.XSplit.Postfix.WriteTo(buffer, ref span, ref written);
-
-        Constants.Worksheet.View.Postfix.WriteTo(buffer, ref span, ref written);
+        Constants.Worksheet.View.Pane.XSplit.Postfix.WriteTo(buffer, ref span, ref written);
     }
 
+    private static void WriteShowGridLines(
+        bool showGridLines,
+        BuffersChain buffer, 
+        ref Span<byte> span,
+        ref int written)
+    {
+        Constants.Worksheet.View.ShowGridLines.Prefix.WriteTo(buffer, ref span, ref written);
+        showGridLines.WriteTo(buffer, ref span, ref written);
+        Constants.Worksheet.View.ShowGridLines.Postfix.WriteTo(buffer, ref span, ref written);
+    }
+    
     private static void WriteColumns(
         IReadOnlyCollection<Column> columns,
         BuffersChain buffer, 

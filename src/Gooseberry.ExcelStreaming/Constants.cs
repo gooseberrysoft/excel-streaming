@@ -8,6 +8,10 @@ namespace Gooseberry.ExcelStreaming
 
         public const double DefaultBufferFlushThreshold = 0.9;
         
+        public static readonly byte[] TrueValue = Encoding.UTF8.GetBytes("true");
+
+        public static readonly byte[] FalseValue = Encoding.UTF8.GetBytes("false");
+        
         public static readonly byte[] XmlPrefix = Encoding.UTF8.GetBytes("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
 
         public static class Workbook
@@ -104,29 +108,45 @@ namespace Gooseberry.ExcelStreaming
             
             public static class View
             {
-                public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<sheetViews><sheetView workbookViewId=\"0\"><pane");
+                public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<sheetViews><sheetView workbookViewId=\"0\"");
 
-                public static readonly byte[] Postfix = Encoding.UTF8.GetBytes(" activePane=\"bottomRight\" state=\"frozen\"/></sheetView></sheetViews>");
+                public static readonly byte[] Middle = Encoding.UTF8.GetBytes(">");
+                
+                public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</sheetView></sheetViews>");
 
-                public static class TopLeftCell
+                public static class ShowGridLines
                 {
-                    public static readonly byte[] Prefix = Encoding.UTF8.GetBytes(" topLeftCell=\"");
+                    public static readonly byte[] Prefix = Encoding.UTF8.GetBytes(" showGridLines=\"");
 
                     public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"");
                 }
-                
-                public static class YSplit
-                {
-                    public static readonly byte[] Prefix = Encoding.UTF8.GetBytes(" ySplit=\"");
 
-                    public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"");
-                }
-                
-                public static class XSplit
+                public static class Pane
                 {
-                    public static readonly byte[] Prefix = Encoding.UTF8.GetBytes(" xSplit=\"");
+                    public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<pane");
 
-                    public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"");
+                    public static readonly byte[] Postfix = Encoding.UTF8.GetBytes(" activePane=\"bottomRight\" state=\"frozen\"/>");
+
+                    public static class TopLeftCell
+                    {
+                        public static readonly byte[] Prefix = Encoding.UTF8.GetBytes(" topLeftCell=\"");
+
+                        public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"");
+                    }
+
+                    public static class YSplit
+                    {
+                        public static readonly byte[] Prefix = Encoding.UTF8.GetBytes(" ySplit=\"");
+
+                        public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"");
+                    }
+
+                    public static class XSplit
+                    {
+                        public static readonly byte[] Prefix = Encoding.UTF8.GetBytes(" xSplit=\"");
+
+                        public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"");
+                    }
                 }
             }
             
