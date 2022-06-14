@@ -24,7 +24,7 @@ internal static class CellAliasWriter
         if (destination.Length < aliasSize)
         {
             buffer.Advance(written);
-            destination = buffer.GetSpan();
+            destination = buffer.GetSpan(minSize: aliasSize);
             written = 0;
         }
 
@@ -53,7 +53,7 @@ internal static class CellAliasWriter
         if (destination.Length < aliasSize)
         {
             buffer.Advance(written);
-            destination = buffer.GetSpan();
+            destination = buffer.GetSpan(minSize: aliasSize);
             written = 0;
         }
 
