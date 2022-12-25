@@ -18,9 +18,8 @@ internal sealed class SharedStringKeeper : IDisposable
     public SharedStringKeeper(SharedStringTable? sharedStringTable, Encoder encoder)
     {
         DataWriters.SharedStringWriter.WritePrefix(_buffer);
-        if (sharedStringTable != null)
-            sharedStringTable.WriteTo(_buffer);
-        
+        sharedStringTable?.WriteTo(_buffer);
+
         _externalAddedStrings = sharedStringTable?.Count ?? 0;
         _encoder = encoder;
     }
