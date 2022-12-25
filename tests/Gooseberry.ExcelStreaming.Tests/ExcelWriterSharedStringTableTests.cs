@@ -74,12 +74,6 @@ public sealed class ExcelWriterSharedStringTableTests
         }
 
         outputStream.Seek(0, SeekOrigin.Begin);
-        using (var file = new FileStream("test.xlsx", FileMode.Create))
-        {
-            await outputStream.CopyToAsync(file);
-        }
-        
-        outputStream.Seek(0, SeekOrigin.Begin);
         var sharedStrings = ExcelReader.ReadSharedStrings(outputStream);
 
         sharedStrings.Should().BeEquivalentTo(new[] {"string", "other string", "third string", "one more string"});
