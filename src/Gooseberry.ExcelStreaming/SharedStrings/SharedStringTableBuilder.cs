@@ -7,46 +7,31 @@ namespace Gooseberry.ExcelStreaming.SharedStrings;
 public sealed class SharedStringTableBuilder
 {
     private readonly List<string> _strings = new();
-
-    internal static readonly SharedStringTable Default = new SharedStringTableBuilder().Build();
+    private readonly Dictionary<string, SharedStringReference> _references = new();
 
     public SharedStringReference GetOrAdd(string value)
     {
-        var index = _strings.IndexOf(value);
-        if (index >= 0)
-            return new SharedStringReference(index);
+        if (_references.TryGetValue(value, out var reference))
+            return reference;
+
+        reference = new SharedStringReference(_strings.Count);
         
         _strings.Add(value);
-        return new SharedStringReference(_strings.Count - 1);
+        _references[value] = reference;
+        
+        return reference;
     }
 
     public SharedStringTable Build()
     {
         using var buffer = new BuffersChain(bufferSize: 4 * 1024, flushThreshold: 1.0);
 
-        WriteSharedStrings(buffer, Encoding.UTF8.GetEncoder());
-        
+        var encoder = Encoding.UTF8.GetEncoder();
+        foreach (var value in _strings) 
+            DataWriters.SharedStringWriter.Write(value, buffer, encoder);
+
         var preparedData = new byte[buffer.Written];
         buffer.FlushAll(preparedData);
-        return new SharedStringTable(preparedData);
-    }
-
-    private void WriteSharedStrings(BuffersChain buffer, Encoder encoder)
-    {
-        var span = buffer.GetSpan();
-        var written = 0;
-        
-        Constants.SharedStringTable.Prefix.WriteTo(buffer, ref span, ref written);
-
-        foreach (var value in _strings)
-        {
-            Constants.SharedStringTable.Item.Prefix.WriteTo(buffer, ref span, ref written);
-            value.WriteEscapedTo(buffer, encoder, ref span, ref written);
-            Constants.SharedStringTable.Item.Postfix.WriteTo(buffer, ref span, ref written);
-        }
-        
-        Constants.SharedStringTable.Postfix.WriteTo(buffer, ref span, ref written);
-
-        buffer.Advance(written);
+        return new SharedStringTable(preparedData, _strings.Count);
     }
 }

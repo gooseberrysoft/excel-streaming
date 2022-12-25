@@ -19,7 +19,7 @@ namespace Gooseberry.ExcelStreaming
         private readonly List<Sheet> _sheets = new();
 
         private readonly StylesSheet _styles;
-        private readonly SharedStringTable _sharedStringTable;
+        private readonly SharedStringKeeper _sharedStringKeeper;
         private readonly CancellationToken _token;
 
         private readonly ZipArchive _zipArchive;
@@ -46,12 +46,13 @@ namespace Gooseberry.ExcelStreaming
             if (bufferSize <= 0)
                 throw new ArgumentException("Should not be less or equal zero.", nameof(bufferSize));
 
+            _encoder = Encoding.UTF8.GetEncoder();
+
             _zipArchive = new ZipArchive(outputStream, ZipArchiveMode.Create, leaveOpen: true, Encoding.UTF8);
             _styles = styles ?? StylesSheetBuilder.Default;
-            _sharedStringTable = sharedStringTable ?? SharedStringTableBuilder.Default;
+            _sharedStringKeeper = new SharedStringKeeper(sharedStringTable, _encoder);
 
             _buffer = new BuffersChain(bufferSize, Constants.DefaultBufferFlushThreshold);
-            _encoder = Encoding.UTF8.GetEncoder();
             _token = token;
         }
 
@@ -98,6 +99,12 @@ namespace Gooseberry.ExcelStreaming
 
         public void AddCell(string data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0) 
             => AddCell(data.AsSpan(), style, rightMerge, downMerge);
+
+        public void AddCellWithSharedString(string data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+        {
+            var reference = _sharedStringKeeper.GetOrAdd(data);
+            AddCell(reference, style, rightMerge, downMerge);
+        }
 
         public void AddCell(int data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
         {
@@ -230,6 +237,7 @@ namespace Gooseberry.ExcelStreaming
             if (!_isCompleted)
                 await Complete();
 
+            _sharedStringKeeper.Dispose();
             _buffer.Dispose();
             _zipArchive.Dispose();
         }
@@ -307,7 +315,8 @@ namespace Gooseberry.ExcelStreaming
         private async ValueTask AddSharedStringTable()
         {
             await using var stream = OpenEntry("xl/sharedStrings.xml");
-            await _sharedStringTable.WriteTo(stream);
+            
+            await _sharedStringKeeper.WriteTo(stream, _token);
         }
         
         private async ValueTask AddRelationships()
