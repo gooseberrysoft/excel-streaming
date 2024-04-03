@@ -5,6 +5,14 @@ namespace Gooseberry.ExcelStreaming.Writers;
 internal static class DataWriters
 {
     public static readonly SheetWriter SheetWriter = new();
+
+    public static readonly AnchorCellWriter AnchorCellWriter = new();
+
+    public static readonly OneCellAnchorPicturePlacementWriter OneCellAnchorPicturePlacementWriter = new();
+
+    public static readonly DrawingWriter DrawingWriter = new();
+
+    public static readonly PictureWriter PictureWriter = new();
     
     public static readonly RowWriter RowWriter = new();
     

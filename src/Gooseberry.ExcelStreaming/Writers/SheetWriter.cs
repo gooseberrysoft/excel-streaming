@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Gooseberry.ExcelStreaming.Configuration;
+using Gooseberry.ExcelStreaming.Pictures;
 
 namespace Gooseberry.ExcelStreaming.Writers;
 
@@ -22,6 +24,19 @@ internal sealed class SheetWriter
         Constants.Worksheet.SheetData.Prefix.WriteTo(buffer, ref span, ref written);
         
         buffer.Advance(written);
+    }
+
+    public void WriteDrawing(Drawing drawing, BuffersChain buffer, Encoder encoder)
+    {
+        if (drawing.Pictures.Count == 0)
+            return;
+
+        var span = buffer.GetSpan();
+        var written = 0;
+
+        Constants.Worksheet.Drawings.GetPrefix().WriteTo(buffer, ref span, ref written);
+        drawing.RelationshipId.WriteTo(buffer, encoder, ref span, ref written);
+        Constants.Worksheet.Drawings.GetPostfix().WriteTo(buffer, ref span, ref written);
     }
 
     public void WriteEndSheet(

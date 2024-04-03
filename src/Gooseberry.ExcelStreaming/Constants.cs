@@ -2,16 +2,16 @@ using System.Text;
 
 namespace Gooseberry.ExcelStreaming
 {
-    internal static class Constants
+    internal static partial class Constants
     {
         public const int DefaultBufferSize = 100 * 1024;
 
         public const double DefaultBufferFlushThreshold = 0.9;
-        
+
         public static readonly byte[] TrueValue = Encoding.UTF8.GetBytes("true");
 
         public static readonly byte[] FalseValue = Encoding.UTF8.GetBytes("false");
-        
+
         public static readonly byte[] XmlPrefix = Encoding.UTF8.GetBytes("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
 
         public static class Workbook
@@ -36,7 +36,8 @@ namespace Gooseberry.ExcelStreaming
         public static class Worksheet
         {
             public static readonly byte[] Prefix =
-                Encoding.UTF8.GetBytes($"<worksheet xmlns=\"{MainNamespace}\"  xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">");
+                Encoding.UTF8.GetBytes(
+                    $"<worksheet xmlns=\"{MainNamespace}\"  xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">");
 
             public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</worksheet>");
 
@@ -72,7 +73,6 @@ namespace Gooseberry.ExcelStreaming
 
                         public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"");
                     }
-
                 }
             }
 
@@ -89,7 +89,7 @@ namespace Gooseberry.ExcelStreaming
                     public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"/>");
                 }
             }
-        
+
             public static class Hyperlinks
             {
                 public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<hyperlinks>");
@@ -99,19 +99,28 @@ namespace Gooseberry.ExcelStreaming
                 public static class Hyperlink
                 {
                     public static readonly byte[] StartPrefix = Encoding.UTF8.GetBytes("<hyperlink r:id=\"link");
-                    
+
                     public static readonly byte[] EndPrefix = Encoding.UTF8.GetBytes("\" ref=\"");
 
                     public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"/>");
                 }
-            } 
-            
+            }
+                
+            public static class Drawings
+            {
+                public static ReadOnlySpan<byte> GetPrefix()
+                    => "<drawing r:id=\""u8;
+                    
+                public static ReadOnlySpan<byte> GetPostfix()
+                    => "/>"u8;
+            }
+
             public static class View
             {
                 public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<sheetViews><sheetView workbookViewId=\"0\"");
 
                 public static readonly byte[] Middle = Encoding.UTF8.GetBytes(">");
-                
+
                 public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</sheetView></sheetViews>");
 
                 public static class ShowGridLines
@@ -149,7 +158,7 @@ namespace Gooseberry.ExcelStreaming
                     }
                 }
             }
-            
+
             public static class SheetData
             {
                 public static readonly byte[] Prefix = Encoding.UTF8.GetBytes($"<sheetData>");
@@ -206,11 +215,11 @@ namespace Gooseberry.ExcelStreaming
         public static class ContentTypes
         {
             public static readonly byte[] Prefix = Encoding.UTF8.GetBytes(
-                "<Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\">" +
-                "<Default Extension=\"xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\" />" +
-                "<Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\" />" +
-                "<Override PartName=\"/xl/styles.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml\"/>" + 
-                "<Override ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml\" PartName=\"/xl/sharedStrings.xml\"/>");
+                "<Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\">"
+                + "<Default Extension=\"xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\" />"
+                + "<Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\" />"
+                + "<Override PartName=\"/xl/styles.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml\"/>"
+                + "<Override ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml\" PartName=\"/xl/sharedStrings.xml\"/>");
 
             public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</Types>");
 
@@ -219,7 +228,8 @@ namespace Gooseberry.ExcelStreaming
                 public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<Override PartName=\"/xl/worksheets/");
 
                 public static readonly byte[] Postfix =
-                    Encoding.UTF8.GetBytes(".xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\"/>");
+                    Encoding.UTF8.GetBytes(
+                        ".xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\"/>");
             }
         }
 
@@ -230,14 +240,15 @@ namespace Gooseberry.ExcelStreaming
 
             public static readonly byte[] Postfix =
                 Encoding.UTF8.GetBytes(
-                    "<Relationship Id=\"styles1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles\" Target=\"styles.xml\"/>" +
-                    "<Relationship Id=\"sharedStrings1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings\" Target=\"sharedStrings.xml\"/>" + 
-                    "</Relationships>");
+                    "<Relationship Id=\"styles1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles\" Target=\"styles.xml\"/>"
+                    + "<Relationship Id=\"sharedStrings1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings\" Target=\"sharedStrings.xml\"/>"
+                    + "</Relationships>");
 
             public static class Sheet
             {
                 public static readonly byte[] Prefix =
-                    Encoding.UTF8.GetBytes("<Relationship Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet\" Target=\"/xl/worksheets/");
+                    Encoding.UTF8.GetBytes(
+                        "<Relationship Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet\" Target=\"/xl/worksheets/");
 
                 public static readonly byte[] Middle = Encoding.UTF8.GetBytes(".xml\" Id=\"");
                 public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"/>");
@@ -250,21 +261,50 @@ namespace Gooseberry.ExcelStreaming
                 Encoding.UTF8.GetBytes("<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">");
 
             public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</Relationships>");
-            
-            public static class HyperlinkRelationship
+
+            public static class Hyperlink
             {
                 public static readonly byte[] StartPrefix = Encoding.UTF8.GetBytes("<Relationship Id=\"link");
 
-                public static readonly byte[] EndPrefix = 
-                    Encoding.UTF8.GetBytes("\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink\" Target=\"");
-                
+                public static readonly byte[] EndPrefix =
+                    Encoding.UTF8.GetBytes(
+                        "\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink\" Target=\"");
+
                 public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\" TargetMode=\"External\"/>");
             }
+            
+            public static class Drawing
+            {
+                public static ReadOnlySpan<byte> GetPrefix()
+                    => "<Relationship Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing\""u8;
+
+                public static ReadOnlySpan<byte> GetPostfix()
+                    => "/>"u8;
+
+                public static class Id
+                {
+                    public static ReadOnlySpan<byte> GetPrefix()
+                        => " Id=\""u8;
+
+                    public static ReadOnlySpan<byte> GetPostfix()
+                        => "\""u8;
+                }
+
+                public static class Target
+                {
+                    public static ReadOnlySpan<byte> GetPrefix()
+                        => " Target=\""u8;
+                    
+                    public static ReadOnlySpan<byte> GetPostfix()
+                        => "\""u8;
+                }
+            }
         }
-        
-        public static readonly byte[] Relationships = Encoding.UTF8.GetBytes("<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">" +
-             "<Relationship Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument\" Target=\"/xl/workbook.xml\" Id=\"R2196c6c3552b4024\" />" +
-             "</Relationships>");
+
+        public static readonly byte[] Relationships = Encoding.UTF8.GetBytes(
+            "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">"
+            + "<Relationship Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument\" Target=\"/xl/workbook.xml\" Id=\"R2196c6c3552b4024\" />"
+            + "</Relationships>");
 
         public static class Styles
         {
@@ -322,11 +362,11 @@ namespace Gooseberry.ExcelStreaming
                     }
 
                     public static readonly byte[] Bold = Encoding.UTF8.GetBytes("<b val=\"1\"/>");
-                    
+
                     public static readonly byte[] Italic = Encoding.UTF8.GetBytes("<i val=\"1\"/>");
-                    
+
                     public static readonly byte[] Strike = Encoding.UTF8.GetBytes("<strike val=\"1\"/>");
-                    
+
                     public static class Underline
                     {
                         public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<u val=\"");
@@ -535,8 +575,9 @@ namespace Gooseberry.ExcelStreaming
 
         public static class SharedStringTable
         {
-            public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\">");
-            
+            public static readonly byte[] Prefix =
+                Encoding.UTF8.GetBytes("<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\">");
+
             public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</sst>");
 
             public static class Item
@@ -546,7 +587,7 @@ namespace Gooseberry.ExcelStreaming
                 public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</t></si>");
             }
         }
-        
+
         private const string MainNamespace = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
     }
 }
