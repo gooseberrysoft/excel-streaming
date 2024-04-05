@@ -27,9 +27,6 @@ internal sealed class SheetDrawings
         var name = $"Image{id}";
         var picture = new Picture(id, RelationshipId: relationshipId, Name: name, data, format, placement);
 
-        if (!_drawings.TryGetValue(sheetId, out var pictures))
-            _drawings[sheetId] = pictures = new Drawing(sheetId);
-
-        pictures.Add(picture);
+        Get(sheetId).Add(picture);
     }
 }

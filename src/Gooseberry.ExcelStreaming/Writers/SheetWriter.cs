@@ -38,14 +38,9 @@ internal sealed class SheetWriter
 
         Constants.Worksheet.SheetData.Postfix.WriteTo(buffer, ref span, ref written);
 
-        if (merges.Count != 0)
-            WriteMerges(merges, buffer, ref span, ref written);
-
-        if (hyperlinks.Count != 0)
-            WriteHyperlinks(hyperlinks, buffer, ref span, ref written);
-
-        if (!drawing.IsEmpty)
-            WriteDrawing(drawing, buffer, encoder, ref span, ref written);
+        WriteMerges(merges, buffer, ref span, ref written);
+        WriteHyperlinks(hyperlinks, buffer, ref span, ref written);
+        WriteDrawing(drawing, buffer, encoder, ref span, ref written);
 
         Constants.Worksheet.Postfix.WriteTo(buffer, ref span, ref written);
 
@@ -141,6 +136,9 @@ internal sealed class SheetWriter
         ref Span<byte> span,
         ref int written)
     {
+        if (merges.Count == 0)
+            return;
+        
         Constants.Worksheet.Merges.Prefix.WriteTo(buffer, ref span, ref written);
 
         foreach (var merge in merges)
@@ -174,6 +172,9 @@ internal sealed class SheetWriter
         ref Span<byte> span,
         ref int written)
     {
+        if (hyperlinks.Count == 0)
+            return;
+        
         Constants.Worksheet.Hyperlinks.Prefix.WriteTo(buffer, ref span, ref written);
 
         var count = 0;

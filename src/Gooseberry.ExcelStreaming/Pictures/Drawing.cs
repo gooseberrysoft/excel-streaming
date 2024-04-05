@@ -2,9 +2,9 @@
 
 internal sealed class Drawing
 {
-    private readonly List<Picture> _pictures;
+    private List<Picture>? _pictures;
 
-    public IReadOnlyCollection<Picture> Pictures => _pictures;
+    public IReadOnlyCollection<Picture> Pictures => (IReadOnlyCollection<Picture>?)_pictures ?? Array.Empty<Picture>();
 
     public int SheetId { get; }
     
@@ -16,9 +16,8 @@ internal sealed class Drawing
     {
         SheetId = sheetId;
         RelationshipId = $"dId{sheetId}";
-        _pictures = new List<Picture>();
     }
 
     public void Add(Picture picture)
-        => _pictures.Add(picture);
+        => (_pictures ??= new List<Picture>()).Add(picture);
 }
