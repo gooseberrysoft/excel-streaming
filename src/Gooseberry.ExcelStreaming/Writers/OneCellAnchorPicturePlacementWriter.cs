@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Gooseberry.ExcelStreaming.Helpers;
 using Gooseberry.ExcelStreaming.Pictures;
 using Gooseberry.ExcelStreaming.Pictures.Placements;
 
@@ -32,11 +33,11 @@ internal sealed class OneCellAnchorPicturePlacementWriter
         Constants.Drawing.OneCellAnchor.Size.GetPrefix().WriteTo(buffer, ref span, ref written);
 
         Constants.Drawing.OneCellAnchor.Size.Width.GetPrefix().WriteTo(buffer, ref span, ref written);
-        placement.Size.Width.WriteTo(buffer, ref span, ref written);
+        EmuConverter.ConvertToEnglishMetricUnits(placement.Size.Width, resolution: 96).WriteTo(buffer, ref span, ref written);
         Constants.Drawing.OneCellAnchor.Size.Width.GetPostfix().WriteTo(buffer, ref span, ref written);
 
         Constants.Drawing.OneCellAnchor.Size.Height.GetPrefix().WriteTo(buffer, ref span, ref written);
-        placement.Size.Height.WriteTo(buffer, ref span, ref written);
+        EmuConverter.ConvertToEnglishMetricUnits(placement.Size.Height, resolution: 96).WriteTo(buffer, ref span, ref written);
         Constants.Drawing.OneCellAnchor.Size.Height.GetPostfix().WriteTo(buffer, ref span, ref written);
 
         Constants.Drawing.OneCellAnchor.Size.GetPostfix().WriteTo(buffer, ref span, ref written);

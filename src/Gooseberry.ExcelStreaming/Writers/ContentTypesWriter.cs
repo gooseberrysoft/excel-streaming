@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Text;
 using Gooseberry.ExcelStreaming.Extensions;
 using Gooseberry.ExcelStreaming.Pictures;
@@ -14,6 +13,11 @@ internal readonly struct ContentTypesWriter
 
         Constants.XmlPrefix.WriteTo(buffer, ref span, ref written);
         Constants.ContentTypes.Prefix.WriteTo(buffer, ref span, ref written);
+
+        foreach (var pictureFormat in sheetDrawings.Pictures.Select(v => v.Format).Distinct())
+        {
+            Constants.ContentTypes.Get(pictureFormat).WriteTo(buffer, ref span, ref written);
+        }
 
         foreach (var sheet in sheets)
         {

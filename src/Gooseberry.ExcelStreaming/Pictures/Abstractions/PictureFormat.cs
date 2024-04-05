@@ -1,16 +1,13 @@
 ﻿namespace Gooseberry.ExcelStreaming.Pictures.Abstractions;
 
-internal enum PictureFormat
+public enum PictureFormat
 {
-    Unknown,
-    Bmp,
+    Bmp = 1,
     Gif,
     Png,
     Tiff,
     Icon,
-    Pcx,
     Jpeg,
     Emf,
-    Wmf,
-    Webp
+    Wmf
 }

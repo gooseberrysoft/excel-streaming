@@ -1,14 +1,15 @@
 ﻿using Gooseberry.ExcelStreaming.Pictures;
+using Gooseberry.ExcelStreaming.Pictures.Abstractions;
 
 namespace Gooseberry.ExcelStreaming;
 
 internal static class PathResolver
 {
     private const string MainDirectory = "xl";
-    
+
     public static string GetFullPath(in Sheet sheet)
         => $"{MainDirectory}/{GetDirectory(sheet)}/{GetFileName(sheet)}";
-    
+
     public static string GetRelationshipsFullPath(in Sheet sheet)
         => $"{MainDirectory}/{GetRelationshipsDirectory(sheet)}/{GetRelationshipsFileName(sheet)}";
 
@@ -20,9 +21,9 @@ internal static class PathResolver
 
     public static string GetFullPath(Picture picture)
         => $"{MainDirectory}/{GetDirectory(picture)}/{GetFileName(picture)}";
-    
+
     public static string GetFileName(Picture picture)
-        => $"image{picture.Id}.png";
+        => $"image{picture.Id}.{GetExtension(picture.Format)}";
 
     public static string GetDirectory(Picture picture)
         => $"media";
@@ -50,4 +51,20 @@ internal static class PathResolver
 
     public static string GetRelationshipsDirectory(in Sheet sheet)
         => GetDirectory(sheet) + "/_rels";
+
+    private static string GetExtension(PictureFormat format)
+    {
+        return format switch
+        {
+            PictureFormat.Bmp => "bmp",
+            PictureFormat.Gif => "gif",
+            PictureFormat.Png => "png",
+            PictureFormat.Tiff => "tiff",
+            PictureFormat.Icon => "ico",
+            PictureFormat.Jpeg => "jpg",
+            PictureFormat.Emf => "emf",
+            PictureFormat.Wmf => "wmf",
+            _ => ".image",
+        };
+    }
 }

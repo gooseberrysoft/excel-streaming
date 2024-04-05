@@ -29,6 +29,10 @@ namespace Gooseberry.ExcelStreaming.Tests
                 actual.Merges.Should().HaveCount(expected.Merges.Count);
                 foreach (var (actualMerge, expectedMerge) in actual.Merges.Zip(expected.Merges))
                     actualMerge.Should().BeEquivalentTo(expectedMerge);
+                
+                actual.Pictures.Should().HaveCount(expected.Pictures.Count);
+                foreach (var (actualMerge, expectedMerge) in actual.Pictures.Zip(expected.Pictures))
+                    actualMerge.Should().BeEquivalentTo(expectedMerge);
             }
         }
 

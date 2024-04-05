@@ -1,4 +1,5 @@
 using System.Text;
+using Gooseberry.ExcelStreaming.Pictures.Abstractions;
 
 namespace Gooseberry.ExcelStreaming
 {
@@ -105,12 +106,12 @@ namespace Gooseberry.ExcelStreaming
                     public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"/>");
                 }
             }
-                
+
             public static class Drawings
             {
                 public static ReadOnlySpan<byte> GetPrefix()
                     => "<drawing r:id=\""u8;
-                    
+
                 public static ReadOnlySpan<byte> GetPostfix()
                     => "\"/>"u8;
             }
@@ -216,14 +217,53 @@ namespace Gooseberry.ExcelStreaming
         {
             public static readonly byte[] Prefix = Encoding.UTF8.GetBytes(
                 "<Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\">"
-                + "<Default Extension=\"png\" ContentType=\"image/png\"/>"
                 + "<Default Extension=\"xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\" />"
                 + "<Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\" />"
                 + "<Override PartName=\"/xl/styles.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml\"/>"
                 + "<Override ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml\" PartName=\"/xl/sharedStrings.xml\"/>");
 
+            public static ReadOnlySpan<byte> Get(PictureFormat format)
+            {
+                return format switch
+                {
+                    PictureFormat.Bmp => GetBmp(),
+                    PictureFormat.Gif => GetGif(),
+                    PictureFormat.Png => GetPng(),
+                    PictureFormat.Tiff => GetTiff(),
+                    PictureFormat.Icon => GetIcon(),
+                    PictureFormat.Jpeg => GetJpeg(),
+                    PictureFormat.Emf => GetEmf(),
+                    PictureFormat.Wmf => GetWmf(),
+                    _ => throw new ArgumentOutOfRangeException(nameof(format), format, "Unknown picture format")
+                };
+            }
+
+            public static ReadOnlySpan<byte> GetBmp()
+                => "<Default Extension=\"bmp\" ContentType=\"image/bmp\"/>"u8;
+
+            public static ReadOnlySpan<byte> GetGif()
+                => "<Default Extension=\"gif\" ContentType=\"image/gif\"/>"u8;
+
+            public static ReadOnlySpan<byte> GetPng()
+                => "<Default Extension=\"png\" ContentType=\"image/png\"/>"u8;
+
+            public static ReadOnlySpan<byte> GetTiff()
+                => "<Default Extension=\"tiff\" ContentType=\"image/tiff\"/>"u8;
+
+            public static ReadOnlySpan<byte> GetIcon()
+                => "<Default Extension=\"icon\" ContentType=\"image/x-icon\"/>"u8;
+
+            public static ReadOnlySpan<byte> GetJpeg()
+                => "<Default Extension=\"jpg\" ContentType=\"image/jpeg\"/>"u8;
+
+            public static ReadOnlySpan<byte> GetEmf()
+                => "<Default Extension=\"emf\" ContentType=\"image/x-emf\"/>"u8;
+
+            public static ReadOnlySpan<byte> GetWmf()
+                => "<Default Extension=\"wmf\" ContentType=\"image/x-wmf\"/>"u8;
+
             public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</Types>");
-            
+
             public static class Drawing
             {
                 public static ReadOnlySpan<byte> GetPrefix()
@@ -282,7 +322,7 @@ namespace Gooseberry.ExcelStreaming
 
                 public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\" TargetMode=\"External\"/>");
             }
-            
+
             public static class Drawing
             {
                 public static ReadOnlySpan<byte> GetPrefix()
@@ -304,7 +344,7 @@ namespace Gooseberry.ExcelStreaming
                 {
                     public static ReadOnlySpan<byte> GetPrefix()
                         => " Target=\""u8;
-                    
+
                     public static ReadOnlySpan<byte> GetPostfix()
                         => "\""u8;
                 }

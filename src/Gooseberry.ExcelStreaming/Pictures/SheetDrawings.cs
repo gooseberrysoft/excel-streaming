@@ -12,18 +12,20 @@ internal sealed class SheetDrawings
 
     public Drawing Get(int sheetId)
     {
-        if (_drawings.TryGetValue(sheetId, out var pictures))
-            return pictures;
+        if (!_drawings.TryGetValue(sheetId, out var pictures))
+        {
+            _drawings[sheetId] = pictures = new Drawing(sheetId);
+        }
 
-        throw new InvalidOperationException($"Unable to find pictures for sheet {sheetId}.");
+        return pictures;
     }
 
-    public void AddPicture(int sheetId, PictureData data, IPicturePlacement placement)
+    public void AddPicture(int sheetId, PictureData data, PictureFormat format, IPicturePlacement placement)
     {
         var id = _id++;
         var relationshipId = $"rId{id}";
         var name = $"Image{id}";
-        var picture = new Picture(id, RelationshipId: relationshipId, Name: name, data, placement);
+        var picture = new Picture(id, RelationshipId: relationshipId, Name: name, data, format, placement);
 
         if (!_drawings.TryGetValue(sheetId, out var pictures))
             _drawings[sheetId] = pictures = new Drawing(sheetId);

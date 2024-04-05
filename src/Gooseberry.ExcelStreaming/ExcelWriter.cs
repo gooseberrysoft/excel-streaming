@@ -95,8 +95,8 @@ namespace Gooseberry.ExcelStreaming
             return _buffer.FlushCompleted(_sheetStream!, _token);
         }
 
-        public void AddPicture(in PictureData data, IPicturePlacement placement)
-            => _sheetDrawings.AddPicture(_sheets[^1].Id, data, placement);
+        public void AddPicture(in PictureData data, PictureFormat format, IPicturePlacement placement)
+            => _sheetDrawings.AddPicture(_sheets[^1].Id, data, format, placement);
 
         public void AddCell(string data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
             => AddCell(data.AsSpan(), style, rightMerge, downMerge);

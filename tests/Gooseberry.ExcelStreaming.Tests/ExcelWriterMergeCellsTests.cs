@@ -37,7 +37,7 @@ public sealed class ExcelWriterMergeCellsTests
                     new Cell("Id", CellValueType.String)
                 })
             },
-            merges: new []{ "A1:B2" });
+            Merges: new []{ "A1:B2" });
 
         sheets.ShouldBeEquivalentTo(expectedSheet);
     }
@@ -105,7 +105,7 @@ public sealed class ExcelWriterMergeCellsTests
                     new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), style: Constants.DefaultDateTimeStyle)
                 })
             },
-            merges: new []{ "A1:B2", "C1:D1", "A3:B3" });
+            Merges: new []{ "A1:B2", "C1:D1", "A3:B3" });
 
         sheets.ShouldBeEquivalentTo(expectedSheet);
     }    

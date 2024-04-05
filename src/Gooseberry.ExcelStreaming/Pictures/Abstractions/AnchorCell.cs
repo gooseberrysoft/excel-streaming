@@ -4,10 +4,15 @@ using System.Runtime.InteropServices;
 namespace Gooseberry.ExcelStreaming.Pictures.Abstractions;
 
 [StructLayout(LayoutKind.Auto)]
-public readonly record struct AnchorCell(int Row, int Column, Point Offset)
+public readonly record struct AnchorCell(int Column, int Row, Point Offset)
 {
-    public AnchorCell(int row, int column)
-        : this(row, column, Point.Empty)
+    public AnchorCell(int column, int row)
+        : this(column, row, Point.Empty)
+    {
+    }
+
+    public AnchorCell(int column, int row, int columnOffset, int rowOffset)
+        : this(column, row, new Point(columnOffset, rowOffset))
     {
     }
 }

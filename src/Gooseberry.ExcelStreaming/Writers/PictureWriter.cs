@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using Gooseberry.ExcelStreaming.Helpers;
 using Gooseberry.ExcelStreaming.Pictures;
 
 namespace Gooseberry.ExcelStreaming.Writers;
@@ -22,43 +21,14 @@ internal sealed class PictureWriter
 
         WriteNonVisualProperties(picture, buffer, encoder, ref span, ref written);
         WriteBinaryLargeImage(picture, buffer, encoder, ref span, ref written);
-        WriteShapeProperties(picture, buffer, ref span, ref written);
+        WriteShapeProperties(buffer, ref span, ref written);
 
         Constants.Drawing.Picture.GetPostfix().WriteTo(buffer, ref span, ref written);
     }
 
-    private static void WriteShapeProperties(Picture picture, BuffersChain buffer, ref Span<byte> span, ref int written)
+    private static void WriteShapeProperties(BuffersChain buffer, ref Span<byte> span, ref int written)
     {
         Constants.Drawing.Picture.ShapeProperties.GetPrefix().WriteTo(buffer, ref span, ref written);
-        /*
-        Constants.Drawing.Picture.ShapeProperties.Transformation.GetPrefix().WriteTo(buffer, ref span, ref written);
-
-        Constants.Drawing.Picture.ShapeProperties.Transformation.Offset.GetPrefix().WriteTo(buffer, ref span, ref written);
-        
-        Constants.Drawing.Picture.ShapeProperties.Transformation.Offset.X.GetPrefix().WriteTo(buffer, ref span, ref written);
-        0.WriteTo(buffer, ref span, ref written);
-        Constants.Drawing.Picture.ShapeProperties.Transformation.Offset.X.GetPostfix().WriteTo(buffer, ref span, ref written);
-        
-        Constants.Drawing.Picture.ShapeProperties.Transformation.Offset.Y.GetPrefix().WriteTo(buffer, ref span, ref written);
-        0.WriteTo(buffer, ref span, ref written);
-        Constants.Drawing.Picture.ShapeProperties.Transformation.Offset.Y.GetPostfix().WriteTo(buffer, ref span, ref written);
-        
-        Constants.Drawing.Picture.ShapeProperties.Transformation.Offset.GetPostfix().WriteTo(buffer, ref span, ref written);
-        
-        Constants.Drawing.Picture.ShapeProperties.Transformation.Extents.GetPrefix().WriteTo(buffer, ref span, ref written);
-        
-        Constants.Drawing.Picture.ShapeProperties.Transformation.Extents.Width.GetPrefix().WriteTo(buffer, ref span, ref written);
-        EmuConverter.ConvertToEnglishMetricUnits(picture.Info.PixelSize.Width, resolution: 96).WriteTo(buffer, ref span, ref written);
-        Constants.Drawing.Picture.ShapeProperties.Transformation.Extents.Width.GetPostfix().WriteTo(buffer, ref span, ref written);
-        
-        Constants.Drawing.Picture.ShapeProperties.Transformation.Extents.Height.GetPrefix().WriteTo(buffer, ref span, ref written);
-        EmuConverter.ConvertToEnglishMetricUnits(picture.Info.PixelSize.Height, resolution: 96).WriteTo(buffer, ref span, ref written);
-        Constants.Drawing.Picture.ShapeProperties.Transformation.Extents.Height.GetPostfix().WriteTo(buffer, ref span, ref written);
-        
-        Constants.Drawing.Picture.ShapeProperties.Transformation.Extents.GetPostfix().WriteTo(buffer, ref span, ref written);
-        
-        Constants.Drawing.Picture.ShapeProperties.Transformation.GetPostfix().WriteTo(buffer, ref span, ref written);
-        */
 
         Constants.Drawing.Picture.ShapeProperties.PresetGeometry.GetRect().WriteTo(buffer, ref span, ref written);
 

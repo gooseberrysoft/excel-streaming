@@ -93,69 +93,6 @@ internal static partial class Constants
 
                 public static ReadOnlySpan<byte> GetPostfix()
                     => "</xdr:spPr>"u8;
-                
-                public static class Transformation
-                {
-                    public static ReadOnlySpan<byte> GetPrefix()
-                        => "<a:xfrm>"u8;
-
-                    public static ReadOnlySpan<byte> GetPostfix()
-                        => "</a:xfrm>"u8;
-                    
-                    public static class Offset
-                    {
-                        public static ReadOnlySpan<byte> GetPrefix()
-                            => "<a:off"u8;
-
-                        public static ReadOnlySpan<byte> GetPostfix()
-                            => "/>"u8;
-                        
-                        public static class X
-                        {
-                            public static ReadOnlySpan<byte> GetPrefix()
-                                => " x=\""u8;
-
-                            public static ReadOnlySpan<byte> GetPostfix()
-                                => "\""u8;
-                        }
-                        
-                        public static class Y
-                        {
-                            public static ReadOnlySpan<byte> GetPrefix()
-                                => " y=\""u8;
-
-                            public static ReadOnlySpan<byte> GetPostfix()
-                                => "\""u8;
-                        }
-                    }
-                    
-                    public static class Extents
-                    {
-                        public static ReadOnlySpan<byte> GetPrefix()
-                            => "<a:ext"u8;
-
-                        public static ReadOnlySpan<byte> GetPostfix()
-                            => "/>"u8;
-                        
-                        public static class Width
-                        {
-                            public static ReadOnlySpan<byte> GetPrefix()
-                                => " cx=\""u8;
-
-                            public static ReadOnlySpan<byte> GetPostfix()
-                                => "\""u8;
-                        }
-                        
-                        public static class Height
-                        {
-                            public static ReadOnlySpan<byte> GetPrefix()
-                                => " cy=\""u8;
-
-                            public static ReadOnlySpan<byte> GetPostfix()
-                                => "\""u8;
-                        }
-                    }
-                }
 
                 public static class PresetGeometry
                 {

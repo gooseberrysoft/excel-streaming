@@ -26,6 +26,39 @@
 
     <ItemGroup>
       <EmbeddedResource Include="Resources\Images\SampleImagePng.png" />
+      <None Remove="Resources\Images\ImageHandling.png" />
+      <None Remove="Resources\Images\SampleImageBmpV1.bmp" />
+      <EmbeddedResource Include="Resources\Images\SampleImageBmpV1.bmp" />
+      <None Remove="Resources\Images\SampleImageBmpWin2bit.bmp" />
+      <EmbeddedResource Include="Resources\Images\SampleImageBmpWin2bit.bmp" />
+      <None Remove="Resources\Images\SampleImageBmpWin4bit.bmp" />
+      <EmbeddedResource Include="Resources\Images\SampleImageBmpWin4bit.bmp" />
+      <None Remove="Resources\Images\SampleImageBmpWin8bit.bmp" />
+      <EmbeddedResource Include="Resources\Images\SampleImageBmpWin8bit.bmp" />
+      <None Remove="Resources\Images\SampleImageBmpWin24bit.bmp" />
+      <EmbeddedResource Include="Resources\Images\SampleImageBmpWin24bit.bmp" />
+      <None Remove="Resources\Images\SampleImageEmf.emf" />
+      <EmbeddedResource Include="Resources\Images\SampleImageEmf.emf" />
+      <None Remove="Resources\Images\SampleImageExif.jpg" />
+      <EmbeddedResource Include="Resources\Images\SampleImageExif.jpg" />
+      <None Remove="Resources\Images\SampleImageGif87a.gif" />
+      <EmbeddedResource Include="Resources\Images\SampleImageGif87a.gif" />
+      <None Remove="Resources\Images\SampleImageGif89a.gif" />
+      <EmbeddedResource Include="Resources\Images\SampleImageGif89a.gif" />
+      <None Remove="Resources\Images\SampleImageJfif.jpg" />
+      <EmbeddedResource Include="Resources\Images\SampleImageJfif.jpg" />
+      <None Remove="Resources\Images\SampleImageOriginalWmf.wmf" />
+      <EmbeddedResource Include="Resources\Images\SampleImageOriginalWmf.wmf" />
+      <None Remove="Resources\Images\SampleImagePcx.pcx" />
+      <None Remove="Resources\Images\SampleImagePlaceableWmf.wmf" />
+      <EmbeddedResource Include="Resources\Images\SampleImagePlaceableWmf.wmf" />
+      <None Remove="Resources\Images\SampleImageTiffBigEndian.tiff" />
+      <EmbeddedResource Include="Resources\Images\SampleImageTiffBigEndian.tiff" />
+      <None Remove="Resources\Images\SampleImageTiffLittleEndian.tiff" />
+      <EmbeddedResource Include="Resources\Images\SampleImageTiffLittleEndian.tiff" />
+      <None Remove="Resources\Images\SampleImageWebpExtendedFormat.webp" />
+      <None Remove="Resources\Images\SampleImageWebpLossless.webp" />
+      <None Remove="Resources\Images\SampleImageWebpLossy.webp" />
     </ItemGroup>
 
 </Project>

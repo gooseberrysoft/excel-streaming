@@ -1,7 +1,4 @@
-﻿using Gooseberry.ExcelStreaming.Pictures.Abstractions;
-using Gooseberry.ExcelStreaming.Pictures.InfoReaders;
-
-namespace Gooseberry.ExcelStreaming.Pictures;
+﻿namespace Gooseberry.ExcelStreaming.Pictures;
 
 public readonly struct PictureData
 {
@@ -14,6 +11,11 @@ public readonly struct PictureData
         if (stream is not null && bytes is not null && memory is not null)
             throw new ArgumentException("Only one of data type can be set.");
 
+        if (stream is not null && !stream.CanSeek)
+        {
+            throw new ArgumentException("Only seekable streams allowed.", nameof(stream));
+        }
+
         _stream = stream;
         _bytes = bytes;
         _memory = memory;
@@ -24,6 +26,7 @@ public readonly struct PictureData
         if (_stream is not null)
         {
             await _stream.CopyToAsync(stream);
+            _stream.Position = 0;
         }
         else if (_bytes is not null)
         {
@@ -37,14 +40,6 @@ public readonly struct PictureData
 
             binaryWriter.Write(_memory.Value.Span);
         }
-    }
-
-    internal PictureInfo GetInfo()
-    {
-        if (_stream is not null)
-            return ImageInfoEngine.Instance.GetInfo(_stream);
-
-        throw new InvalidOperationException();
     }
 
     public static implicit operator PictureData(Stream stream)
