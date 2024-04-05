@@ -64,7 +64,7 @@ internal static class PathResolver
             PictureFormat.Jpeg => "jpg",
             PictureFormat.Emf => "emf",
             PictureFormat.Wmf => "wmf",
-            _ => ".image",
+            _ => "image",
         };
     }
 }
