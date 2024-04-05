@@ -7,7 +7,7 @@ internal static partial class Constants
     public static class Drawing
     {
         public static ReadOnlySpan<byte> GetPrefix()
-            => "<xdr:wsDr xmlns:xdr=\"http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\">"u8;
+            => "<xdr:wsDr xmlns:xdr=\"http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing\" xmlns:a=\"http://schemas.openxmlformats.org/drawingml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"u8;
 
         public static ReadOnlySpan<byte> GetPostfix()
             => "</xdr:wsDr>"u8;
@@ -16,6 +16,42 @@ internal static partial class Constants
         {
             public static ReadOnlySpan<byte> GetBody()
                 => "<xdr:clientData/>"u8;
+        }
+
+        public static class Relationships
+        {
+            public static ReadOnlySpan<byte> GetPrefix()
+                => "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">"u8;
+            
+            public static ReadOnlySpan<byte> GetPostfix()
+                => "</Relationships>"u8;
+
+            public static class Relationship
+            {
+                public static ReadOnlySpan<byte> GetPrefix()
+                    => "<Relationship Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\""u8;
+            
+                public static ReadOnlySpan<byte> GetPostfix()
+                    => "/>"u8;
+
+                public static class Id
+                {
+                    public static ReadOnlySpan<byte> GetPrefix()
+                        => " Id=\""u8;
+                    
+                    public static ReadOnlySpan<byte> GetPostfix()
+                        => "\""u8;
+                }
+
+                public static class Target
+                {
+                    public static ReadOnlySpan<byte> GetPrefix()
+                        => " Target=\""u8;
+                    
+                    public static ReadOnlySpan<byte> GetPostfix()
+                        => "\""u8;
+                }
+            }
         }
 
         public static class Picture
@@ -37,10 +73,10 @@ internal static partial class Constants
                 public static class Blip
                 {
                     public static ReadOnlySpan<byte> GetPrefix()
-                        => "<a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\""u8;
+                        => "<a:blip r:embed=\""u8;
 
                     public static ReadOnlySpan<byte> GetPostfix()
-                        => "/>"u8;
+                        => "\" cstate=\"print\"/>"u8;
                 }
 
                 public static class Stretch
@@ -57,11 +93,74 @@ internal static partial class Constants
 
                 public static ReadOnlySpan<byte> GetPostfix()
                     => "</xdr:spPr>"u8;
+                
+                public static class Transformation
+                {
+                    public static ReadOnlySpan<byte> GetPrefix()
+                        => "<a:xfrm>"u8;
+
+                    public static ReadOnlySpan<byte> GetPostfix()
+                        => "</a:xfrm>"u8;
+                    
+                    public static class Offset
+                    {
+                        public static ReadOnlySpan<byte> GetPrefix()
+                            => "<a:off"u8;
+
+                        public static ReadOnlySpan<byte> GetPostfix()
+                            => "/>"u8;
+                        
+                        public static class X
+                        {
+                            public static ReadOnlySpan<byte> GetPrefix()
+                                => " x=\""u8;
+
+                            public static ReadOnlySpan<byte> GetPostfix()
+                                => "\""u8;
+                        }
+                        
+                        public static class Y
+                        {
+                            public static ReadOnlySpan<byte> GetPrefix()
+                                => " y=\""u8;
+
+                            public static ReadOnlySpan<byte> GetPostfix()
+                                => "\""u8;
+                        }
+                    }
+                    
+                    public static class Extents
+                    {
+                        public static ReadOnlySpan<byte> GetPrefix()
+                            => "<a:ext"u8;
+
+                        public static ReadOnlySpan<byte> GetPostfix()
+                            => "/>"u8;
+                        
+                        public static class Width
+                        {
+                            public static ReadOnlySpan<byte> GetPrefix()
+                                => " cx=\""u8;
+
+                            public static ReadOnlySpan<byte> GetPostfix()
+                                => "\""u8;
+                        }
+                        
+                        public static class Height
+                        {
+                            public static ReadOnlySpan<byte> GetPrefix()
+                                => " cy=\""u8;
+
+                            public static ReadOnlySpan<byte> GetPostfix()
+                                => "\""u8;
+                        }
+                    }
+                }
 
                 public static class PresetGeometry
                 {
                     public static ReadOnlySpan<byte> GetRect()
-                        => "<a:prstGeom prst=\"rect\"><a:avLst/></a:prstGeom>"u8;
+                        => "<a:prstGeom prst=\"rect\"/>"u8;
                 }
             }
 
@@ -108,13 +207,22 @@ internal static partial class Constants
             }
         }
 
-        public static class OneCellAnchor
+        public static class TwoCellAnchor
         {
             public static ReadOnlySpan<byte> GetPrefix()
                 => "<xdr:twoCellAnchor editAs=\"oneCell\">"u8;
 
             public static ReadOnlySpan<byte> GetPostfix()
                 => "</xdr:twoCellAnchor>"u8;
+        }
+
+        public static class OneCellAnchor
+        {
+            public static ReadOnlySpan<byte> GetPrefix()
+                => "<xdr:oneCellAnchor>"u8;
+
+            public static ReadOnlySpan<byte> GetPostfix()
+                => "</xdr:oneCellAnchor>"u8;
 
             public static class Size
             {

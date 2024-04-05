@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.IO.Compression;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Gooseberry.ExcelStreaming.Configuration;
 using Gooseberry.ExcelStreaming.Pictures;
 using Gooseberry.ExcelStreaming.Pictures.Abstractions;
@@ -34,7 +29,7 @@ namespace Gooseberry.ExcelStreaming
         private uint _columnCount = 0;
         private readonly List<Merge> _merges = new();
         private readonly Dictionary<string, List<CellReference>> _hyperlinks = new();
-        private readonly ExcelPictures _sheetDrawings = new();
+        private readonly SheetDrawings _sheetDrawings = new();
 
         public ExcelWriter(
             Stream outputStream,
@@ -218,6 +213,15 @@ namespace Gooseberry.ExcelStreaming
             AddMerge(rightMerge, downMerge);
         }
 
+        private async ValueTask AddPictures()
+        {
+            foreach (var picture in _sheetDrawings.Pictures)
+            {
+                await using var stream = OpenEntry(PathResolver.GetFullPath(picture));
+                await picture.Data.WriteTo(stream);
+            }
+        }
+
         public async ValueTask Complete()
         {
             EnsureNotCompleted();
@@ -228,6 +232,7 @@ namespace Gooseberry.ExcelStreaming
             if (_sheetStream != null)
                 await EndSheet();
 
+            await AddPictures();
             await AddWorkbook();
             await AddContentTypes();
             await AddWorkbookRelationships();
@@ -260,23 +265,20 @@ namespace Gooseberry.ExcelStreaming
         {
             var sheet = _sheets[^1];
             var drawing = _sheetDrawings.Get(sheet.Id);
-            
-            DataWriters.SheetWriter.WriteDrawing(drawing, _buffer, _encoder);
-            DataWriters.SheetWriter.WriteEndSheet(_buffer, _merges, _hyperlinks);
+
+            DataWriters.SheetWriter.WriteEndSheet(_buffer, _encoder, drawing, _merges, _hyperlinks);
 
             await _buffer.FlushAll(_sheetStream!, _token);
             await _sheetStream!.FlushAsync(_token);
             await _sheetStream!.DisposeAsync();
             _sheetStream = null;
 
-            await AddDrawing(sheet);
             await AddSheetRelationships(sheet);
 
-            _hyperlinks.Clear();
-        }
+            await AddDrawing(sheet);
+            await AddDrawingRelationships(sheet);
 
-        private void AddDrawings(Drawing pictures)
-        {
+            _hyperlinks.Clear();
         }
 
         private void AddMerge(uint rightMerge = 0, uint downMerge = 0)
@@ -309,7 +311,7 @@ namespace Gooseberry.ExcelStreaming
         {
             await using var stream = OpenEntry("[Content_Types].xml");
 
-            DataWriters.ContentTypesWriter.Write(_sheets, _buffer, _encoder);
+            DataWriters.ContentTypesWriter.Write(_sheets, _sheetDrawings, _buffer, _encoder);
 
             await _buffer.FlushAll(stream, _token);
         }
@@ -348,12 +350,12 @@ namespace Gooseberry.ExcelStreaming
         private async ValueTask AddDrawingRelationships(Sheet sheet)
         {
             var drawing = _sheetDrawings.Get(sheet.Id);
-            
+
             if (drawing.IsEmpty)
                 return;
 
             await using var stream = OpenEntry(PathResolver.GetRelationshipsFullPath(drawing));
-            DataWriters.DrawingWriter.Write(drawing, _buffer, _encoder);
+            DataWriters.DrawingRelationshipsWriter.Write(drawing, _buffer, _encoder);
 
             await _buffer.FlushAll(stream, _token);
         }
@@ -361,7 +363,7 @@ namespace Gooseberry.ExcelStreaming
         private async ValueTask AddDrawing(Sheet sheet)
         {
             var drawing = _sheetDrawings.Get(sheet.Id);
-            
+
             if (drawing.IsEmpty)
                 return;
 

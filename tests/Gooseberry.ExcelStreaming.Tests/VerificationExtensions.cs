@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
-using Gooseberry.ExcelStreaming.Tests.Excel;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Gooseberry.ExcelStreaming.Styles;
@@ -9,7 +6,7 @@ namespace Gooseberry.ExcelStreaming.Tests
 {
     public static class VerificationExtensions
     {
-        public static void ShouldBeEquivalentTo(this IReadOnlyCollection<Sheet> actualSheets, params Sheet[] expectedSheets)
+        public static void ShouldBeEquivalentTo(this IReadOnlyCollection<Excel.Sheet> actualSheets, params Excel.Sheet[] expectedSheets)
         {
             using var scope = new AssertionScope();
 

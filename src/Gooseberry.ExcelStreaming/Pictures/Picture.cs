@@ -7,4 +7,16 @@ internal readonly record struct Picture(
     string RelationshipId,
     string Name,
     PictureData Data,
-    IPicturePlacement Placement);
+    PictureInfo Info,
+    IPicturePlacement Placement)
+{
+    public Picture(
+        int Id,
+        string RelationshipId,
+        string Name,
+        PictureData Data,
+        IPicturePlacement Placement)
+        : this(Id, RelationshipId, Name, Data, Data.GetInfo(), Placement)
+    {
+    }
+}

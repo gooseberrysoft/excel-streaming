@@ -2,17 +2,17 @@
 
 namespace Gooseberry.ExcelStreaming.Pictures;
 
-internal sealed class ExcelPictures
+internal sealed class SheetDrawings
 {
-    private readonly Dictionary<int, Drawing> _sheetPictures = new();
+    private readonly Dictionary<int, Drawing> _drawings = new();
 
     private int _id = 1;
 
-    public IEnumerable<Picture> Pictures => _sheetPictures.Values.SelectMany(v => v.Pictures);
+    public IEnumerable<Picture> Pictures => _drawings.Values.SelectMany(v => v.Pictures);
 
     public Drawing Get(int sheetId)
     {
-        if (_sheetPictures.TryGetValue(sheetId, out var pictures))
+        if (_drawings.TryGetValue(sheetId, out var pictures))
             return pictures;
 
         throw new InvalidOperationException($"Unable to find pictures for sheet {sheetId}.");
@@ -22,11 +22,11 @@ internal sealed class ExcelPictures
     {
         var id = _id++;
         var relationshipId = $"rId{id}";
-        var name = $"Picture {id}";
+        var name = $"Image{id}";
         var picture = new Picture(id, RelationshipId: relationshipId, Name: name, data, placement);
 
-        if (!_sheetPictures.TryGetValue(sheetId, out var pictures))
-            _sheetPictures[sheetId] = pictures = new Drawing(sheetId);
+        if (!_drawings.TryGetValue(sheetId, out var pictures))
+            _drawings[sheetId] = pictures = new Drawing(sheetId);
 
         pictures.Add(picture);
     }

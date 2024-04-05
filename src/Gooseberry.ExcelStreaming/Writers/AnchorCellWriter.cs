@@ -19,13 +19,13 @@ internal sealed class AnchorCellWriter
         cell.Column.WriteTo(buffer, ref span, ref written);
         Constants.Drawing.AnchorCell.Column.GetPostfix().WriteTo(buffer, ref span, ref written);
 
-        Constants.Drawing.AnchorCell.Row.GetPrefix().WriteTo(buffer, ref span, ref written);
-        cell.Row.WriteTo(buffer, ref span, ref written);
-        Constants.Drawing.AnchorCell.Row.GetPostfix().WriteTo(buffer, ref span, ref written);
-
         Constants.Drawing.AnchorCell.ColumnOffset.GetPrefix().WriteTo(buffer, ref span, ref written);
         cell.Offset.X.WriteTo(buffer, ref span, ref written);
         Constants.Drawing.AnchorCell.ColumnOffset.GetPostfix().WriteTo(buffer, ref span, ref written);
+
+        Constants.Drawing.AnchorCell.Row.GetPrefix().WriteTo(buffer, ref span, ref written);
+        cell.Row.WriteTo(buffer, ref span, ref written);
+        Constants.Drawing.AnchorCell.Row.GetPostfix().WriteTo(buffer, ref span, ref written);
 
         Constants.Drawing.AnchorCell.RowOffset.GetPrefix().WriteTo(buffer, ref span, ref written);
         cell.Offset.Y.WriteTo(buffer, ref span, ref written);

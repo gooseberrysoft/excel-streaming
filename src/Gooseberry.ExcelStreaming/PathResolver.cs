@@ -18,8 +18,14 @@ internal static class PathResolver
     public static string GetRelationshipsFullPath(Drawing drawing)
         => $"{MainDirectory}/{GetRelationshipsDirectory(drawing)}/{GetRelationshipsFileName(drawing)}";
 
-    public static string GetRelativePath(in Sheet from, Drawing to)
-        => $"../{GetDirectory(to)}/{GetFileName(to)}";
+    public static string GetFullPath(Picture picture)
+        => $"{MainDirectory}/{GetDirectory(picture)}/{GetFileName(picture)}";
+    
+    public static string GetFileName(Picture picture)
+        => $"image{picture.Id}.png";
+
+    public static string GetDirectory(Picture picture)
+        => $"media";
 
     public static string GetFileName(Drawing drawing)
         => $"drawing{drawing.SheetId}.xml";
@@ -37,7 +43,7 @@ internal static class PathResolver
         => "drawings";
 
     public static string GetRelationshipsDirectory(Drawing drawing)
-        => GetDirectory(drawing) + "/rels";
+        => GetDirectory(drawing) + "/_rels";
 
     public static string GetDirectory(in Sheet sheet)
         => "worksheets";

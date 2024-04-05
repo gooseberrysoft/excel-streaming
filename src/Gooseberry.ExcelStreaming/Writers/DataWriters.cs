@@ -9,8 +9,12 @@ internal static class DataWriters
     public static readonly AnchorCellWriter AnchorCellWriter = new();
 
     public static readonly OneCellAnchorPicturePlacementWriter OneCellAnchorPicturePlacementWriter = new();
+    
+    public static readonly TwoCellAnchorPicturePlacementWriter TwoCellAnchorPicturePlacementWriter = new();
 
     public static readonly DrawingWriter DrawingWriter = new();
+
+    public static readonly DrawingRelationshipsWriter DrawingRelationshipsWriter = new();
 
     public static readonly PictureWriter PictureWriter = new();
     

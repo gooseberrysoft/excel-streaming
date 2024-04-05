@@ -28,7 +28,7 @@ public sealed class ExcelWriterMergeCellsTests
 
         var sheets = ExcelReader.ReadSheets(outputStream);
 
-        var expectedSheet = new Sheet(
+        var expectedSheet = new Excel.Sheet(
             "test sheet",
             new []
             {
@@ -79,7 +79,7 @@ public sealed class ExcelWriterMergeCellsTests
         
         var sheets = ExcelReader.ReadSheets(outputStream);
 
-        var expectedSheet = new Sheet(
+        var expectedSheet = new Excel.Sheet(
             "test sheet",
             new []
             {

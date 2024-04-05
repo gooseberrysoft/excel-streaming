@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Text;
+using Gooseberry.ExcelStreaming.Extensions;
 using Gooseberry.ExcelStreaming.Pictures;
 
 namespace Gooseberry.ExcelStreaming.Writers;
@@ -30,13 +31,13 @@ internal readonly struct SheetRelationshipsWriter
         {
             Constants.SheetRelationships.Drawing.GetPrefix().WriteTo(buffer, ref span, ref written);
             
+            Constants.SheetRelationships.Drawing.Target.GetPrefix().WriteTo(buffer, ref span, ref written);
+            PathResolver.GetFullPath(drawing).EnsureLeadingSlash().WriteTo(buffer, encoder, ref span, ref written);
+            Constants.SheetRelationships.Drawing.Target.GetPostfix().WriteTo(buffer, ref span, ref written);
+            
             Constants.SheetRelationships.Drawing.Id.GetPrefix().WriteTo(buffer, ref span, ref written);
             drawing.RelationshipId.WriteTo(buffer, encoder, ref span, ref written);
             Constants.SheetRelationships.Drawing.Id.GetPostfix().WriteTo(buffer, ref span, ref written);
-            
-            Constants.SheetRelationships.Drawing.Target.GetPrefix().WriteTo(buffer, ref span, ref written);
-            PathResolver.GetRelativePath(sheet, drawing).WriteTo(buffer, encoder, ref span, ref written);
-            Constants.SheetRelationships.Drawing.Target.GetPostfix().WriteTo(buffer, ref span, ref written);
             
             Constants.SheetRelationships.Drawing.GetPostfix().WriteTo(buffer, ref span, ref written);
         }

@@ -112,7 +112,7 @@ namespace Gooseberry.ExcelStreaming
                     => "<drawing r:id=\""u8;
                     
                 public static ReadOnlySpan<byte> GetPostfix()
-                    => "/>"u8;
+                    => "\"/>"u8;
             }
 
             public static class View
@@ -216,12 +216,22 @@ namespace Gooseberry.ExcelStreaming
         {
             public static readonly byte[] Prefix = Encoding.UTF8.GetBytes(
                 "<Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\">"
+                + "<Default Extension=\"png\" ContentType=\"image/png\"/>"
                 + "<Default Extension=\"xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\" />"
                 + "<Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\" />"
                 + "<Override PartName=\"/xl/styles.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml\"/>"
                 + "<Override ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml\" PartName=\"/xl/sharedStrings.xml\"/>");
 
             public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</Types>");
+            
+            public static class Drawing
+            {
+                public static ReadOnlySpan<byte> GetPrefix()
+                    => "<Override PartName=\""u8;
+
+                public static ReadOnlySpan<byte> GetPostfix()
+                    => "\" ContentType=\"application/vnd.openxmlformats-officedocument.drawing+xml\"/>"u8;
+            }
 
             public static class Sheet
             {

@@ -4,4 +4,8 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>        
     </PropertyGroup>
+    
+    <ItemGroup>
+        <InternalsVisibleTo Include="Gooseberry.ExcelStreaming.Tests"/>
+    </ItemGroup>
 </Project>
