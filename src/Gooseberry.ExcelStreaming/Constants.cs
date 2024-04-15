@@ -1,5 +1,5 @@
 using System.Text;
-using Gooseberry.ExcelStreaming.Pictures.Abstractions;
+using Gooseberry.ExcelStreaming.Pictures;
 
 namespace Gooseberry.ExcelStreaming
 {

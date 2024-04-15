@@ -1,12 +1,11 @@
 ﻿using System.Text;
 using Gooseberry.ExcelStreaming.Pictures;
-using Gooseberry.ExcelStreaming.Pictures.Placements;
 
 namespace Gooseberry.ExcelStreaming.Writers;
 
-internal sealed class TwoCellAnchorPicturePlacementWriter
+internal sealed class TwoCellAnchorPicturePlacementWriter(AnchorCell from, AnchorCell to) : IPicturePlacementWriter
 {
-    public void Write(Picture picture, BuffersChain buffer, Encoder encoder)
+    public void Write(in Picture picture, BuffersChain buffer, Encoder encoder)
     {
         var span = buffer.GetSpan();
         var written = 0;
@@ -16,21 +15,16 @@ internal sealed class TwoCellAnchorPicturePlacementWriter
         buffer.Advance(written);
     }
 
-    public void Write(Picture picture, BuffersChain buffer, Encoder encoder, ref Span<byte> span, ref int written)
+    public void Write(in Picture picture, BuffersChain buffer, Encoder encoder, ref Span<byte> span, ref int written)
     {
-        if (picture.Placement is not TwoCellAnchorPicturePlacement placement)
-        {
-            throw new ArgumentException("Must be one cell anchor.", nameof(picture));
-        }
-
         Constants.Drawing.TwoCellAnchor.GetPrefix().WriteTo(buffer, ref span, ref written);
 
         Constants.Drawing.AnchorFrom.GetPrefix().WriteTo(buffer, ref span, ref written);
-        DataWriters.AnchorCellWriter.Write(placement.From, buffer, ref span, ref written);
+        DataWriters.AnchorCellWriter.Write(from, buffer, ref span, ref written);
         Constants.Drawing.AnchorFrom.GetPostfix().WriteTo(buffer, ref span, ref written);
 
         Constants.Drawing.AnchorTo.GetPrefix().WriteTo(buffer, ref span, ref written);
-        DataWriters.AnchorCellWriter.Write(placement.To, buffer, ref span, ref written);
+        DataWriters.AnchorCellWriter.Write(to, buffer, ref span, ref written);
         Constants.Drawing.AnchorTo.GetPostfix().WriteTo(buffer, ref span, ref written);
 
         DataWriters.PictureWriter.Write(picture, buffer, encoder, ref span, ref written);

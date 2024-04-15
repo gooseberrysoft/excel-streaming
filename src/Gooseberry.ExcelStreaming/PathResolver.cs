@@ -1,5 +1,4 @@
 ﻿using Gooseberry.ExcelStreaming.Pictures;
-using Gooseberry.ExcelStreaming.Pictures.Abstractions;
 
 namespace Gooseberry.ExcelStreaming;
 
@@ -19,14 +18,14 @@ internal static class PathResolver
     public static string GetRelationshipsFullPath(Drawing drawing)
         => $"{MainDirectory}/{GetRelationshipsDirectory(drawing)}/{GetRelationshipsFileName(drawing)}";
 
-    public static string GetFullPath(Picture picture)
+    public static string GetFullPath(in Picture picture)
         => $"{MainDirectory}/{GetDirectory(picture)}/{GetFileName(picture)}";
 
-    public static string GetFileName(Picture picture)
+    public static string GetFileName(in Picture picture)
         => $"image{picture.Id}.{GetExtension(picture.Format)}";
 
-    public static string GetDirectory(Picture picture)
-        => $"media";
+    public static string GetDirectory(in Picture picture)
+        => "media";
 
     public static string GetFileName(Drawing drawing)
         => $"drawing{drawing.SheetId}.xml";

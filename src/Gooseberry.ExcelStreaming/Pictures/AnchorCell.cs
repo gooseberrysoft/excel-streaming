@@ -1,7 +1,7 @@
 ﻿using System.Drawing;
 using System.Runtime.InteropServices;
 
-namespace Gooseberry.ExcelStreaming.Pictures.Abstractions;
+namespace Gooseberry.ExcelStreaming.Pictures;
 
 [StructLayout(LayoutKind.Auto)]
 public readonly record struct AnchorCell(int Column, int Row, Point Offset)

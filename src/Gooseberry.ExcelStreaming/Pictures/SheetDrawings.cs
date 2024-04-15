@@ -1,4 +1,4 @@
-﻿using Gooseberry.ExcelStreaming.Pictures.Abstractions;
+﻿using Gooseberry.ExcelStreaming.Writers;
 
 namespace Gooseberry.ExcelStreaming.Pictures;
 
@@ -20,12 +20,12 @@ internal sealed class SheetDrawings
         return pictures;
     }
 
-    public void AddPicture(int sheetId, PictureData data, PictureFormat format, IPicturePlacement placement)
+    public void AddPicture(int sheetId, in PictureData data, PictureFormat format, IPicturePlacementWriter placementWriter)
     {
         var id = _id++;
         var relationshipId = $"rId{id}";
         var name = $"Image{id}";
-        var picture = new Picture(id, RelationshipId: relationshipId, Name: name, data, format, placement);
+        var picture = new Picture(id, RelationshipId: relationshipId, Name: name, data, format, placementWriter);
 
         Get(sheetId).Add(picture);
     }

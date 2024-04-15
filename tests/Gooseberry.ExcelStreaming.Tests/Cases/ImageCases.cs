@@ -1,4 +1,4 @@
-﻿using Gooseberry.ExcelStreaming.Pictures.Abstractions;
+﻿using Gooseberry.ExcelStreaming.Pictures;
 using Xunit;
 
 namespace Gooseberry.ExcelStreaming.Tests.Cases;

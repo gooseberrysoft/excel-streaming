@@ -1,11 +1,25 @@
-﻿using Gooseberry.ExcelStreaming.Pictures.Abstractions;
+﻿using System.Drawing;
+using Gooseberry.ExcelStreaming.Pictures;
 using Gooseberry.ExcelStreaming.Tests.Extensions;
 
 namespace Gooseberry.ExcelStreaming.Tests.Excel;
 
+public readonly record struct PicturePlacement(AnchorCell From, AnchorCell? To, Size? Size)
+{
+    public PicturePlacement(AnchorCell from, AnchorCell to)
+        : this(from, to, null)
+    {
+    }
+
+    public PicturePlacement(AnchorCell from, Size size)
+        : this(from, null, size)
+    {
+    }
+};
+
 public sealed record Picture(
     byte[] Data,
-    IPicturePlacement Placement,
+    PicturePlacement Placement,
     PictureFormat Format)
 {
     public override int GetHashCode()
