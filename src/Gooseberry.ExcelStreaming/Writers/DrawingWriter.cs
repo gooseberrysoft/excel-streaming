@@ -10,11 +10,7 @@ internal sealed class DrawingWriter
         WritePrefix(buffer);
 
         foreach (var picture in drawing.Pictures)
-        {
-            var visitor = new PicturePlacementWriter(buffer, encoder, picture);
-
-            picture.Placement.Visit(visitor);
-        }
+            new PicturePlacementWriter(buffer, encoder, picture).Write();
 
         WritePostfix(buffer);
     }

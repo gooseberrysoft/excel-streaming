@@ -22,7 +22,10 @@ internal readonly struct PicturePlacementWriter : IPicturePlacementVisitor
         _picture = picture;
     }
 
-    public void Visit(OneCellAnchorPicturePlacement placement)
+    public void Write()
+        => _picture.Placement.Visit(this);
+
+    void IPicturePlacementVisitor.Visit(OneCellAnchorPicturePlacement placement)
     {
         var span = _buffer.GetSpan();
         var written = 0;
@@ -54,7 +57,7 @@ internal readonly struct PicturePlacementWriter : IPicturePlacementVisitor
         _buffer.Advance(written);
     }
 
-    public void Visit(TwoCellAnchorPicturePlacement placement)
+    void IPicturePlacementVisitor.Visit(TwoCellAnchorPicturePlacement placement)
     {
         var span = _buffer.GetSpan();
         var written = 0;
