@@ -1,20 +1,14 @@
-using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
-using System.IO;
-using System.Linq;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Drawing;
 using DocumentFormat.OpenXml.Drawing.Spreadsheet;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
-using Gooseberry.ExcelStreaming.Pictures.Abstractions;
-using Gooseberry.ExcelStreaming.Pictures.Placements;
+using Gooseberry.ExcelStreaming.Pictures;
 using Gooseberry.ExcelStreaming.Styles;
 using Gooseberry.ExcelStreaming.Tests.Converters;
 using Gooseberry.ExcelStreaming.Tests.Extensions;
-using NSubstitute.ExceptionExtensions;
 using Alignment = Gooseberry.ExcelStreaming.Styles.Alignment;
 using Border = Gooseberry.ExcelStreaming.Styles.Border;
 using Borders = Gooseberry.ExcelStreaming.Styles.Borders;
@@ -22,7 +16,6 @@ using Color = Gooseberry.ExcelStreaming.Styles.Color;
 using Column = Gooseberry.ExcelStreaming.Configuration.Column;
 using Fill = Gooseberry.ExcelStreaming.Styles.Fill;
 using Font = Gooseberry.ExcelStreaming.Styles.Font;
-using FromMarker = DocumentFormat.OpenXml.Drawing.Spreadsheet.FromMarker;
 using MarkerType = DocumentFormat.OpenXml.Drawing.Spreadsheet.MarkerType;
 using Point = System.Drawing.Point;
 
@@ -93,7 +86,7 @@ namespace Gooseberry.ExcelStreaming.Tests.Excel
 
             Picture GetOneCellAnchorPicture(OpenXmlPartContainer drawingsPart, OneCellAnchor oneCellAnchor)
             {
-                var placement = new OneCellAnchorPicturePlacement(
+                var placement = new PicturePlacement(
                     GetAnchorCell(oneCellAnchor.FromMarker!),
                     GetSize(oneCellAnchor.Extent!));
 
@@ -105,7 +98,7 @@ namespace Gooseberry.ExcelStreaming.Tests.Excel
 
             Picture GetTwoCellAnchorPicture(OpenXmlPartContainer drawingsPart, TwoCellAnchor twoCellAnchor)
             {
-                var placement = new TwoCellAnchorPicturePlacement(
+                var placement = new PicturePlacement(
                     GetAnchorCell(twoCellAnchor.FromMarker!),
                     GetAnchorCell(twoCellAnchor.ToMarker!));
 
@@ -116,7 +109,7 @@ namespace Gooseberry.ExcelStreaming.Tests.Excel
             }
 
             Size GetSize(Extent extent)
-                => new(width: (int)extent.Cx!.Value, height: (int)extent.Cy!.Value);
+                => new(width: (int)extent.Cy!.Value, height: (int)extent.Cx!.Value);
 
             AnchorCell GetAnchorCell(MarkerType marker)
             {
@@ -125,7 +118,7 @@ namespace Gooseberry.ExcelStreaming.Tests.Excel
                     Column: int.Parse(marker.ColumnId?.Text ?? ""),
                     Offset: new Point(
                         x: int.Parse(marker.ColumnOffset?.Text ?? ""),
-                        y: int.Parse(marker.ColumnOffset?.Text ?? "")));
+                        y: int.Parse(marker.RowOffset?.Text ?? "")));
             }
 
             // sheetPart.DrawingsPart.RootElement.Descendants<OneCellAnchor>().First().Descendants<Picture>().First()

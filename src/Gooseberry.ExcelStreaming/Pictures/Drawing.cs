@@ -4,10 +4,17 @@ internal sealed class Drawing
 {
     private List<Picture>? _pictures;
 
-    public IReadOnlyCollection<Picture> Pictures => (IReadOnlyCollection<Picture>?)_pictures ?? Array.Empty<Picture>();
+    public IReadOnlyCollection<Picture> Pictures
+    {
+        get
+        {
+            IReadOnlyCollection<Picture>? pictures = _pictures;
+            return pictures ?? Array.Empty<Picture>();
+        }
+    }
 
     public int SheetId { get; }
-    
+
     public string RelationshipId { get; }
 
     public bool IsEmpty => Pictures.Count == 0;
@@ -18,6 +25,6 @@ internal sealed class Drawing
         RelationshipId = $"dId{sheetId}";
     }
 
-    public void Add(Picture picture)
+    public void Add(in Picture picture)
         => (_pictures ??= new List<Picture>()).Add(picture);
 }

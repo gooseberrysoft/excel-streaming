@@ -1,4 +1,4 @@
-﻿using Gooseberry.ExcelStreaming.Pictures.Abstractions;
+﻿using Gooseberry.ExcelStreaming.Writers;
 
 namespace Gooseberry.ExcelStreaming.Pictures;
 
@@ -8,4 +8,4 @@ internal readonly record struct Picture(
     string Name,
     PictureData Data,
     PictureFormat Format,
-    IPicturePlacement Placement);
+    IPicturePlacementWriter PlacementWriter);

@@ -1,4 +1,4 @@
-﻿namespace Gooseberry.ExcelStreaming.Pictures.Abstractions;
+﻿namespace Gooseberry.ExcelStreaming.Pictures;
 
 public enum PictureFormat
 {

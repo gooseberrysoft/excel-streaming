@@ -1,10 +1,12 @@
 ﻿using System.Drawing;
-using Gooseberry.ExcelStreaming.Pictures.Abstractions;
-using Gooseberry.ExcelStreaming.Pictures.Placements;
+using Gooseberry.ExcelStreaming.Helpers;
+using Gooseberry.ExcelStreaming.Pictures;
 using Gooseberry.ExcelStreaming.Tests.Cases;
 using Gooseberry.ExcelStreaming.Tests.Excel;
 using Gooseberry.ExcelStreaming.Tests.Extensions;
+using Gooseberry.ExcelStreaming.Writers;
 using Xunit;
+using Picture = Gooseberry.ExcelStreaming.Tests.Excel.Picture;
 
 namespace Gooseberry.ExcelStreaming.Tests;
 
@@ -14,14 +16,14 @@ public sealed class ExcelWriterDrawingTests
     [MemberData(nameof(ImageCases.GetCases), MemberType = typeof(ImageCases))]
     public async Task OneCellAnchor(ImageCase imageCase)
     {
-        var placement1 = new OneCellAnchorPicturePlacement(
+        var placement1 = new PicturePlacement(
             new AnchorCell(row: 2, column: 3),
             new Size(width: 100, height: 200));
 
-        var placement2 = new OneCellAnchorPicturePlacement(
+        var placement2 = new PicturePlacement(
             new AnchorCell(row: 6, column: 6, columnOffset: 10, rowOffset: 30),
             new Size(width: 150, height: 250));
-        
+
         await using var imageStream = imageCase.OpenStream();
 
         var expectedSheet1 = new Excel.Sheet(
@@ -38,8 +40,20 @@ public sealed class ExcelWriterDrawingTests
             },
             Pictures: new[]
             {
-                new Picture(imageStream.ToArray(), placement1, imageCase.Format),
-                new Picture(imageStream.ToArray(), placement2, imageCase.Format)
+                new Picture(
+                    imageStream.ToArray(),
+                    placement1 with {Size = new Size(
+                        (int)EmuConverter.ConvertToEnglishMetricUnits(placement1.Size!.Value.Width, resolution: 96),
+                        (int)EmuConverter.ConvertToEnglishMetricUnits(placement1.Size!.Value.Height, resolution: 96))
+                    },
+                    imageCase.Format),
+                new Picture(
+                    imageStream.ToArray(),
+                    placement2 with {Size = new Size(
+                        (int)EmuConverter.ConvertToEnglishMetricUnits(placement2.Size!.Value.Width, resolution: 96),
+                        (int)EmuConverter.ConvertToEnglishMetricUnits(placement2.Size!.Value.Height, resolution: 96))
+                    },
+                    imageCase.Format)
             });
 
         var expectedSheet2 = expectedSheet1 with { Name = "test sheet 2" };
@@ -58,8 +72,8 @@ public sealed class ExcelWriterDrawingTests
                 writer.AddCell("Name");
                 writer.AddCell("Date");
 
-                writer.AddPicture(imageStream, imageCase.Format, placement1);
-                writer.AddPicture(imageStream, imageCase.Format, placement2);
+                writer.AddPicture(imageStream, imageCase.Format, placement1.From, placement1.Size!.Value);
+                writer.AddPicture(imageStream, imageCase.Format, placement2.From, placement2.Size!.Value);
             }
         }
 
@@ -74,14 +88,14 @@ public sealed class ExcelWriterDrawingTests
     [MemberData(nameof(ImageCases.GetCases), MemberType = typeof(ImageCases))]
     public async Task TwoCellAnchor(ImageCase imageCase)
     {
-        var placement1 = new TwoCellAnchorPicturePlacement(
+        var placement1 = new PicturePlacement(
             new AnchorCell(row: 2, column: 3),
             new AnchorCell(row: 7, column: 10));
 
-        var placement2 = new TwoCellAnchorPicturePlacement(
+        var placement2 = new PicturePlacement(
             new AnchorCell(column: 6, row: 6, columnOffset: 10, rowOffset: 30),
             new AnchorCell(column: 10, row: 7, columnOffset: 15, rowOffset: 300));
-        
+
         await using var imageStream = imageCase.OpenStream();
 
         var expectedSheet1 = new Excel.Sheet(
@@ -98,8 +112,14 @@ public sealed class ExcelWriterDrawingTests
             },
             Pictures: new[]
             {
-                new Picture(imageStream.ToArray(), placement1, imageCase.Format),
-                new Picture(imageStream.ToArray(), placement2, imageCase.Format)
+                new Picture(
+                    imageStream.ToArray(),
+                    placement1,
+                    imageCase.Format),
+                new Picture(
+                    imageStream.ToArray(),
+                    placement2,
+                    imageCase.Format)
             });
 
         var expectedSheet2 = expectedSheet1 with { Name = "test sheet 2" };
@@ -118,8 +138,8 @@ public sealed class ExcelWriterDrawingTests
                 writer.AddCell("Name");
                 writer.AddCell("Date");
 
-                writer.AddPicture(imageStream, imageCase.Format, placement1);
-                writer.AddPicture(imageStream, imageCase.Format, placement2);
+                writer.AddPicture(imageStream, imageCase.Format, placement1.From, placement1.To!.Value);
+                writer.AddPicture(imageStream, imageCase.Format, placement2.From, placement2.To!.Value);
             }
         }
 
