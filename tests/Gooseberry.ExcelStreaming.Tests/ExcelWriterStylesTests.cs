@@ -67,7 +67,7 @@ namespace Gooseberry.ExcelStreaming.Tests
 
             var sheets = ExcelReader.ReadSheets(outputStream);
 
-            var expectedSheet = new Sheet(
+            var expectedSheet = new Excel.Sheet(
                 "test sheet",
                 new []
                 {

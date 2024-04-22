@@ -5,7 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="DocumentFormat.OpenXml" Version="2.15.0" />
+        <PackageReference Include="DocumentFormat.OpenXml" Version="2.16.0" />
         <PackageReference Include="FluentAssertions" Version="6.3.0" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
         <PackageReference Include="NSubstitute" Version="4.2.2" />
@@ -18,6 +18,24 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\src\Gooseberry.ExcelStreaming\Gooseberry.ExcelStreaming.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Include="Resources\Images\SampleImagePng.png" />
+      <EmbeddedResource Include="Resources\Images\SampleImageBmpV1.bmp" />
+      <EmbeddedResource Include="Resources\Images\SampleImageBmpWin2bit.bmp" />
+      <EmbeddedResource Include="Resources\Images\SampleImageBmpWin4bit.bmp" />
+      <EmbeddedResource Include="Resources\Images\SampleImageBmpWin8bit.bmp" />
+      <EmbeddedResource Include="Resources\Images\SampleImageBmpWin24bit.bmp" />
+      <EmbeddedResource Include="Resources\Images\SampleImageEmf.emf" />
+      <EmbeddedResource Include="Resources\Images\SampleImageExif.jpg" />
+      <EmbeddedResource Include="Resources\Images\SampleImageGif87a.gif" />
+      <EmbeddedResource Include="Resources\Images\SampleImageGif89a.gif" />
+      <EmbeddedResource Include="Resources\Images\SampleImageJfif.jpg" />
+      <EmbeddedResource Include="Resources\Images\SampleImageOriginalWmf.wmf" />
+      <EmbeddedResource Include="Resources\Images\SampleImagePlaceableWmf.wmf" />
+      <EmbeddedResource Include="Resources\Images\SampleImageTiffBigEndian.tiff" />
+      <EmbeddedResource Include="Resources\Images\SampleImageTiffLittleEndian.tiff" />
     </ItemGroup>
 
 </Project>

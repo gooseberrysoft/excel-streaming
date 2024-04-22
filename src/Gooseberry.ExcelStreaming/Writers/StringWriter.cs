@@ -132,7 +132,6 @@ internal static class StringWriter
         buffer.Advance(written);
     }
 
-    
     [SkipLocalsInit]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void WriteTo(

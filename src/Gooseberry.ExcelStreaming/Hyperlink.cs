@@ -10,7 +10,7 @@ public readonly struct Hyperlink
     {
         if (string.IsNullOrWhiteSpace(link))
             throw new ArgumentNullException(nameof(link), "Link should not be empty.");
-        
+
         if (string.IsNullOrWhiteSpace(text))
             throw new ArgumentNullException(nameof(text), "Text should not be empty.");
 
@@ -19,6 +19,6 @@ public readonly struct Hyperlink
     }
 
     public string Link { get; }
-    
+
     public string Text { get; }
 }

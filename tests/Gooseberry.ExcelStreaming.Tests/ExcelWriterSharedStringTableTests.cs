@@ -37,7 +37,7 @@ public sealed class ExcelWriterSharedStringTableTests
         outputStream.Seek(0, SeekOrigin.Begin);
         var sheets = ExcelReader.ReadSheets(outputStream);
         
-        var expectedSheet = new Sheet(
+        var expectedSheet = new Excel.Sheet(
             "test sheet",
             new []
             {
@@ -81,7 +81,7 @@ public sealed class ExcelWriterSharedStringTableTests
         outputStream.Seek(0, SeekOrigin.Begin);
         var sheets = ExcelReader.ReadSheets(outputStream);
         
-        var expectedSheet = new Sheet(
+        var expectedSheet = new Excel.Sheet(
             "test sheet",
             new []
             {

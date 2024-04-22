@@ -1,12 +1,14 @@
-using System;
-using System.Collections.Generic;
+using System.Drawing;
 using System.Globalization;
-using System.IO;
-using System.Linq;
 using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Drawing;
+using DocumentFormat.OpenXml.Drawing.Spreadsheet;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
+using Gooseberry.ExcelStreaming.Pictures;
 using Gooseberry.ExcelStreaming.Styles;
+using Gooseberry.ExcelStreaming.Tests.Converters;
+using Gooseberry.ExcelStreaming.Tests.Extensions;
 using Alignment = Gooseberry.ExcelStreaming.Styles.Alignment;
 using Border = Gooseberry.ExcelStreaming.Styles.Border;
 using Borders = Gooseberry.ExcelStreaming.Styles.Borders;
@@ -14,6 +16,8 @@ using Color = Gooseberry.ExcelStreaming.Styles.Color;
 using Column = Gooseberry.ExcelStreaming.Configuration.Column;
 using Fill = Gooseberry.ExcelStreaming.Styles.Fill;
 using Font = Gooseberry.ExcelStreaming.Styles.Font;
+using MarkerType = DocumentFormat.OpenXml.Drawing.Spreadsheet.MarkerType;
+using Point = System.Drawing.Point;
 
 namespace Gooseberry.ExcelStreaming.Tests.Excel
 {
@@ -36,7 +40,7 @@ namespace Gooseberry.ExcelStreaming.Tests.Excel
                 .Select(i => i.Text!.Text)
                 .ToArray();
         }
-        
+
         public static IReadOnlyCollection<Sheet> ReadSheets(Stream stream)
         {
             using var spreadsheet = SpreadsheetDocument.Open(stream, isEditable: false);
@@ -54,14 +58,70 @@ namespace Gooseberry.ExcelStreaming.Tests.Excel
 
             return spreadsheet.WorkbookPart!.Parts!
                 .Where(part => part.OpenXmlPart is WorksheetPart)
-                .Select(part =>
-                    new Sheet(
-                        name: sheets[part.RelationshipId],
-                        GetRows((WorksheetPart)part.OpenXmlPart),
-                        GetColumns((WorksheetPart)part.OpenXmlPart),
-                        GetMerges((WorksheetPart)part.OpenXmlPart)))
+                .Select(
+                    part =>
+                        new Sheet(
+                            Name: sheets[part.RelationshipId],
+                            GetRows((WorksheetPart)part.OpenXmlPart),
+                            GetColumns((WorksheetPart)part.OpenXmlPart),
+                            GetMerges((WorksheetPart)part.OpenXmlPart),
+                            GetPictures((WorksheetPart)part.OpenXmlPart)))
                 .ToArray();
 
+            IReadOnlyCollection<Picture> GetPictures(WorksheetPart sheetPart)
+            {
+                var drawingsPart = sheetPart.DrawingsPart;
+
+                if (drawingsPart is null)
+                    return Array.Empty<Picture>();
+
+                var oneCellAnchorPictures = drawingsPart.RootElement!.Descendants<OneCellAnchor>()
+                    .Select(v => GetOneCellAnchorPicture(drawingsPart, v));
+                
+                var twoCellAnchorPictures = drawingsPart.RootElement!.Descendants<TwoCellAnchor>()
+                    .Select(v => GetTwoCellAnchorPicture(drawingsPart, v));
+
+                return oneCellAnchorPictures.Union(twoCellAnchorPictures).ToArray();
+            }
+
+            Picture GetOneCellAnchorPicture(OpenXmlPartContainer drawingsPart, OneCellAnchor oneCellAnchor)
+            {
+                var placement = new PicturePlacement(
+                    GetAnchorCell(oneCellAnchor.FromMarker!),
+                    GetSize(oneCellAnchor.Extent!));
+
+                var imagePart = (ImagePart)drawingsPart.GetPartById(oneCellAnchor.Descendants<Blip>().Single().Embed?.Value ?? "");
+                var format = ContentTypeConverter.ToPictureFormat(imagePart.ContentType);
+
+                return new Picture(imagePart.GetStream().ToArray(), placement, format);
+            }
+
+            Picture GetTwoCellAnchorPicture(OpenXmlPartContainer drawingsPart, TwoCellAnchor twoCellAnchor)
+            {
+                var placement = new PicturePlacement(
+                    GetAnchorCell(twoCellAnchor.FromMarker!),
+                    GetAnchorCell(twoCellAnchor.ToMarker!));
+
+                var imagePart = (ImagePart)drawingsPart.GetPartById(twoCellAnchor.Descendants<Blip>().Single().Embed?.Value ?? "");
+                var format = ContentTypeConverter.ToPictureFormat(imagePart.ContentType);
+
+                return new Picture(imagePart.GetStream().ToArray(), placement, format);
+            }
+
+            Size GetSize(Extent extent)
+                => new(width: (int)extent.Cy!.Value, height: (int)extent.Cx!.Value);
+
+            AnchorCell GetAnchorCell(MarkerType marker)
+            {
+                return new AnchorCell(
+                    Row: int.Parse(marker.RowId?.Text ?? ""),
+                    Column: int.Parse(marker.ColumnId?.Text ?? ""),
+                    Offset: new Point(
+                        x: int.Parse(marker.ColumnOffset?.Text ?? ""),
+                        y: int.Parse(marker.RowOffset?.Text ?? "")));
+            }
+
+            // sheetPart.DrawingsPart.RootElement.Descendants<OneCellAnchor>().First().Descendants<Picture>().First()
             IReadOnlyCollection<Column> GetColumns(WorksheetPart sheetPart)
             {
                 return sheetPart.Worksheet.Descendants<DocumentFormat.OpenXml.Spreadsheet.Column>()
@@ -82,7 +142,7 @@ namespace Gooseberry.ExcelStreaming.Tests.Excel
                     .Select(data => data.Reference!.ToString()!)
                     .ToArray();
             }
-            
+
             IReadOnlyCollection<Cell> GetCells(DocumentFormat.OpenXml.Spreadsheet.Row row)
                 => row.Descendants<DocumentFormat.OpenXml.Spreadsheet.Cell>().Select(GetCell).ToArray();
 
@@ -99,6 +159,7 @@ namespace Gooseberry.ExcelStreaming.Tests.Excel
                 };
 
                 Style? style = null;
+
                 if (cell!.StyleIndex?.HasValue == true)
                     if (styles.TryGetValue(cell.StyleIndex!.Value!, out var styleValue))
                         style = styleValue;
@@ -127,15 +188,14 @@ namespace Gooseberry.ExcelStreaming.Tests.Excel
 
             return styles.CellFormats
                 !.OfType<CellFormat>()
-                .Select(s =>
-                    new Style(
-                        format: numberFormats[s.NumberFormatId!],
-                        fill: s.FillId?.HasValue == true ? fills[(int)s.FillId.Value] : null,
-                        borders: s.BorderId?.HasValue == true ? borders[(int)s.BorderId.Value] : null,
-                        font: s.FontId?.HasValue == true ? fonts[(int)s.FontId.Value] : null,
-                        alignment: s.Alignment != null ? GetAlignment(s.Alignment) : null
-                    )
-                );
+                .Select(
+                    s =>
+                        new Style(
+                            format: numberFormats[s.NumberFormatId!],
+                            fill: s.FillId?.HasValue == true ? fills[(int)s.FillId.Value] : null,
+                            borders: s.BorderId?.HasValue == true ? borders[(int)s.BorderId.Value] : null,
+                            font: s.FontId?.HasValue == true ? fonts[(int)s.FontId.Value] : null,
+                            alignment: s.Alignment != null ? GetAlignment(s.Alignment) : null));
         }
 
         private static Fill GetFill(DocumentFormat.OpenXml.Spreadsheet.Fill fill)
@@ -177,6 +237,7 @@ namespace Gooseberry.ExcelStreaming.Tests.Excel
             };
 
             var color = GetColor(border.Color?.Rgb);
+
             if (!color.HasValue)
                 throw new InvalidOperationException("Color should be set for border.");
 
@@ -240,6 +301,7 @@ namespace Gooseberry.ExcelStreaming.Tests.Excel
         private static Color? GetColor(HexBinaryValue? rgbColor)
         {
             var rgbValue = rgbColor?.Value;
+
             if (!string.IsNullOrEmpty(rgbValue))
                 return new Color(uint.Parse(rgbValue, NumberStyles.HexNumber));
 

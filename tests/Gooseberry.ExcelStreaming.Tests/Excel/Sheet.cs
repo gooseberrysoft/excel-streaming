@@ -1,41 +1,40 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
 using Gooseberry.ExcelStreaming.Configuration;
+using Gooseberry.ExcelStreaming.Tests.Extensions;
 
 namespace Gooseberry.ExcelStreaming.Tests.Excel
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly struct Sheet : IEquatable<Sheet>
+    public readonly record struct Sheet(
+        string Name,
+        IReadOnlyCollection<Row> Rows,
+        IReadOnlyCollection<Column>? Columns = null,
+        IReadOnlyCollection<string>? Merges = null,
+        IReadOnlyCollection<Picture>? Pictures = null)
     {
-        public Sheet(
-            string name, 
-            IReadOnlyCollection<Row> rows, 
-            IReadOnlyCollection<Column>? columns = null,
-            IReadOnlyCollection<string>? merges = null)
-        {
-            Name = name;
-            Columns = columns ?? Array.Empty<Column>();
-            Rows = rows;
-            Merges = merges ?? Array.Empty<string>();
-        }
+        public IReadOnlyCollection<Picture> Pictures { get; init; } = Pictures ?? Array.Empty<Picture>();
 
-        public string Name { get; }
+        public IReadOnlyCollection<Column> Columns { get; init; } = Columns ?? Array.Empty<Column>();
 
-        public IReadOnlyCollection<Column> Columns { get; }
-
-        public IReadOnlyCollection<Row> Rows { get; }
-        
-        public IReadOnlyCollection<string> Merges { get; }
+        public IReadOnlyCollection<string> Merges { get; init; } = Merges ?? Array.Empty<string>();
 
         public bool Equals(Sheet other)
-            => string.Equals(Name, other.Name, StringComparison.Ordinal) && Rows.SequenceEqual(other.Rows);
-
-        public override bool Equals(object? other)
-            => other is Sheet sheet && Equals(sheet);
+        {
+            return string.Equals(Name, other.Name, StringComparison.Ordinal)
+                && Rows.SequenceEqual(other.Rows)
+                && Merges.SequenceEqual(other.Merges)
+                && Columns.SequenceEqual(other.Columns)
+                && Pictures.SequenceEqual(other.Pictures);
+        }
 
         public override int GetHashCode()
-            => HashCode.Combine(Name, Rows);
+        {
+            return HashCode.Combine(
+                Name,
+                Rows.GetCollectionHashCode(),
+                Merges.GetCollectionHashCode(),
+                Columns.GetCollectionHashCode(),
+                Pictures.GetCollectionHashCode());
+        }
     }
 }

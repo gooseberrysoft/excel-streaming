@@ -19,6 +19,14 @@ internal static class NumberWriterExtensions
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void WriteTo(
+        this long value,
+        BuffersChain buffer,
+        ref Span<byte> destination,
+        ref int written)
+        => LongWriter.WriteValue(value, buffer, ref destination, ref written);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void WriteTo(
         this uint value,
         BuffersChain buffer,
         ref Span<byte> destination,

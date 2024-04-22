@@ -40,7 +40,7 @@ namespace Gooseberry.ExcelStreaming.Tests
 
             var sheets = ExcelReader.ReadSheets(outputStream);
 
-            var expectedSheet = new Sheet(
+            var expectedSheet = new Excel.Sheet(
                 "test sheet",
                 new []
                 {
@@ -97,7 +97,7 @@ namespace Gooseberry.ExcelStreaming.Tests
 
             var expectedSheets = new[]
             {
-                new Sheet(
+                new Excel.Sheet(
                     "test sheet 1",
                     new[]
                     {
@@ -113,7 +113,7 @@ namespace Gooseberry.ExcelStreaming.Tests
                         })
                     }
                 ),
-                new Sheet(
+                new Excel.Sheet(
                     "test sheet 2",
                     new[]
                     {
@@ -171,7 +171,7 @@ namespace Gooseberry.ExcelStreaming.Tests
 
             var sheets = ExcelReader.ReadSheets(outputStream);
 
-            var expectedSheet = new Sheet(
+            var expectedSheet = new Excel.Sheet(
                 "test",
                 new []
                 {
@@ -204,7 +204,7 @@ namespace Gooseberry.ExcelStreaming.Tests
 
             var sheets = ExcelReader.ReadSheets(outputStream);
 
-            var expectedSheet = new Sheet(
+            var expectedSheet = new Excel.Sheet(
                 sheetName,
                 new []
                 {
@@ -237,7 +237,7 @@ namespace Gooseberry.ExcelStreaming.Tests
 
             var sheets = ExcelReader.ReadSheets(outputStream);
 
-            var expectedSheet = new Sheet(
+            var expectedSheet = new Excel.Sheet(
                 "test",
                 new []
                 {
@@ -270,7 +270,7 @@ namespace Gooseberry.ExcelStreaming.Tests
 
             var sheets = ExcelReader.ReadSheets(outputStream);
 
-            var expectedSheet = new Sheet(
+            var expectedSheet = new Excel.Sheet(
                 longString,
                 new []
                 {
@@ -306,7 +306,7 @@ namespace Gooseberry.ExcelStreaming.Tests
 
             var sheets = ExcelReader.ReadSheets(outputStream);
 
-            var expectedSheet = new Sheet(
+            var expectedSheet = new Excel.Sheet(
                 "test sheet",
                 Array.Empty<Row>(),
                 new []{new Column(10m), new Column(15m)});
@@ -331,7 +331,7 @@ namespace Gooseberry.ExcelStreaming.Tests
 
             var sheets = ExcelReader.ReadSheets(outputStream);
 
-            var expectedSheet = new Sheet(
+            var expectedSheet = new Excel.Sheet(
                 "test sheet",
                 new [] {new Row(Array.Empty<Cell>(), height: 10.8m)});
 

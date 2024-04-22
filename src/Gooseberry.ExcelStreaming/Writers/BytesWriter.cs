@@ -14,7 +14,7 @@ internal static class BytesWriter
         => WriteTo(data.AsSpan(), buffer, ref destination, ref written);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void WriteTo(
+    public static void WriteTo(
         this ReadOnlySpan<byte> data,
         BuffersChain buffer,
         ref Span<byte> destination,
