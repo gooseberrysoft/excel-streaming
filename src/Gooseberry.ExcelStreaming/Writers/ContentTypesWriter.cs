@@ -30,7 +30,7 @@ internal readonly struct ContentTypesWriter
             if (!drawing.IsEmpty)
             {
                 Constants.ContentTypes.Drawing.GetPrefix().WriteTo(buffer, ref span, ref written);
-                PathResolver.GetFullPath(drawing).EnsureLeadingSlash().WriteTo(buffer, encoder, ref span, ref written);
+                PathResolver.GetDrawingFullPath(drawing).EnsureLeadingSlash().WriteTo(buffer, encoder, ref span, ref written);
                 Constants.ContentTypes.Drawing.GetPostfix().WriteTo(buffer, ref span, ref written);
             }
         }

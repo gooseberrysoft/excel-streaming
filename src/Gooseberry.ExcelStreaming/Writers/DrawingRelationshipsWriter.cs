@@ -20,7 +20,7 @@ internal sealed class DrawingRelationshipsWriter
             Constants.Drawing.Relationships.Relationship.GetPrefix().WriteTo(buffer, ref span, ref written);
             
             Constants.Drawing.Relationships.Relationship.Target.GetPrefix().WriteTo(buffer, ref span, ref written);
-            PathResolver.GetFullPath(picture).EnsureLeadingSlash().WriteTo(buffer, encoder, ref span, ref written);
+            PathResolver.GetPictureFullPath(picture).EnsureLeadingSlash().WriteTo(buffer, encoder, ref span, ref written);
             Constants.Drawing.Relationships.Relationship.Target.GetPostfix().WriteTo(buffer, ref span, ref written);
             
             Constants.Drawing.Relationships.Relationship.Id.GetPrefix().WriteTo(buffer, ref span, ref written);

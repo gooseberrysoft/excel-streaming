@@ -1,5 +1,3 @@
-using System;
-
 namespace Gooseberry.ExcelStreaming.Writers;
 
 internal interface INumberFormatter<T>

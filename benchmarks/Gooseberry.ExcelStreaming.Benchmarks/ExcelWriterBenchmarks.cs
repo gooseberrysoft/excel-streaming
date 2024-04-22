@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-using System.IO.Packaging;
-using System.Threading.Tasks;
+﻿using System.IO.Packaging;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Order;
 using DocumentFormat.OpenXml;
@@ -22,7 +19,7 @@ using DocumentFormat.OpenXml.Spreadsheet;
 |     OpenXml |     10000 |   437,536.5 us |  3,856.09 us |  3,606.99 us |  6000.0000 |  27,613 KB |
 | ExcelWriter |    100000 | 1,556,695.5 us | 26,935.45 us | 23,877.57 us |          - |     463 KB |
 |     OpenXml |    100000 | 4,239,805.0 us | 57,404.41 us | 50,887.52 us | 67000.0000 | 275,596 KB |
- 
+
 */
 
 namespace Gooseberry.ExcelStreaming.Benchmarks
@@ -35,12 +32,12 @@ namespace Gooseberry.ExcelStreaming.Benchmarks
 
         [Params(10, 100, 1000, 10_000, 100_000)]
         public int RowsCount { get; set; }
-        
+
         [Benchmark]
         public async Task ExcelWriter()
         {
             await using var outputStream = new NoneStream();
-            
+
             await using var writer = new ExcelWriter(outputStream);
 
             await writer.StartSheet("test");
@@ -51,13 +48,13 @@ namespace Gooseberry.ExcelStreaming.Benchmarks
 
                 for (var columnBatch = 0; columnBatch < ColumnBatchesCount; columnBatch++)
                 {
-                    writer.AddCell(row); 
+                    writer.AddCell(row);
                     writer.AddCell(DateTime.Now.Ticks);
                     writer.AddCell(DateTime.Now);
                     writer.AddCell("some text");
                 }
             }
-            
+
             await writer.Complete();
         }
 
@@ -68,7 +65,7 @@ namespace Gooseberry.ExcelStreaming.Benchmarks
             var package = Package.Open(outputStream, FileMode.Create, FileAccess.Write);
 
             using var document = SpreadsheetDocument.Create(package, SpreadsheetDocumentType.Workbook);
-            
+
             OpenXmlWriter writer;
 
             document.AddWorkbookPart();
@@ -95,16 +92,16 @@ namespace Gooseberry.ExcelStreaming.Benchmarks
             writer.WriteStartElement(new Worksheet());
             writer.WriteStartElement(new SheetData());
 
-            var numCellAttributes = new [] {new OpenXmlAttribute("t", "", "num")};
-            var stringCellAttributes = new [] {new OpenXmlAttribute("t", "", "str")};
-            var dateTimeCellAttributes = new [] {new OpenXmlAttribute("t", "", "d")};
+            var numCellAttributes = new[] { new OpenXmlAttribute("t", "", "num") };
+            var stringCellAttributes = new[] { new OpenXmlAttribute("t", "", "str") };
+            var dateTimeCellAttributes = new[] { new OpenXmlAttribute("t", "", "d") };
 
             var intCell = new Cell();
             var intCellValue = new CellValue();
 
             var longCell = new Cell();
             var longCellValue = new CellValue();
-            
+
             var dateTimeCell = new Cell();
             var dateTimeCellValue = new CellValue();
 
@@ -123,17 +120,17 @@ namespace Gooseberry.ExcelStreaming.Benchmarks
                     intCellValue.Text = row.ToString();
                     writer.WriteElement(intCellValue);
                     writer.WriteEndElement();
-                    
+
                     writer.WriteStartElement(longCell, numCellAttributes);
                     longCellValue.Text = DateTime.Now.Ticks.ToString();
                     writer.WriteElement(longCellValue);
                     writer.WriteEndElement();
-                    
+
                     writer.WriteStartElement(dateTimeCell, dateTimeCellAttributes);
                     dateTimeCellValue.Text = DateTime.Now.ToOADate().ToString();
                     writer.WriteElement(dateTimeCellValue);
                     writer.WriteEndElement();
-                    
+
                     writer.WriteStartElement(stringCell, stringCellAttributes);
                     stringCellValue.Text = "some text";
                     writer.WriteElement(stringCellValue);
@@ -150,8 +147,6 @@ namespace Gooseberry.ExcelStreaming.Benchmarks
             writer.WriteEndElement();
 
             writer.Close();
-
-            document.Close();
         }
     }
 }

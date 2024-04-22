@@ -1,4 +1,3 @@
-using System.Linq;
 using Gooseberry.ExcelStreaming.Styles;
 
 namespace Gooseberry.ExcelStreaming.Writers;

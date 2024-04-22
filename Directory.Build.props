@@ -1,9 +1,8 @@
 <Project>
   <PropertyGroup>
-    <VersionPrefix>1.3.0</VersionPrefix>
-    <Version>1.3.0</Version>
-
-    <TargetFramework>net6.0</TargetFramework>
+    <VersionPrefix>1.4.0</VersionPrefix>
+    <Version>1.4.0</Version>
+    <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -17,10 +16,10 @@
     <!-- Embed source files that are not tracked by the source control manager in the PDB -->
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
 
-    <Copyright>Copyright 2022 © Gooseberry Team</Copyright>
+    <Copyright>Copyright 2024 © Gooseberry Team</Copyright>
     <Company>Gooseberry</Company>
     <Authors>Gooseberry Team</Authors>
-    <PackageTags>excel;stream</PackageTags>
+    <PackageTags>excel;streaming;fast;create</PackageTags>
     <PackageProjectUrl>https://github.com/gooseberrysoft/excel-streaming</PackageProjectUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>

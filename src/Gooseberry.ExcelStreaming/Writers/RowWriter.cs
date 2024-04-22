@@ -1,5 +1,3 @@
-using System.Linq;
-
 namespace Gooseberry.ExcelStreaming.Writers;
 
 internal sealed class RowWriter

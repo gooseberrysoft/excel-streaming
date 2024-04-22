@@ -4,7 +4,6 @@ using Gooseberry.ExcelStreaming.Pictures;
 using Gooseberry.ExcelStreaming.Tests.Cases;
 using Gooseberry.ExcelStreaming.Tests.Excel;
 using Gooseberry.ExcelStreaming.Tests.Extensions;
-using Gooseberry.ExcelStreaming.Writers;
 using Xunit;
 using Picture = Gooseberry.ExcelStreaming.Tests.Excel.Picture;
 

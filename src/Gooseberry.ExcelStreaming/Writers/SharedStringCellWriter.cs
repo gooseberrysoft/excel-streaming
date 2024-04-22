@@ -1,4 +1,3 @@
-using System.Linq;
 using Gooseberry.ExcelStreaming.SharedStrings;
 using Gooseberry.ExcelStreaming.Styles;
 

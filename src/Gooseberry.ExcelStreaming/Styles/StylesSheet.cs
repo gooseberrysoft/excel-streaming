@@ -1,7 +1,3 @@
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
-
 namespace Gooseberry.ExcelStreaming.Styles
 {
     public sealed class StylesSheet

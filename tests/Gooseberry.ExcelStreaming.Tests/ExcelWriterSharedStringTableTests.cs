@@ -1,5 +1,3 @@
-using System.IO;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Gooseberry.ExcelStreaming.SharedStrings;
 using Gooseberry.ExcelStreaming.Tests.Excel;

@@ -25,6 +25,6 @@ internal sealed class Drawing
         RelationshipId = $"dId{sheetId}";
     }
 
-    public void Add(in Picture picture)
+    public void Add(Picture picture)
         => (_pictures ??= new List<Picture>()).Add(picture);
 }

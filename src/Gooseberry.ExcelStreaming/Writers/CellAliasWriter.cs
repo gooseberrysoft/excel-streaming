@@ -1,5 +1,3 @@
-using System;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Gooseberry.ExcelStreaming.Configuration;
@@ -14,7 +12,7 @@ internal static class CellAliasWriter
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void WriteTo(
-        this Merge merge,
+        this in Merge merge,
         BuffersChain buffer,
         ref Span<byte> destination,
         ref int written)

@@ -196,7 +196,7 @@ namespace Gooseberry.ExcelStreaming
             AddMerge(rightMerge, downMerge);
         }
 
-        public void AddCell(Hyperlink hyperlink, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+        public void AddCell(in Hyperlink hyperlink, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
         {
             CheckWriteCell();
             DataWriters.StringCellWriter.Write(hyperlink.Text, _buffer, _encoder, style ?? _styles.DefaultHyperlinkStyle);
@@ -220,7 +220,7 @@ namespace Gooseberry.ExcelStreaming
         {
             foreach (var picture in _sheetDrawings.Pictures)
             {
-                await using var stream = OpenEntry(PathResolver.GetFullPath(picture));
+                await using var stream = OpenEntry(PathResolver.GetPictureFullPath(picture));
                 await picture.Data.WriteTo(stream);
             }
         }
@@ -276,10 +276,10 @@ namespace Gooseberry.ExcelStreaming
             await _sheetStream!.DisposeAsync();
             _sheetStream = null;
 
-            await AddSheetRelationships(sheet);
+            await AddSheetRelationships(sheet.Id);
 
-            await AddDrawing(sheet);
-            await AddDrawingRelationships(sheet);
+            await AddDrawing(sheet.Id);
+            await AddDrawingRelationships(sheet.Id);
 
             _hyperlinks.Clear();
         }
@@ -290,7 +290,7 @@ namespace Gooseberry.ExcelStreaming
                 _merges.Add(new Merge(_rowCount, _columnCount, downMerge, rightMerge));
         }
 
-        private void AddHyperlink(Hyperlink hyperlink)
+        private void AddHyperlink(in Hyperlink hyperlink)
         {
             if (!_hyperlinks.TryGetValue(hyperlink.Link, out var references))
             {
@@ -350,38 +350,38 @@ namespace Gooseberry.ExcelStreaming
             await _buffer.FlushAll(stream, _token);
         }
 
-        private async ValueTask AddDrawingRelationships(Sheet sheet)
+        private async ValueTask AddDrawingRelationships(int sheetId)
         {
-            var drawing = _sheetDrawings.Get(sheet.Id);
+            var drawing = _sheetDrawings.Get(sheetId);
 
             if (drawing.IsEmpty)
                 return;
 
-            await using var stream = OpenEntry(PathResolver.GetRelationshipsFullPath(drawing));
+            await using var stream = OpenEntry(PathResolver.GetDrawingRelationshipsFullPath(drawing));
             DataWriters.DrawingRelationshipsWriter.Write(drawing, _buffer, _encoder);
 
             await _buffer.FlushAll(stream, _token);
         }
 
-        private async ValueTask AddDrawing(Sheet sheet)
+        private async ValueTask AddDrawing(int sheetId)
         {
-            var drawing = _sheetDrawings.Get(sheet.Id);
+            var drawing = _sheetDrawings.Get(sheetId);
 
             if (drawing.IsEmpty)
                 return;
 
-            await using var stream = OpenEntry(PathResolver.GetFullPath(drawing));
+            await using var stream = OpenEntry(PathResolver.GetDrawingFullPath(drawing));
             DataWriters.DrawingWriter.Write(drawing, _buffer, _encoder);
 
             await _buffer.FlushAll(stream, _token);
         }
 
-        private async ValueTask AddSheetRelationships(Sheet sheet)
+        private async ValueTask AddSheetRelationships(int sheetId)
         {
-            await using var stream = OpenEntry(PathResolver.GetRelationshipsFullPath(sheet));
+            await using var stream = OpenEntry(PathResolver.GetSheetRelationshipsFullPath(sheetId));
 
-            var drawing = _sheetDrawings.Get(sheet.Id);
-            DataWriters.SheetRelationshipsWriter.Write(sheet, _hyperlinks.Keys, drawing, _buffer, _encoder);
+            var drawing = _sheetDrawings.Get(sheetId);
+            DataWriters.SheetRelationshipsWriter.Write(_hyperlinks.Keys, drawing, _buffer, _encoder);
 
             await _buffer.FlushAll(stream, _token);
         }

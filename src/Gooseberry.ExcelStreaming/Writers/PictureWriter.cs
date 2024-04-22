@@ -5,7 +5,7 @@ namespace Gooseberry.ExcelStreaming.Writers;
 
 internal sealed class PictureWriter
 {
-    public void Write(in Picture picture, BuffersChain buffer, Encoder encoder)
+    public void Write(Picture picture, BuffersChain buffer, Encoder encoder)
     {
         var span = buffer.GetSpan();
         var written = 0;
@@ -15,7 +15,7 @@ internal sealed class PictureWriter
         buffer.Advance(written);
     }
 
-    public void Write(in Picture picture, BuffersChain buffer, Encoder encoder, ref Span<byte> span, ref int written)
+    public void Write(Picture picture, BuffersChain buffer, Encoder encoder, ref Span<byte> span, ref int written)
     {
         Constants.Drawing.Picture.GetPrefix().WriteTo(buffer, ref span, ref written);
 
@@ -35,7 +35,7 @@ internal sealed class PictureWriter
         Constants.Drawing.Picture.ShapeProperties.GetPostfix().WriteTo(buffer, ref span, ref written);
     }
 
-    private static void WriteBinaryLargeImage(in Picture picture, BuffersChain buffer, Encoder encoder, ref Span<byte> span, ref int written)
+    private static void WriteBinaryLargeImage(Picture picture, BuffersChain buffer, Encoder encoder, ref Span<byte> span, ref int written)
     {
         Constants.Drawing.Picture.BlipFill.GetPrefix().WriteTo(buffer, ref span, ref written);
 
@@ -49,7 +49,7 @@ internal sealed class PictureWriter
     }
 
     private static void WriteNonVisualProperties(
-        in Picture picture,
+        Picture picture,
         BuffersChain buffer,
         Encoder encoder,
         ref Span<byte> span,

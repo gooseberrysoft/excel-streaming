@@ -2,7 +2,7 @@
 
 namespace Gooseberry.ExcelStreaming.Pictures;
 
-internal readonly record struct Picture(
+internal sealed record Picture(
     int Id,
     string RelationshipId,
     string Name,

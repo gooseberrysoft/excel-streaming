@@ -41,6 +41,53 @@ namespace Gooseberry.ExcelStreaming.Tests.Excel
                 .ToArray();
         }
 
+        private static Dictionary<CellValues, CellValueType> CellTypesMap = new()
+        {
+            { CellValues.String, CellValueType.String },
+            { CellValues.Number, CellValueType.Number },
+            { CellValues.Date, CellValueType.DateTime },
+            { CellValues.SharedString, CellValueType.SharedString }
+        };
+
+
+        private static Dictionary<PatternValues, FillPattern> PatternMap = new()
+        {
+            { PatternValues.None, FillPattern.None },
+            { PatternValues.Gray125, FillPattern.Gray125 },
+            { PatternValues.Solid, FillPattern.Solid }
+        };
+
+        private static Dictionary<UnderlineValues, Styles.Underline> UnderlineMap = new()
+        {
+            { UnderlineValues.None, ExcelStreaming.Styles.Underline.None },
+            { UnderlineValues.Single, ExcelStreaming.Styles.Underline.Single },
+            { UnderlineValues.Double, ExcelStreaming.Styles.Underline.Double },
+            { UnderlineValues.SingleAccounting, ExcelStreaming.Styles.Underline.SingleAccounting },
+            { UnderlineValues.DoubleAccounting, ExcelStreaming.Styles.Underline.DoubleAccounting }
+        };
+
+        private static Dictionary<HorizontalAlignmentValues, HorizontalAlignment> HorizontalMap = new()
+        {
+            { HorizontalAlignmentValues.Center, HorizontalAlignment.Center },
+            { HorizontalAlignmentValues.CenterContinuous, HorizontalAlignment.CenterContinuous },
+            { HorizontalAlignmentValues.Distributed, HorizontalAlignment.Distributed },
+            { HorizontalAlignmentValues.Fill, HorizontalAlignment.Fill },
+            { HorizontalAlignmentValues.General, HorizontalAlignment.General },
+            { HorizontalAlignmentValues.Justify, HorizontalAlignment.Justify },
+            { HorizontalAlignmentValues.Left, HorizontalAlignment.Left },
+            { HorizontalAlignmentValues.Right, HorizontalAlignment.Right }
+        };
+
+        private static Dictionary<VerticalAlignmentValues, VerticalAlignment> VerticalMap = new()
+        {
+            { VerticalAlignmentValues.Bottom, VerticalAlignment.Bottom },
+            { VerticalAlignmentValues.Center, VerticalAlignment.Center },
+            { VerticalAlignmentValues.Distributed, VerticalAlignment.Distributed },
+            { VerticalAlignmentValues.Justify, VerticalAlignment.Justify },
+            { VerticalAlignmentValues.Top, VerticalAlignment.Top }
+        };
+
+
         public static IReadOnlyCollection<Sheet> ReadSheets(Stream stream)
         {
             using var spreadsheet = SpreadsheetDocument.Open(stream, isEditable: false);
@@ -77,7 +124,7 @@ namespace Gooseberry.ExcelStreaming.Tests.Excel
 
                 var oneCellAnchorPictures = drawingsPart.RootElement!.Descendants<OneCellAnchor>()
                     .Select(v => GetOneCellAnchorPicture(drawingsPart, v));
-                
+
                 var twoCellAnchorPictures = drawingsPart.RootElement!.Descendants<TwoCellAnchor>()
                     .Select(v => GetTwoCellAnchorPicture(drawingsPart, v));
 
@@ -146,17 +193,15 @@ namespace Gooseberry.ExcelStreaming.Tests.Excel
             IReadOnlyCollection<Cell> GetCells(DocumentFormat.OpenXml.Spreadsheet.Row row)
                 => row.Descendants<DocumentFormat.OpenXml.Spreadsheet.Cell>().Select(GetCell).ToArray();
 
+
             Cell GetCell(DocumentFormat.OpenXml.Spreadsheet.Cell cell)
             {
-                CellValueType? valueType = cell.DataType?.Value switch
-                {
-                    CellValues.String => CellValueType.String,
-                    CellValues.Number => CellValueType.Number,
-                    CellValues.Date => CellValueType.DateTime,
-                    CellValues.SharedString => CellValueType.SharedString,
-                    null => null,
-                    _ => throw new InvalidCastException($"Cannot convert {cell.DataType?.Value} to CellValueType.")
-                };
+                CellValueType? valueType = cell.DataType?.Value == null
+                    ? null
+                    : CellTypesMap.TryGetValue(cell.DataType.Value, out var value)
+                        ? value
+                        : throw new InvalidCastException($"Cannot convert {cell.DataType?.Value} to CellValueType.");
+
 
                 Style? style = null;
 
@@ -203,13 +248,10 @@ namespace Gooseberry.ExcelStreaming.Tests.Excel
             if (fill.PatternFill == null)
                 throw new InvalidOperationException("PatternFill should not be empty.");
 
-            var pattern = fill.PatternFill.PatternType?.Value switch
-            {
-                PatternValues.None => FillPattern.None,
-                PatternValues.Gray125 => FillPattern.Gray125,
-                PatternValues.Solid => FillPattern.Solid,
-                _ => throw new InvalidCastException($"Cannot convert {fill.PatternFill.PatternType?.Value} to FillPattern.")
-            };
+            var pattern = fill.PatternFill.PatternType?.Value != null &&
+                PatternMap.TryGetValue(fill.PatternFill.PatternType.Value, out var value)
+                    ? value
+                    : throw new InvalidCastException($"Cannot convert {fill.PatternFill.PatternType?.Value} to FillPattern.");
 
             var color = GetColor(fill.PatternFill.ForegroundColor?.Rgb);
 
@@ -230,9 +272,9 @@ namespace Gooseberry.ExcelStreaming.Tests.Excel
             if (border == null || border.Style == null && border.Color == null)
                 return null;
 
-            var style = border.Style?.Value switch
+            var style = border.Style?.Value.AsString() switch
             {
-                BorderStyleValues.Thin => BorderStyle.Thin,
+                "thin" => BorderStyle.Thin,
                 _ => throw new InvalidCastException($"Cannot convert {border.Style?.Value} to BorderStyle.")
             };
 
@@ -253,45 +295,27 @@ namespace Gooseberry.ExcelStreaming.Tests.Excel
             var italic = font.Italic?.Val?.Value ?? false;
             var strike = font.Strike?.Val?.Value ?? false;
 
-            var underline = font.Underline?.Val?.Value switch
-            {
-                UnderlineValues.None => ExcelStreaming.Styles.Underline.None,
-                UnderlineValues.Single => ExcelStreaming.Styles.Underline.Single,
-                UnderlineValues.Double => ExcelStreaming.Styles.Underline.Double,
-                UnderlineValues.SingleAccounting => ExcelStreaming.Styles.Underline.SingleAccounting,
-                UnderlineValues.DoubleAccounting => ExcelStreaming.Styles.Underline.DoubleAccounting,
-                _ => throw new InvalidCastException($"Cannot convert {font.Underline?.Val?.Value} to Underline.")
-            };
+            var underline = font.Underline?.Val?.Value != null &&
+                UnderlineMap.TryGetValue(font.Underline.Val.Value, out var value)
+                    ? value
+                    : throw new InvalidCastException($"Cannot convert {font.Underline?.Val?.Value} to Underline.");
 
             return new Font(size, name, color, bold, italic, strike, underline);
         }
 
         private static Alignment GetAlignment(DocumentFormat.OpenXml.Spreadsheet.Alignment alignment)
         {
-            HorizontalAlignment? horizontal = alignment.Horizontal?.Value switch
-            {
-                HorizontalAlignmentValues.Center => HorizontalAlignment.Center,
-                HorizontalAlignmentValues.CenterContinuous => HorizontalAlignment.CenterContinuous,
-                HorizontalAlignmentValues.Distributed => HorizontalAlignment.Distributed,
-                HorizontalAlignmentValues.Fill => HorizontalAlignment.Fill,
-                HorizontalAlignmentValues.General => HorizontalAlignment.General,
-                HorizontalAlignmentValues.Justify => HorizontalAlignment.Justify,
-                HorizontalAlignmentValues.Left => HorizontalAlignment.Left,
-                HorizontalAlignmentValues.Right => HorizontalAlignment.Right,
-                null => null,
-                _ => throw new InvalidCastException($"Cannot convert {alignment.Horizontal?.Value} to HorizontalAlignment.")
-            };
+            HorizontalAlignment? horizontal = alignment.Horizontal?.Value == null
+                ? null
+                : HorizontalMap.TryGetValue(alignment.Horizontal.Value, out var hValue)
+                    ? hValue
+                    : throw new InvalidCastException($"Cannot convert {alignment.Horizontal?.Value} to HorizontalAlignment.");
 
-            VerticalAlignment? vertical = alignment.Vertical?.Value switch
-            {
-                VerticalAlignmentValues.Bottom => VerticalAlignment.Bottom,
-                VerticalAlignmentValues.Center => VerticalAlignment.Center,
-                VerticalAlignmentValues.Distributed => VerticalAlignment.Distributed,
-                VerticalAlignmentValues.Justify => VerticalAlignment.Justify,
-                VerticalAlignmentValues.Top => VerticalAlignment.Top,
-                null => null,
-                _ => throw new InvalidCastException($"Cannot convert {alignment.Horizontal?.Value} to VerticalAlignment.")
-            };
+            VerticalAlignment? vertical = alignment.Vertical?.Value == null
+                ? null
+                : VerticalMap.TryGetValue(alignment.Vertical.Value, out var vValue)
+                    ? vValue
+                    : throw new InvalidCastException($"Cannot convert {alignment.Horizontal?.Value} to VerticalAlignment.");
 
             var wrapText = alignment.WrapText?.Value == true;
 
@@ -307,5 +331,8 @@ namespace Gooseberry.ExcelStreaming.Tests.Excel
 
             return null;
         }
+
+        public static string AsString(this IEnumValue value)
+            => value.Value;
     }
 }

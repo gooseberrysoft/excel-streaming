@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Gooseberry.ExcelStreaming.Styles.Records;
 
 namespace Gooseberry.ExcelStreaming.Styles
@@ -95,7 +94,7 @@ namespace Gooseberry.ExcelStreaming.Styles
             return _fills.Count - 1;
         }
 
-        private int GetOrAddFontId(Font font)
+        private int GetOrAddFontId(in Font font)
         {
             var index = _fonts.IndexOf(font);
             if (index >= 0)
@@ -105,7 +104,7 @@ namespace Gooseberry.ExcelStreaming.Styles
             return _fonts.Count - 1;
         }
 
-        private int GetOrAddBordersId(Borders borders)
+        private int GetOrAddBordersId(in Borders borders)
         {
             var index = _borders.IndexOf(borders);
             if (index >= 0)

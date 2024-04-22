@@ -1,24 +1,29 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34728.123
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "common", "common", "{37BF5D9D-10D2-4E57-A82D-A6C2C3D69638}"
-ProjectSection(SolutionItems) = preProject
-	.gitignore = .gitignore
-	Directory.Build.props = Directory.Build.props
-	Directory.Build.targets = Directory.Build.targets
-	README.md = README.md
-EndProjectSection
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		Directory.Build.props = Directory.Build.props
+		Directory.Build.targets = Directory.Build.targets
+		.github\workflows\dotnet-core.yml = .github\workflows\dotnet-core.yml
+		.github\workflows\nuget-publish.yml = .github\workflows\nuget-publish.yml
+		README.md = README.md
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gooseberry.ExcelStreaming", "src\Gooseberry.ExcelStreaming\Gooseberry.ExcelStreaming.csproj", "{44C781D7-B006-4502-96A4-549451DB216B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gooseberry.ExcelStreaming", "src\Gooseberry.ExcelStreaming\Gooseberry.ExcelStreaming.csproj", "{44C781D7-B006-4502-96A4-549451DB216B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{9843128B-E847-4ECE-9D6D-257BD715EBFB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{EF16DD44-EC95-460B-B8E7-7101587BBE5E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gooseberry.ExcelStreaming.Tests", "tests\Gooseberry.ExcelStreaming.Tests\Gooseberry.ExcelStreaming.Tests.csproj", "{7DEE4A28-8F32-4CEE-84BA-C8D633FF1A03}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gooseberry.ExcelStreaming.Tests", "tests\Gooseberry.ExcelStreaming.Tests\Gooseberry.ExcelStreaming.Tests.csproj", "{7DEE4A28-8F32-4CEE-84BA-C8D633FF1A03}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "benchmarks", "benchmarks", "{52D4471F-43AC-4CD6-80BA-760A9A5DCA19}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gooseberry.ExcelStreaming.Benchmarks", "benchmarks\Gooseberry.ExcelStreaming.Benchmarks\Gooseberry.ExcelStreaming.Benchmarks.csproj", "{DC50F4BC-5377-4DEE-BA09-1FD10BF21DBD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gooseberry.ExcelStreaming.Benchmarks", "benchmarks\Gooseberry.ExcelStreaming.Benchmarks\Gooseberry.ExcelStreaming.Benchmarks.csproj", "{DC50F4BC-5377-4DEE-BA09-1FD10BF21DBD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,6 +43,9 @@ Global
 		{DC50F4BC-5377-4DEE-BA09-1FD10BF21DBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DC50F4BC-5377-4DEE-BA09-1FD10BF21DBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DC50F4BC-5377-4DEE-BA09-1FD10BF21DBD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{44C781D7-B006-4502-96A4-549451DB216B} = {9843128B-E847-4ECE-9D6D-257BD715EBFB}

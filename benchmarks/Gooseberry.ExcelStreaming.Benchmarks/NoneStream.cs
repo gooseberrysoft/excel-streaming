@@ -1,8 +1,3 @@
-using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-
 namespace Gooseberry.ExcelStreaming.Benchmarks
 {
     public sealed class NoneStream : Stream

@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Text;
 using Gooseberry.ExcelStreaming.Configuration;
 using Gooseberry.ExcelStreaming.Pictures;
@@ -8,7 +6,7 @@ namespace Gooseberry.ExcelStreaming.Writers;
 
 internal sealed class SheetWriter
 {
-    public void WriteStartSheet(BuffersChain buffer, SheetConfiguration? configuration)
+    public void WriteStartSheet(BuffersChain buffer, in SheetConfiguration? configuration)
     {
         var span = buffer.GetSpan();
         var written = 0;
@@ -48,7 +46,7 @@ internal sealed class SheetWriter
     }
 
     private static void WriteSheetView(
-        SheetConfiguration configuration,
+        in SheetConfiguration configuration,
         BuffersChain buffer,
         ref Span<byte> span,
         ref int written)
