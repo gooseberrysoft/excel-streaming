@@ -236,6 +236,56 @@ namespace Gooseberry.ExcelStreaming.Tests
             sheets.ShouldBeEquivalentTo(expectedSheet);
         }
 
+        [Fact]
+        public async Task AddCellsWithSpecialSymbolsUtf8_WritesCorrectData()
+        {
+            var text = "Tags such as <img> and <input> directly &introduce \"content\" into the page.";
+            var text2 = "<img> is image tag";
+            var text3 = "Exit >>>>>>>>>>>>>>>";
+
+            var outputStream = new MemoryStream();
+
+            await using (var writer = new ExcelWriter(outputStream))
+            {
+                await writer.StartSheet("test");
+
+                await writer.StartRow();
+
+                WriteUtf8Row(writer);
+
+                await writer.Complete();
+            }
+
+            outputStream.Seek(0, SeekOrigin.Begin);
+
+            var sheets = ExcelReader.ReadSheets(outputStream);
+
+            var expectedSheet = new Excel.Sheet(
+                "test",
+                new[]
+                {
+                    new Row(new[]
+                    {
+                        new Cell(text, CellValueType.String),
+                        new Cell(text2, CellValueType.String),
+                        new Cell(text3, CellValueType.String),
+                    })
+                });
+
+            sheets.ShouldBeEquivalentTo(expectedSheet);
+        }
+
+        private static void WriteUtf8Row(ExcelWriter writer)
+        {
+            var text = "Tags such as <img> and <input> directly &introduce \"content\" into the page."u8;
+            var text2 = "<img> is image tag"u8;
+            var text3 = "Exit >>>>>>>>>>>>>>>"u8;
+
+            writer.AddUtf8Cell(text);
+            writer.AddUtf8Cell(text2);
+            writer.AddUtf8Cell(text3);
+        }
+
         [Theory]
         [MemberData(nameof(SpecialSymbols))]
         public async Task StartSheetWithSpecialSymbols_WritesCorrectData(string sheetName)
@@ -307,9 +357,9 @@ namespace Gooseberry.ExcelStreaming.Tests
         {
             var outputStream = new MemoryStream();
             var longString =
-                "long long long loong loooong loooooooon loooooooooooooooooooooong very long"+
+                "long long long loong loooong loooooooon loooooooooooooooooooooong very long" +
                 "long long long loong loooong loooooooon loooooooooooooooooooooong very long &string";
-            
+
             await using (var writer = new ExcelWriter(outputStream, bufferSize: 32))
             {
                 await writer.StartSheet(longString);

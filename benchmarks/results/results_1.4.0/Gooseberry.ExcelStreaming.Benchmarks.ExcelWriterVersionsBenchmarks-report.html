@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
 <meta charset='utf-8' />
-<title>Gooseberry.ExcelStreaming.Benchmarks.ExcelWriterVersionsBenchmarks-20240424-182450</title>
+<title>Gooseberry.ExcelStreaming.Benchmarks.ExcelWriterVersionsBenchmarks-20240424-190711</title>
 
 <style type="text/css">
 	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
@@ -22,10 +22,12 @@ BenchmarkDotNet v0.13.12, Windows 10 (10.0.19045.4291/22H2/2022Update)
 <pre><code></code></pre>
 
 <table>
-<thead><tr><th>Method               </th><th>Mean</th><th>Error</th><th>StdDev</th><th>Allocated</th>
+<thead><tr><th>Method                    </th><th>Mean</th><th>Error</th><th>StdDev</th><th>Allocated</th>
 </tr>
-</thead><tbody><tr><td>ExcelWriter_WithoutEscaping</td><td>1.583 s</td><td>0.0308 s</td><td>0.0461 s</td><td>11.09 KB</td>
-</tr><tr><td>ExcelWriter_WithEscaping</td><td>1.702 s</td><td>0.0151 s</td><td>0.0134 s</td><td>11.09 KB</td>
+</thead><tbody><tr><td>ExcelWriter_WithoutEscaping_Utf8</td><td>1.556 s</td><td>0.0309 s</td><td>0.0444 s</td><td>11.09 KB</td>
+</tr><tr><td>ExcelWriter_WithoutEscaping</td><td>1.597 s</td><td>0.0317 s</td><td>0.0339 s</td><td>11.09 KB</td>
+</tr><tr><td>ExcelWriter_WithEscaping_Utf8</td><td>1.605 s</td><td>0.0321 s</td><td>0.0343 s</td><td>11.09 KB</td>
+</tr><tr><td>ExcelWriter_WithEscaping</td><td>1.840 s</td><td>0.0272 s</td><td>0.0241 s</td><td>11.09 KB</td>
 </tr></tbody></table>
 </body>
 </html>

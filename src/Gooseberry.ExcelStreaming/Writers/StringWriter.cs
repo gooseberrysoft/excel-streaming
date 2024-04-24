@@ -108,7 +108,6 @@ internal static class StringWriter
         }
     }
 
-    [SkipLocalsInit]
     internal static void WriteEscapedUtf8To(
         this scoped ReadOnlySpan<byte> utf8Data,
         BuffersChain buffer,
