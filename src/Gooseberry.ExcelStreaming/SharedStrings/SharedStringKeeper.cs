@@ -5,15 +5,15 @@ namespace Gooseberry.ExcelStreaming.SharedStrings;
 
 internal sealed class SharedStringKeeper : IDisposable
 {
-    private readonly BuffersChain _buffer = new BuffersChain(bufferSize: 4 * 1024, flushThreshold: 1.0);
+    private BuffersChain? _buffer;
     private readonly Dictionary<string, SharedStringReference> _references = new();
     private readonly int _externalAddedStrings;
     private readonly Encoder _encoder;
 
     public SharedStringKeeper(SharedStringTable? sharedStringTable, Encoder encoder)
     {
-        DataWriters.SharedStringWriter.WritePrefix(_buffer);
-        sharedStringTable?.WriteTo(_buffer);
+        if (sharedStringTable != null)
+            sharedStringTable.WriteTo(GetBuffer());
 
         _externalAddedStrings = sharedStringTable?.Count ?? 0;
         _encoder = encoder;
@@ -25,19 +25,33 @@ internal sealed class SharedStringKeeper : IDisposable
             return reference;
 
         reference = new SharedStringReference(_references.Count + _externalAddedStrings);
-        
-        DataWriters.SharedStringWriter.Write(value, _buffer, _encoder);
+
+        DataWriters.SharedStringWriter.Write(value, GetBuffer(), _encoder);
         _references[value] = reference;
-        
+
         return reference;
     }
-    
+
     internal ValueTask WriteTo(Stream stream, CancellationToken token)
     {
+        if (_buffer == null)
+            return ValueTask.CompletedTask;
+
         DataWriters.SharedStringWriter.WritePostfix(_buffer);
         return _buffer.FlushAll(stream, token);
     }
 
-    public void Dispose() 
-        => _buffer.Dispose();
+    public void Dispose()
+        => _buffer?.Dispose();
+
+    private BuffersChain GetBuffer()
+    {
+        if (_buffer == null)
+        {
+            _buffer = new BuffersChain(bufferSize: 8 * 1024, flushThreshold: 1.0);
+            DataWriters.SharedStringWriter.WritePrefix(_buffer);
+        }
+
+        return _buffer;
+    }
 }

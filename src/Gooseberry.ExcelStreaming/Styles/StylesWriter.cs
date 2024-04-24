@@ -11,7 +11,7 @@ namespace Gooseberry.ExcelStreaming.Styles
 
         public StylesWriter()
         {
-            _buffer = new BuffersChain(bufferSize: 4 * 1024, flushThreshold: 1.0);
+            _buffer = new BuffersChain(bufferSize: 8 * 1024, flushThreshold: 1.0);
             _encoder = Encoding.UTF8.GetEncoder();
 
             Constants.XmlPrefix.WriteTo(_buffer);

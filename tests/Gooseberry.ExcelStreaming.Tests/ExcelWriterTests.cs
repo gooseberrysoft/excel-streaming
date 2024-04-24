@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text;
 using Gooseberry.ExcelStreaming.Tests.Excel;
 using FluentAssertions;
 using Gooseberry.ExcelStreaming.Configuration;
@@ -38,15 +39,15 @@ namespace Gooseberry.ExcelStreaming.Tests
 
             var expectedSheet = new Excel.Sheet(
                 "test sheet",
-                new []
+                new[]
                 {
-                    new Row(new []
+                    new Row(new[]
                     {
                         new Cell("Id", CellValueType.String),
                         new Cell("Name", CellValueType.String),
                         new Cell("Date", CellValueType.String)
                     }),
-                    new Row(new []
+                    new Row(new[]
                     {
                         new Cell("1", CellValueType.Number, Constants.DefaultNumberStyle),
                         new Cell("name", CellValueType.String),
@@ -153,12 +154,17 @@ namespace Gooseberry.ExcelStreaming.Tests
         {
             var outputStream = new MemoryStream();
 
-            await using (var writer = new ExcelWriter(outputStream))
+            var longText = string.Join('&', Enumerable.Repeat(0, 2000)
+                .Select(_ => value));
+            longText = longText.Substring(0, Math.Min(longText.Length, 32_767));
+
+            await using (var writer = new ExcelWriter(outputStream, bufferSize: 1024))
             {
                 await writer.StartSheet("test");
 
                 await writer.StartRow();
                 writer.AddCell(value);
+                writer.AddCell(longText);
 
                 await writer.Complete();
             }
@@ -169,11 +175,61 @@ namespace Gooseberry.ExcelStreaming.Tests
 
             var expectedSheet = new Excel.Sheet(
                 "test",
-                new []
+                new[]
                 {
-                    new Row(new []
+                    new Row(new[]
                     {
                         new Cell(value, CellValueType.String),
+                        new Cell(longText, CellValueType.String),
+                    })
+                });
+
+            sheets.ShouldBeEquivalentTo(expectedSheet);
+        }
+
+
+        [Fact]
+        public async Task AddCellsWithSpecialSymbols_WritesCorrectData()
+        {
+            const string text = "Tags such as <img> and <input> directly &introduce \"content\" into the page.";
+            const string text2 = "<img> is image tag";
+            const string text3 = "Exit >>>>>>>>>>>>>>>";
+
+            var longTextBuilder = new StringBuilder(32_767);
+            for (var i = 0; i < 100; i++)
+                longTextBuilder.Append(text).Append(text2).Append(text3);
+
+            var longText = longTextBuilder.ToString();
+
+            var outputStream = new MemoryStream();
+
+            await using (var writer = new ExcelWriter(outputStream))
+            {
+                await writer.StartSheet("test");
+
+                await writer.StartRow();
+                writer.AddCell(text);
+                writer.AddCell(text2);
+                writer.AddCell(text3);
+                writer.AddCell(longText);
+
+                await writer.Complete();
+            }
+
+            outputStream.Seek(0, SeekOrigin.Begin);
+
+            var sheets = ExcelReader.ReadSheets(outputStream);
+
+            var expectedSheet = new Excel.Sheet(
+                "test",
+                new[]
+                {
+                    new Row(new[]
+                    {
+                        new Cell(text, CellValueType.String),
+                        new Cell(text2, CellValueType.String),
+                        new Cell(text3, CellValueType.String),
+                        new Cell(longText, CellValueType.String),
                     })
                 });
 
@@ -202,9 +258,9 @@ namespace Gooseberry.ExcelStreaming.Tests
 
             var expectedSheet = new Excel.Sheet(
                 sheetName,
-                new []
+                new[]
                 {
-                    new Row(new []
+                    new Row(new[]
                     {
                         new Cell("test", CellValueType.String),
                     })
@@ -218,7 +274,7 @@ namespace Gooseberry.ExcelStreaming.Tests
         {
             var outputStream = new MemoryStream();
             var longString = "long long long loong loooong loooooooon loooooooooooooooooooooong very long string";
-            
+
             await using (var writer = new ExcelWriter(outputStream, bufferSize: 32))
             {
                 await writer.StartSheet("test");
@@ -235,9 +291,9 @@ namespace Gooseberry.ExcelStreaming.Tests
 
             var expectedSheet = new Excel.Sheet(
                 "test",
-                new []
+                new[]
                 {
-                    new Row(new []
+                    new Row(new[]
                     {
                         new Cell(longString, CellValueType.String),
                     })
@@ -250,8 +306,10 @@ namespace Gooseberry.ExcelStreaming.Tests
         public async Task StartSheetWithNameLongerThanBuffer_WritesCorrectData()
         {
             var outputStream = new MemoryStream();
-            var longString = "long long long loong loooong loooooooon loooooooooooooooooooooong very long string";
-
+            var longString =
+                "long long long loong loooong loooooooon loooooooooooooooooooooong very long"+
+                "long long long loong loooong loooooooon loooooooooooooooooooooong very long &string";
+            
             await using (var writer = new ExcelWriter(outputStream, bufferSize: 32))
             {
                 await writer.StartSheet(longString);
@@ -268,9 +326,9 @@ namespace Gooseberry.ExcelStreaming.Tests
 
             var expectedSheet = new Excel.Sheet(
                 longString,
-                new []
+                new[]
                 {
-                    new Row(new []
+                    new Row(new[]
                     {
                         new Cell("test", CellValueType.String),
                     })
@@ -289,7 +347,7 @@ namespace Gooseberry.ExcelStreaming.Tests
                 await writer.StartSheet(
                     "test sheet",
                     new SheetConfiguration(
-                        new [] 
+                        new[]
                         {
                             new Column(width: 10m),
                             new Column(width: 15m)
@@ -305,7 +363,7 @@ namespace Gooseberry.ExcelStreaming.Tests
             var expectedSheet = new Excel.Sheet(
                 "test sheet",
                 Array.Empty<Row>(),
-                new []{new Column(10m), new Column(15m)});
+                new[] { new Column(10m), new Column(15m) });
 
             sheets.ShouldBeEquivalentTo(expectedSheet);
         }
@@ -329,7 +387,7 @@ namespace Gooseberry.ExcelStreaming.Tests
 
             var expectedSheet = new Excel.Sheet(
                 "test sheet",
-                new [] {new Row(Array.Empty<Cell>(), height: 10.8m)});
+                new[] { new Row(Array.Empty<Cell>(), height: 10.8m) });
 
             sheets.ShouldBeEquivalentTo(expectedSheet);
         }
@@ -338,17 +396,17 @@ namespace Gooseberry.ExcelStreaming.Tests
         {
             return new[]
             {
-                new [] {"\""},
-                new [] {"'"},
-                new [] {"<"},
-                new [] {">"},
-                new [] {"&"},
-                new [] {"text before_\""},
-                new [] {"\"_text after"},
-                new [] {"text before_\"_text after"},
-                new [] {"test\nother"},
-                new [] {"test\tother"},
-                new [] {"2021 \u00a9 ozon"}
+                new[] { "\"" },
+                new[] { "'" },
+                new[] { "<" },
+                new[] { ">" },
+                new[] { "&" },
+                new[] { "text before_\"" },
+                new[] { "\"_text after" },
+                new[] { "text before_\"_text after" },
+                new[] { "test\nother" },
+                new[] { "test\tother" },
+                new[] { "2021 \u00a9 ozon" }
             };
         }
     }
