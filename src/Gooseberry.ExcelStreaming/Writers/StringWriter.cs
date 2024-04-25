@@ -7,7 +7,7 @@ namespace Gooseberry.ExcelStreaming.Writers;
 
 internal static class StringWriter
 {
-    private const int StackCharsThreshold = 256;
+    private const int StackBytesThreshold = 512;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void WriteEscapedTo(
@@ -20,20 +20,18 @@ internal static class StringWriter
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void WriteEscapedTo(
-        this string data,
+        this ReadOnlySpan<char> data,
         BuffersChain buffer,
         Encoder encoder)
     {
         var span = buffer.GetSpan();
         var written = 0;
 
-        WriteEscapedTo(data.AsSpan(), buffer, encoder, ref span, ref written);
-        
+        WriteEscapedTo(data, buffer, encoder, ref span, ref written);
+
         buffer.Advance(written);
     }
 
-    [SkipLocalsInit]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void WriteEscapedTo(
         this ReadOnlySpan<char> data,
         BuffersChain buffer,
@@ -41,73 +39,111 @@ internal static class StringWriter
         ref Span<byte> destination,
         ref int written)
     {
-        encoder.Reset();
+        var multiByteChar = false;
 
-        //TODO think better about formula
-        // we assume that 5% of symbols will be escaped by 6 characters each
-        var bufferSize = Math.Min(data.Length + data.Length / 3 + 16, 32 * 1024);
-        var allocOnStack = bufferSize <= StackCharsThreshold;
-        var pooledBuffer = allocOnStack ? null : ArrayPool<char>.Shared.Rent(bufferSize);
+        while (true)
+        {
+            if (destination.Length == 0 || multiByteChar)
+            {
+                buffer.Advance(written);
 
-        var charBuffer = allocOnStack ? stackalloc char[bufferSize] : pooledBuffer;
+                destination = buffer.GetSpan(Buffer.MinSize);
+                written = 0;
+            }
+
+            encoder.Convert(
+                data,
+                destination,
+                flush: true,
+                out var charsConsumed,
+                out var bytesWritten,
+                out var isCompleted);
+
+            var indexToEncode = HtmlEncoder.Default.FindFirstCharacterToEncodeUtf8(destination[..bytesWritten]);
+
+            if (indexToEncode == -1)
+            {
+                written += bytesWritten;
+                destination = destination[bytesWritten..];
+            }
+            else
+            {
+                var bytesUtf8ToEncode = destination[indexToEncode..bytesWritten];
+
+                written += indexToEncode;
+                destination = destination[indexToEncode..];
+
+                EscapeUtf8(bytesUtf8ToEncode, buffer, ref destination, ref written);
+            }
+
+            if (isCompleted)
+                break;
+
+            data = data.Slice(charsConsumed);
+            multiByteChar = destination.Length is > 0 and < 3 && data.Length > 0;
+        }
+    }
+
+    [SkipLocalsInit]
+    private static void EscapeUtf8(ReadOnlySpan<byte> bytesUtf8ToEncode, BuffersChain buffer, ref Span<byte> destination, ref int written)
+    {
+        byte[]? utf8BytesPooled = null;
+        var length = bytesUtf8ToEncode.Length;
+
+        var utf8Bytes = length <= StackBytesThreshold
+            ? stackalloc byte[length]
+            : (utf8BytesPooled = ArrayPool<byte>.Shared.Rent(length)).AsSpan(0, length);
+
+        //because destination and bytesUtf8ToEncode are the same memory 
+        bytesUtf8ToEncode.CopyTo(utf8Bytes);
 
         try
         {
-            var source = data;
-            var lastResult = OperationStatus.DestinationTooSmall;
-            while (lastResult == OperationStatus.DestinationTooSmall)
-            {
-                lastResult = HtmlEncoder.Default.Encode(
-                    source,
-                    charBuffer,
-                    out var bytesConsumed,
-                    out var bytesWritten,
-                    isFinalBlock: false);
-
-                if (lastResult == OperationStatus.InvalidData)
-                    throw new InvalidOperationException($"Cannot write escaped string {data.ToString()}");
-
-                if (bytesConsumed > 0)
-                    source = source.Slice(bytesConsumed);
-                if (bytesWritten > 0)
-                {
-                    var sourceChars = charBuffer.Slice(0, bytesWritten);
-
-                    while (true)
-                    {
-                        if (destination.Length == 0)
-                        {
-                            buffer.Advance(written);
-
-                            destination = buffer.GetSpan(Buffer.MinSize);
-                            written = 0;
-                        }
-                        
-                        encoder.Convert(
-                            sourceChars, 
-                            destination, 
-                            flush: true, 
-                            out var charsConsumed,
-                            out var bytesCharsWritten, 
-                            out var isCompleted);
-                        written += bytesCharsWritten;
-
-                        destination = destination.Slice(bytesCharsWritten);
-                        if (isCompleted)
-                            break;
-
-                        sourceChars = sourceChars.Slice(charsConsumed);
-                    }
-                }
-            }
+            WriteEscapedUtf8To(utf8Bytes, buffer, ref destination, ref written);
         }
         finally
         {
-            if (pooledBuffer != null)
-                ArrayPool<char>.Shared.Return(pooledBuffer);
+            if (utf8BytesPooled != null)
+                ArrayPool<byte>.Shared.Return(utf8BytesPooled);
         }
     }
-    
+
+    internal static void WriteEscapedUtf8To(
+        this scoped ReadOnlySpan<byte> utf8Data,
+        BuffersChain buffer,
+        ref Span<byte> destination,
+        ref int written)
+    {
+        var lastResult = OperationStatus.DestinationTooSmall;
+
+        while (lastResult == OperationStatus.DestinationTooSmall)
+        {
+            lastResult = HtmlEncoder.Default.EncodeUtf8(
+                utf8Data,
+                destination,
+                out var bytesConsumed,
+                out var bytesWritten,
+                isFinalBlock: false);
+
+            if (lastResult == OperationStatus.InvalidData)
+                throw new InvalidOperationException($"Cannot write escaped string {Encoding.UTF8.GetString(utf8Data)}");
+
+            written += bytesWritten;
+            destination = destination[bytesWritten..];
+
+            if (lastResult == OperationStatus.Done)
+                return;
+
+            if (bytesConsumed > 0)
+                utf8Data = utf8Data.Slice(bytesConsumed);
+
+            buffer.Advance(written);
+
+            destination = buffer.GetSpan(Buffer.MinSize);
+            written = 0;
+        }
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void WriteTo(
         this string data,
@@ -119,56 +155,55 @@ internal static class StringWriter
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void WriteTo(
-        this string data,
+        this ReadOnlySpan<char> data,
         BuffersChain buffer,
         Encoder encoder)
     {
         var span = buffer.GetSpan();
         var written = 0;
-        
-        WriteTo(data.AsSpan(), buffer, encoder, ref span, ref written);
-        
+
+        WriteTo(data, buffer, encoder, ref span, ref written);
+
         buffer.Advance(written);
     }
 
-    [SkipLocalsInit]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void WriteTo(
-        this ReadOnlySpan<char> value, 
-        BuffersChain buffer, 
-        Encoder encoder, 
+        this ReadOnlySpan<char> value,
+        BuffersChain buffer,
+        Encoder encoder,
         ref Span<byte> destination,
         ref int written)
     {
-        encoder.Reset();
-
         var sourceChars = value;
+        var multiByteChar = false;
 
         while (true)
         {
-            if (destination.Length == 0)
+            if (destination.Length == 0 || multiByteChar)
             {
                 buffer.Advance(written);
 
                 destination = buffer.GetSpan(Buffer.MinSize);
                 written = 0;
             }
-        
-            encoder.Convert(
-                sourceChars, 
-                destination, 
-                flush: true, 
-                out var charsConsumed,
-                out var bytesCharsWritten, 
-                out var isCompleted);
-            
-            written += bytesCharsWritten;
 
+            encoder.Convert(
+                sourceChars,
+                destination,
+                flush: true,
+                out var charsConsumed,
+                out var bytesCharsWritten,
+                out var isCompleted);
+
+            written += bytesCharsWritten;
             destination = destination.Slice(bytesCharsWritten);
+
             if (isCompleted)
                 break;
 
             sourceChars = sourceChars.Slice(charsConsumed);
+
+            multiByteChar = destination.Length is > 0 and < 3 && sourceChars.Length > 0;
         }
-    }    
+    }
 }

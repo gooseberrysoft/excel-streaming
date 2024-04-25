@@ -1,6 +1,6 @@
 namespace Gooseberry.ExcelStreaming.Benchmarks
 {
-    public sealed class NoneStream : Stream
+    public sealed class NullStream : Stream
     {
         public override bool CanRead => false;
         public override bool CanSeek => false;

@@ -7,5 +7,6 @@
     
     <ItemGroup>
         <InternalsVisibleTo Include="Gooseberry.ExcelStreaming.Tests"/>
+        <InternalsVisibleTo Include="Gooseberry.ExcelStreaming.Benchmarks"/>
     </ItemGroup>
 </Project>

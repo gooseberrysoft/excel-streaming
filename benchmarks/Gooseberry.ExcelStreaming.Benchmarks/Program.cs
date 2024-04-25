@@ -5,6 +5,6 @@ namespace Gooseberry.ExcelStreaming.Benchmarks
     class Program
     {
         static void Main(string[] args) 
-            => BenchmarkRunner.Run<ExcelWriterBenchmarks>();
+            => BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);
     }
 }

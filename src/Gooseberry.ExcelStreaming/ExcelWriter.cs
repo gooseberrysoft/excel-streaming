@@ -1,5 +1,6 @@
 using System.Drawing;
 using System.IO.Compression;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Gooseberry.ExcelStreaming.Configuration;
 using Gooseberry.ExcelStreaming.Pictures;
@@ -187,6 +188,15 @@ namespace Gooseberry.ExcelStreaming
             AddMerge(rightMerge, downMerge);
         }
 
+        public void AddUtf8Cell(ReadOnlySpan<byte> data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+        {
+            CheckWriteCell();
+            DataWriters.StringCellWriter.WriteUtf8(data, _buffer, style);
+
+            _columnCount += 1;
+            AddMerge(rightMerge, downMerge);
+        }
+
         public void AddCell(SharedStringReference sharedString, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
         {
             CheckWriteCell();
@@ -284,6 +294,7 @@ namespace Gooseberry.ExcelStreaming
             _hyperlinks.Clear();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void AddMerge(uint rightMerge = 0, uint downMerge = 0)
         {
             if (rightMerge != 0 || downMerge != 0)
@@ -393,12 +404,14 @@ namespace Gooseberry.ExcelStreaming
             return entry.Open();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void EnsureNotCompleted()
         {
             if (_isCompleted)
                 throw new InvalidOperationException("Cannot use excel writer. It is completed already.");
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void CheckWriteCell()
         {
             EnsureNotCompleted();
