@@ -22,7 +22,7 @@ internal static partial class Constants
         {
             public static ReadOnlySpan<byte> GetPrefix()
                 => "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">"u8;
-            
+
             public static ReadOnlySpan<byte> GetPostfix()
                 => "</Relationships>"u8;
 
@@ -30,7 +30,7 @@ internal static partial class Constants
             {
                 public static ReadOnlySpan<byte> GetPrefix()
                     => "<Relationship Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\""u8;
-            
+
                 public static ReadOnlySpan<byte> GetPostfix()
                     => "/>"u8;
 
@@ -38,7 +38,7 @@ internal static partial class Constants
                 {
                     public static ReadOnlySpan<byte> GetPrefix()
                         => " Id=\""u8;
-                    
+
                     public static ReadOnlySpan<byte> GetPostfix()
                         => "\""u8;
                 }
@@ -47,7 +47,7 @@ internal static partial class Constants
                 {
                     public static ReadOnlySpan<byte> GetPrefix()
                         => " Target=\""u8;
-                    
+
                     public static ReadOnlySpan<byte> GetPostfix()
                         => "\""u8;
                 }

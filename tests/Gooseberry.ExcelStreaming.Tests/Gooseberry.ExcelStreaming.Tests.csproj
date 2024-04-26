@@ -1,41 +1,41 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <IsPackable>false</IsPackable>
-    </PropertyGroup>
+	<PropertyGroup>
+		<IsPackable>false</IsPackable>
+	</PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="DocumentFormat.OpenXml" Version="3.0.2" />
-        <PackageReference Include="FluentAssertions" Version="6.12.0" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
-        <PackageReference Include="NSubstitute" Version="5.1.0" />
-        <PackageReference Include="xunit" Version="2.7.1" />
-        <PackageReference Include="xunit.runner.visualstudio" Version="2.5.8">
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-            <PrivateAssets>all</PrivateAssets>
-        </PackageReference>
-    </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="DocumentFormat.OpenXml" Version="3.0.2" />
+		<PackageReference Include="FluentAssertions" Version="6.12.0" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
+		<PackageReference Include="NSubstitute" Version="5.1.0" />
+		<PackageReference Include="xunit" Version="2.7.1" />
+		<PackageReference Include="xunit.runner.visualstudio" Version="2.5.8">
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+	</ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\..\src\Gooseberry.ExcelStreaming\Gooseberry.ExcelStreaming.csproj" />
-    </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\src\Gooseberry.ExcelStreaming\Gooseberry.ExcelStreaming.csproj" />
+	</ItemGroup>
 
-    <ItemGroup>
-      <EmbeddedResource Include="Resources\Images\SampleImagePng.png" />
-      <EmbeddedResource Include="Resources\Images\SampleImageBmpV1.bmp" />
-      <EmbeddedResource Include="Resources\Images\SampleImageBmpWin2bit.bmp" />
-      <EmbeddedResource Include="Resources\Images\SampleImageBmpWin4bit.bmp" />
-      <EmbeddedResource Include="Resources\Images\SampleImageBmpWin8bit.bmp" />
-      <EmbeddedResource Include="Resources\Images\SampleImageBmpWin24bit.bmp" />
-      <EmbeddedResource Include="Resources\Images\SampleImageEmf.emf" />
-      <EmbeddedResource Include="Resources\Images\SampleImageExif.jpg" />
-      <EmbeddedResource Include="Resources\Images\SampleImageGif87a.gif" />
-      <EmbeddedResource Include="Resources\Images\SampleImageGif89a.gif" />
-      <EmbeddedResource Include="Resources\Images\SampleImageJfif.jpg" />
-      <EmbeddedResource Include="Resources\Images\SampleImageOriginalWmf.wmf" />
-      <EmbeddedResource Include="Resources\Images\SampleImagePlaceableWmf.wmf" />
-      <EmbeddedResource Include="Resources\Images\SampleImageTiffBigEndian.tiff" />
-      <EmbeddedResource Include="Resources\Images\SampleImageTiffLittleEndian.tiff" />
-    </ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="Resources\Images\SampleImagePng.png" />
+		<EmbeddedResource Include="Resources\Images\SampleImageBmpV1.bmp" />
+		<EmbeddedResource Include="Resources\Images\SampleImageBmpWin2bit.bmp" />
+		<EmbeddedResource Include="Resources\Images\SampleImageBmpWin4bit.bmp" />
+		<EmbeddedResource Include="Resources\Images\SampleImageBmpWin8bit.bmp" />
+		<EmbeddedResource Include="Resources\Images\SampleImageBmpWin24bit.bmp" />
+		<EmbeddedResource Include="Resources\Images\SampleImageEmf.emf" />
+		<EmbeddedResource Include="Resources\Images\SampleImageExif.jpg" />
+		<EmbeddedResource Include="Resources\Images\SampleImageGif87a.gif" />
+		<EmbeddedResource Include="Resources\Images\SampleImageGif89a.gif" />
+		<EmbeddedResource Include="Resources\Images\SampleImageJfif.jpg" />
+		<EmbeddedResource Include="Resources\Images\SampleImageOriginalWmf.wmf" />
+		<EmbeddedResource Include="Resources\Images\SampleImagePlaceableWmf.wmf" />
+		<EmbeddedResource Include="Resources\Images\SampleImageTiffBigEndian.tiff" />
+		<EmbeddedResource Include="Resources\Images\SampleImageTiffLittleEndian.tiff" />
+	</ItemGroup>
 
 </Project>

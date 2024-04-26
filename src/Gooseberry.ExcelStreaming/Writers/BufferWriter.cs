@@ -11,7 +11,7 @@ internal static class BufferWriter
         var written = 0;
 
         data.WriteTo(buffer, ref span, ref written);
-        
-        buffer.Advance(written);            
-    }    
+
+        buffer.Advance(written);
+    }
 }

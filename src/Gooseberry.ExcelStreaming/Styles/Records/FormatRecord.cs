@@ -7,9 +7,9 @@ internal readonly struct FormatRecord
 {
     public FormatRecord(int id, string format)
     {
-            Id = id;
-            Format = format;
-        }
+        Id = id;
+        Format = format;
+    }
 
     public int Id { get; }
 

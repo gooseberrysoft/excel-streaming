@@ -10,6 +10,6 @@ internal readonly struct DateTimeFormatter : INumberFormatter<DateTime>
     public int MaximumChars => MaxChars;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool TryFormat(in DateTime value, Span<byte> destination, out int encodedBytes) 
+    public bool TryFormat(in DateTime value, Span<byte> destination, out int encodedBytes)
         => Utf8Formatter.TryFormat(value.ToOADate(), destination, out encodedBytes);
 }

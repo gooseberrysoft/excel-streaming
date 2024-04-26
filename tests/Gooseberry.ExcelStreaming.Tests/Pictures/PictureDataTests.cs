@@ -18,11 +18,11 @@ public sealed class PictureDataTests
 
         var pictureData = (PictureData)expectedStream;
 
-        await pictureData.WriteTo(actualStream);
+        await pictureData.WriteTo(actualStream, CancellationToken.None);
 
         actualStream.ToArray().Should().Equal(expectedStream.ToArray());
     }
-    
+
     [Theory]
     [MemberData(nameof(ImageCases.GetCases), MemberType = typeof(ImageCases))]
     public async Task WriteTo_FromBytes_WriteData(ImageCase imageCase)
@@ -33,11 +33,11 @@ public sealed class PictureDataTests
 
         var pictureData = (PictureData)expectedStream.ToArray();
 
-        await pictureData.WriteTo(actualStream);
+        await pictureData.WriteTo(actualStream, CancellationToken.None);
 
         actualStream.ToArray().Should().Equal(expectedStream.ToArray());
     }
-    
+
     [Theory]
     [MemberData(nameof(ImageCases.GetCases), MemberType = typeof(ImageCases))]
     public async Task WriteTo_FromMemory_WriteData(ImageCase imageCase)
@@ -48,7 +48,7 @@ public sealed class PictureDataTests
 
         var pictureData = (PictureData)new Memory<byte>(expectedStream.ToArray());
 
-        await pictureData.WriteTo(actualStream);
+        await pictureData.WriteTo(actualStream, CancellationToken.None);
 
         actualStream.ToArray().Should().Equal(expectedStream.ToArray());
     }

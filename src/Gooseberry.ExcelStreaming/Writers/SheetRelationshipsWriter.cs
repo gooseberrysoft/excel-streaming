@@ -22,22 +22,22 @@ internal readonly struct SheetRelationshipsWriter
             Constants.SheetRelationships.Hyperlink.EndPrefix.WriteTo(buffer, ref span, ref written);
             hyperlink.WriteEscapedTo(buffer, encoder, ref span, ref written);
             Constants.SheetRelationships.Hyperlink.Postfix.WriteTo(buffer, ref span, ref written);
-            
+
             count++;
         }
 
         if (!drawing.IsEmpty)
         {
             Constants.SheetRelationships.Drawing.GetPrefix().WriteTo(buffer, ref span, ref written);
-            
+
             Constants.SheetRelationships.Drawing.Target.GetPrefix().WriteTo(buffer, ref span, ref written);
             PathResolver.GetDrawingFullPath(drawing).EnsureLeadingSlash().WriteTo(buffer, encoder, ref span, ref written);
             Constants.SheetRelationships.Drawing.Target.GetPostfix().WriteTo(buffer, ref span, ref written);
-            
+
             Constants.SheetRelationships.Drawing.Id.GetPrefix().WriteTo(buffer, ref span, ref written);
             drawing.RelationshipId.WriteTo(buffer, encoder, ref span, ref written);
             Constants.SheetRelationships.Drawing.Id.GetPostfix().WriteTo(buffer, ref span, ref written);
-            
+
             Constants.SheetRelationships.Drawing.GetPostfix().WriteTo(buffer, ref span, ref written);
         }
 

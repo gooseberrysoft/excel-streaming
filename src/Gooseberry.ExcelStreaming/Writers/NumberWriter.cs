@@ -5,7 +5,7 @@ internal readonly struct NumberWriter<T, TFormatter>
 {
     private readonly TFormatter _formatter;
 
-    public NumberWriter() 
+    public NumberWriter()
         => _formatter = new();
 
     public void WriteValue(in T value, BuffersChain bufferWriter, ref Span<byte> destination, ref int written)

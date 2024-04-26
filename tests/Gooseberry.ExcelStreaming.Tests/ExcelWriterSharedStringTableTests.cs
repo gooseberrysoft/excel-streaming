@@ -15,40 +15,40 @@ public sealed class ExcelWriterSharedStringTableTests
         var builder = new SharedStringTableBuilder();
         var stringReference = builder.GetOrAdd("string");
         var otherStringReference = builder.GetOrAdd("other string");
-                
+
         await using (var writer = new ExcelWriter(outputStream, sharedStringTable: builder.Build()))
         {
             await writer.StartSheet("test sheet");
             await writer.StartRow();
-            
+
             writer.AddCell(stringReference);
             writer.AddCell(otherStringReference);
-            
+
             await writer.Complete();
         }
 
         outputStream.Seek(0, SeekOrigin.Begin);
         var sharedStrings = ExcelReader.ReadSharedStrings(outputStream);
 
-        sharedStrings.Should().BeEquivalentTo(new[] {"string", "other string"});
-        
+        sharedStrings.Should().BeEquivalentTo(new[] { "string", "other string" });
+
         outputStream.Seek(0, SeekOrigin.Begin);
         var sheets = ExcelReader.ReadSheets(outputStream);
-        
+
         var expectedSheet = new Excel.Sheet(
             "test sheet",
-            new []
+            new[]
             {
-                new Row(new []
+                new Row(new[]
                 {
                     new Cell("0", CellValueType.SharedString),
                     new Cell("1", CellValueType.SharedString),
                 })
             });
 
-        sheets.ShouldBeEquivalentTo(expectedSheet);        
+        sheets.ShouldBeEquivalentTo(expectedSheet);
     }
-    
+
     [Fact]
     public async Task ExcelWriter_AddCellWithSharedStringAndSharedStringTable_WritesCorrect()
     {
@@ -57,33 +57,33 @@ public sealed class ExcelWriterSharedStringTableTests
         var builder = new SharedStringTableBuilder();
         var stringReference = builder.GetOrAdd("string");
         var otherStringReference = builder.GetOrAdd("other string");
-                
+
         await using (var writer = new ExcelWriter(outputStream, sharedStringTable: builder.Build()))
         {
             await writer.StartSheet("test sheet");
             await writer.StartRow();
-            
+
             writer.AddCell(stringReference);
             writer.AddCell(otherStringReference);
             writer.AddCellWithSharedString("third string");
             writer.AddCellWithSharedString("one more string");
-            
+
             await writer.Complete();
         }
 
         outputStream.Seek(0, SeekOrigin.Begin);
         var sharedStrings = ExcelReader.ReadSharedStrings(outputStream);
 
-        sharedStrings.Should().BeEquivalentTo(new[] {"string", "other string", "third string", "one more string"});
-        
+        sharedStrings.Should().BeEquivalentTo(new[] { "string", "other string", "third string", "one more string" });
+
         outputStream.Seek(0, SeekOrigin.Begin);
         var sheets = ExcelReader.ReadSheets(outputStream);
-        
+
         var expectedSheet = new Excel.Sheet(
             "test sheet",
-            new []
+            new[]
             {
-                new Row(new []
+                new Row(new[]
                 {
                     new Cell("0", CellValueType.SharedString),
                     new Cell("1", CellValueType.SharedString),
@@ -92,6 +92,6 @@ public sealed class ExcelWriterSharedStringTableTests
                 })
             });
 
-        sheets.ShouldBeEquivalentTo(expectedSheet);        
-    }    
+        sheets.ShouldBeEquivalentTo(expectedSheet);
+    }
 }

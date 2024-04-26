@@ -12,12 +12,12 @@ public readonly struct Style
         string? format = null,
         Alignment? alignment = null)
     {
-            Alignment = alignment;
-            Font = font;
-            Fill = fill;
-            Borders = borders;
-            Format = format;
-        }
+        Alignment = alignment;
+        Font = font;
+        Fill = fill;
+        Borders = borders;
+        Format = format;
+    }
 
     public Font? Font { get; }
 

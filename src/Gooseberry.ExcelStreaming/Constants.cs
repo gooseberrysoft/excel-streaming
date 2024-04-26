@@ -224,19 +224,19 @@ internal static partial class Constants
 
         public static ReadOnlySpan<byte> Get(PictureFormat format)
         {
-                return format switch
-                {
-                    PictureFormat.Bmp => GetBmp(),
-                    PictureFormat.Gif => GetGif(),
-                    PictureFormat.Png => GetPng(),
-                    PictureFormat.Tiff => GetTiff(),
-                    PictureFormat.Icon => GetIcon(),
-                    PictureFormat.Jpeg => GetJpeg(),
-                    PictureFormat.Emf => GetEmf(),
-                    PictureFormat.Wmf => GetWmf(),
-                    _ => throw new ArgumentOutOfRangeException(nameof(format), format, "Unknown picture format")
-                };
-            }
+            return format switch
+            {
+                PictureFormat.Bmp => GetBmp(),
+                PictureFormat.Gif => GetGif(),
+                PictureFormat.Png => GetPng(),
+                PictureFormat.Tiff => GetTiff(),
+                PictureFormat.Icon => GetIcon(),
+                PictureFormat.Jpeg => GetJpeg(),
+                PictureFormat.Emf => GetEmf(),
+                PictureFormat.Wmf => GetWmf(),
+                _ => throw new ArgumentOutOfRangeException(nameof(format), format, "Unknown picture format")
+            };
+        }
 
         public static ReadOnlySpan<byte> GetBmp()
             => "<Default Extension=\"bmp\" ContentType=\"image/bmp\"/>"u8;

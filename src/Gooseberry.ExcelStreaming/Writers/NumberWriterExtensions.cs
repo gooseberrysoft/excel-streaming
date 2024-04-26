@@ -29,7 +29,7 @@ internal static class NumberWriterExtensions
         this uint value,
         BuffersChain buffer,
         ref Span<byte> destination,
-        ref int written) 
+        ref int written)
         => LongWriter.WriteValue(value, buffer, ref destination, ref written);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -37,6 +37,6 @@ internal static class NumberWriterExtensions
         this decimal value,
         BuffersChain buffer,
         ref Span<byte> destination,
-        ref int written) 
+        ref int written)
         => DecimalWriter.WriteValue(value, buffer, ref destination, ref written);
 }

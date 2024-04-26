@@ -11,7 +11,7 @@ internal readonly struct WorkbookRelationshipsWriter
 
         Constants.XmlPrefix.WriteTo(buffer, ref span, ref written);
         Constants.WorkbookRelationships.Prefix.WriteTo(buffer, ref span, ref written);
-                
+
         foreach (var sheet in sheets)
         {
             Constants.WorkbookRelationships.Sheet.Prefix.WriteTo(buffer, ref span, ref written);

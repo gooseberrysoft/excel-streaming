@@ -21,24 +21,20 @@ public readonly struct PictureData
         _memory = memory;
     }
 
-    public async Task WriteTo(Stream stream)
+    public async Task WriteTo(Stream stream, CancellationToken token)
     {
         if (_stream is not null)
         {
-            await _stream.CopyToAsync(stream);
+            await _stream.CopyToAsync(stream, token);
             _stream.Position = 0;
         }
         else if (_bytes is not null)
         {
-            await using var binaryWriter = new BinaryWriter(stream);
-
-            binaryWriter.Write(_bytes);
+            await stream.WriteAsync(_bytes, token);
         }
         else if (_memory is not null)
         {
-            await using var binaryWriter = new BinaryWriter(stream);
-
-            binaryWriter.Write(_memory.Value.Span);
+            await stream.WriteAsync(_memory.Value, token);
         }
     }
 

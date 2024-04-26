@@ -9,6 +9,6 @@ public static class BooleanWriter
         this bool data,
         BuffersChain buffer,
         ref Span<byte> destination,
-        ref int written) 
+        ref int written)
         => (data ? Constants.TrueValue : Constants.FalseValue).WriteTo(buffer, ref destination, ref written);
 }

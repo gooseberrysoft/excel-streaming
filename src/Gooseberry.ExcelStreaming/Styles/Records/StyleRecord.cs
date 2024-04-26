@@ -7,12 +7,12 @@ internal readonly struct StyleRecord : IEquatable<StyleRecord>
 {
     public StyleRecord(int? formatId, int? fillId, int? fontId, int? borderId, Alignment? alignment)
     {
-            FormatId = formatId;
-            FillId = fillId;
-            FontId = fontId;
-            BorderId = borderId;
-            Alignment = alignment;
-        }
+        FormatId = formatId;
+        FillId = fillId;
+        FontId = fontId;
+        BorderId = borderId;
+        Alignment = alignment;
+    }
 
     public int? FormatId { get; }
 
@@ -26,12 +26,12 @@ internal readonly struct StyleRecord : IEquatable<StyleRecord>
 
     public bool Equals(StyleRecord other)
     {
-            return Nullable.Equals(FormatId, other.FormatId) &&
-               Nullable.Equals(FillId, other.FillId) &&
-               Nullable.Equals(FontId, other.FontId) &&
-               Nullable.Equals(BorderId, other.BorderId) &&
-               Nullable.Equals(Alignment, other.Alignment);
-        }
+        return Nullable.Equals(FormatId, other.FormatId) &&
+            Nullable.Equals(FillId, other.FillId) &&
+            Nullable.Equals(FontId, other.FontId) &&
+            Nullable.Equals(BorderId, other.BorderId) &&
+            Nullable.Equals(Alignment, other.Alignment);
+    }
 
     public override bool Equals(object? other)
         => other is StyleRecord styleRecord && Equals(styleRecord);

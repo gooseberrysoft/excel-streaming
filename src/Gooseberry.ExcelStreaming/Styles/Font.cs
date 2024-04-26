@@ -14,14 +14,14 @@ public readonly struct Font : IEquatable<Font>
         bool strike = false,
         Underline underline = Underline.None)
     {
-            Size = size;
-            Name = name;
-            Color = color;
-            Bold = bold;
-            Italic = italic;
-            Strike = strike;
-            Underline = underline;
-        }
+        Size = size;
+        Name = name;
+        Color = color;
+        Bold = bold;
+        Italic = italic;
+        Strike = strike;
+        Underline = underline;
+    }
 
     public int Size { get; }
 
@@ -39,14 +39,14 @@ public readonly struct Font : IEquatable<Font>
 
     public bool Equals(Font other)
     {
-            return Size == other.Size &&
-                string.Equals(Name, other.Name, StringComparison.Ordinal) &&
-                Nullable.Equals(Color, other.Color) &&
-                Bold == other.Bold &&
-                Italic == other.Italic &&
-                Strike == other.Strike &&
-                Underline == other.Underline;
-        }
+        return Size == other.Size &&
+            string.Equals(Name, other.Name, StringComparison.Ordinal) &&
+            Nullable.Equals(Color, other.Color) &&
+            Bold == other.Bold &&
+            Italic == other.Italic &&
+            Strike == other.Strike &&
+            Underline == other.Underline;
+    }
 
     public override bool Equals(object? other)
         => other is Font font && Equals(font);

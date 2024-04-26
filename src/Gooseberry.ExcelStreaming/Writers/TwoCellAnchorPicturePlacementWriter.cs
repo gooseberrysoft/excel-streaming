@@ -11,7 +11,7 @@ internal sealed class TwoCellAnchorPicturePlacementWriter(AnchorCell from, Ancho
         var written = 0;
 
         Write(picture, buffer, encoder, ref span, ref written);
-        
+
         buffer.Advance(written);
     }
 
@@ -30,7 +30,7 @@ internal sealed class TwoCellAnchorPicturePlacementWriter(AnchorCell from, Ancho
         DataWriters.PictureWriter.Write(picture, buffer, encoder, ref span, ref written);
 
         Constants.Drawing.ClientData.GetBody().WriteTo(buffer, ref span, ref written);
-        
+
         Constants.Drawing.TwoCellAnchor.GetPostfix().WriteTo(buffer, ref span, ref written);
     }
 }

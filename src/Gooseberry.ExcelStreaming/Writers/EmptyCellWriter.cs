@@ -9,7 +9,7 @@ internal sealed class EmptyCellWriter
     private readonly byte[] _stylePostfix;
 
     private readonly NumberWriter<int, IntFormatter> _styleWriter = new();
-    
+
     public EmptyCellWriter()
     {
         _stateless = Constants.Worksheet.SheetData.Row.Cell.Prefix
@@ -22,7 +22,7 @@ internal sealed class EmptyCellWriter
             .Concat(Constants.Worksheet.SheetData.Row.Cell.StringDataType)
             .Concat(Constants.Worksheet.SheetData.Row.Cell.Style.Prefix)
             .ToArray();
-        
+
         _stylePostfix = Constants.Worksheet.SheetData.Row.Cell.Style.Postfix
             .Concat(Constants.Worksheet.SheetData.Row.Cell.Middle)
             .ToArray();
@@ -39,12 +39,12 @@ internal sealed class EmptyCellWriter
             _styleWriter.WriteValue(style.Value.Value, buffer, ref span, ref written);
             _stylePostfix.WriteTo(buffer, ref span, ref written);
             Constants.Worksheet.SheetData.Row.Cell.Postfix.WriteTo(buffer, ref span, ref written);
-            
+
             buffer.Advance(written);
             return;
         }
 
         _stateless.WriteTo(buffer, ref span, ref written);
-        buffer.Advance(written);         
+        buffer.Advance(written);
     }
 }

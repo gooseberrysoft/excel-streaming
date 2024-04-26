@@ -7,11 +7,11 @@ internal sealed class NumberCellWriter<T, TFormatter>
 {
     private readonly NumberWriter<int, IntFormatter> _styleWriter = new();
     private readonly NumberWriter<T, TFormatter> _valueWriter = new();
-    
+
     private readonly byte[] _stylelessPrefix;
     private readonly byte[] _stylePrefix;
     private readonly byte[] _stylePostfix;
-    
+
     public NumberCellWriter(byte[] dataType)
     {
         _stylelessPrefix = Constants.Worksheet.SheetData.Row.Cell.Prefix
@@ -23,12 +23,12 @@ internal sealed class NumberCellWriter<T, TFormatter>
             .Concat(dataType)
             .Concat(Constants.Worksheet.SheetData.Row.Cell.Style.Prefix)
             .ToArray();
-        
+
         _stylePostfix = Constants.Worksheet.SheetData.Row.Cell.Style.Postfix
             .Concat(Constants.Worksheet.SheetData.Row.Cell.Middle)
             .ToArray();
     }
-    
+
     public void Write(in T value, BuffersChain buffer, StyleReference? style = null)
     {
         var span = buffer.GetSpan();
@@ -41,7 +41,7 @@ internal sealed class NumberCellWriter<T, TFormatter>
             _stylePostfix.WriteTo(buffer, ref span, ref written);
             _valueWriter.WriteValue(value, buffer, ref span, ref written);
             Constants.Worksheet.SheetData.Row.Cell.Postfix.WriteTo(buffer, ref span, ref written);
-            
+
             buffer.Advance(written);
             return;
         }
@@ -49,7 +49,7 @@ internal sealed class NumberCellWriter<T, TFormatter>
         _stylelessPrefix.WriteTo(buffer, ref span, ref written);
         _valueWriter.WriteValue(value, buffer, ref span, ref written);
         Constants.Worksheet.SheetData.Row.Cell.Postfix.WriteTo(buffer, ref span, ref written);
-            
+
         buffer.Advance(written);
     }
 }

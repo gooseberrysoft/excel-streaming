@@ -3,13 +3,13 @@ namespace Gooseberry.ExcelStreaming.Writers;
 internal sealed class RowWriter
 {
     private readonly NumberWriter<decimal, DecimalFormatter> _rowHeightWriter = new();
-    
+
     private static readonly byte[] RowCloseAndStart =
         Constants.Worksheet.SheetData.Row.Postfix
             .Concat(Constants.Worksheet.SheetData.Row.Open.Prefix)
             .Concat(Constants.Worksheet.SheetData.Row.Open.Postfix)
             .ToArray();
-    
+
     private static readonly byte[] RowStart =
         Constants.Worksheet.SheetData.Row.Open.Prefix
             .Concat(Constants.Worksheet.SheetData.Row.Open.Postfix)
@@ -19,7 +19,7 @@ internal sealed class RowWriter
         Constants.Worksheet.SheetData.Row.Open.Prefix
             .Concat(Constants.Worksheet.SheetData.Row.Open.Height.Prefix)
             .ToArray();
-    
+
     private static readonly byte[] RowHeightPostfix =
         Constants.Worksheet.SheetData.Row.Open.Height.Postfix
             .Concat(Constants.Worksheet.SheetData.Row.Open.Postfix)
@@ -58,7 +58,7 @@ internal sealed class RowWriter
         var written = 0;
 
         Constants.Worksheet.SheetData.Row.Postfix.WriteTo(buffer, ref span, ref written);
-     
-        buffer.Advance(written);        
+
+        buffer.Advance(written);
     }
 }

@@ -8,10 +8,10 @@ public readonly struct Cell
 {
     public Cell(string value, CellValueType? type = null, Style? style = null)
     {
-            Value = value;
-            Type = type;
-            Style = style;
-        }
+        Value = value;
+        Type = type;
+        Style = style;
+    }
 
     public string Value { get; }
 

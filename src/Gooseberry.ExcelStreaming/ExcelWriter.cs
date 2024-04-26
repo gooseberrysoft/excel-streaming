@@ -39,62 +39,62 @@ public sealed class ExcelWriter : IAsyncDisposable
         int bufferSize = Constants.DefaultBufferSize,
         CancellationToken token = default)
     {
-            if (outputStream == null)
-                throw new ArgumentNullException(nameof(outputStream));
+        if (outputStream == null)
+            throw new ArgumentNullException(nameof(outputStream));
 
-            if (bufferSize <= 0)
-                throw new ArgumentException("Should not be less or equal zero.", nameof(bufferSize));
+        if (bufferSize <= 0)
+            throw new ArgumentException("Should not be less or equal zero.", nameof(bufferSize));
 
-            _encoder = Encoding.UTF8.GetEncoder();
+        _encoder = Encoding.UTF8.GetEncoder();
 
-            _zipArchive = new ZipArchive(outputStream, ZipArchiveMode.Create, leaveOpen: true, Encoding.UTF8);
-            _styles = styles ?? StylesSheetBuilder.Default;
-            _sharedStringKeeper = new SharedStringKeeper(sharedStringTable, _encoder);
+        _zipArchive = new ZipArchive(outputStream, ZipArchiveMode.Create, leaveOpen: true, Encoding.UTF8);
+        _styles = styles ?? StylesSheetBuilder.Default;
+        _sharedStringKeeper = new SharedStringKeeper(sharedStringTable, _encoder);
 
-            _buffer = new BuffersChain(bufferSize, Constants.DefaultBufferFlushThreshold);
-            _token = token;
-        }
+        _buffer = new BuffersChain(bufferSize, Constants.DefaultBufferFlushThreshold);
+        _token = token;
+    }
 
     public async ValueTask StartSheet(string name, SheetConfiguration? configuration = null)
     {
-            EnsureNotCompleted();
+        EnsureNotCompleted();
 
-            if (_rowStarted)
-                await EndRow();
+        if (_rowStarted)
+            await EndRow();
 
-            if (_sheetStream != null)
-                await EndSheet();
+        if (_sheetStream != null)
+            await EndSheet();
 
-            _rowCount = 0;
-            _columnCount = 0;
-            _merges.Clear();
+        _rowCount = 0;
+        _columnCount = 0;
+        _merges.Clear();
 
-            var sheetId = _sheets.Count + 1;
-            var relationshipId = $"sheet{sheetId}";
-            _sheets.Add(new(name, sheetId, relationshipId));
+        var sheetId = _sheets.Count + 1;
+        var relationshipId = $"sheet{sheetId}";
+        _sheets.Add(new(name, sheetId, relationshipId));
 
-            _sheetStream = OpenEntry($"xl/worksheets/{relationshipId}.xml");
-            DataWriters.SheetWriter.WriteStartSheet(_buffer, configuration);
-        }
+        _sheetStream = OpenEntry($"xl/worksheets/{relationshipId}.xml");
+        DataWriters.SheetWriter.WriteStartSheet(_buffer, configuration);
+    }
 
     public ValueTask StartRow(decimal? height = null)
     {
-            EnsureNotCompleted();
+        EnsureNotCompleted();
 
-            if (height is <= 0)
-                throw new ArgumentOutOfRangeException(nameof(height), "Height of row cannot be less or equal than 0.");
+        if (height is <= 0)
+            throw new ArgumentOutOfRangeException(nameof(height), "Height of row cannot be less or equal than 0.");
 
-            if (_sheetStream == null)
-                throw new InvalidOperationException("Cannot start row before start sheet.");
+        if (_sheetStream == null)
+            throw new InvalidOperationException("Cannot start row before start sheet.");
 
-            DataWriters.RowWriter.WriteStartRow(_buffer, _rowStarted, height);
+        DataWriters.RowWriter.WriteStartRow(_buffer, _rowStarted, height);
 
-            _rowStarted = true;
-            _rowCount += 1;
-            _columnCount = 0;
+        _rowStarted = true;
+        _rowCount += 1;
+        _columnCount = 0;
 
-            return _buffer.FlushCompleted(_sheetStream!, _token);
-        }
+        return _buffer.FlushCompleted(_sheetStream!, _token);
+    }
 
     public void AddPicture(in PictureData data, PictureFormat format, in AnchorCell from, Size size)
         => _sheetDrawings.AddPicture(_sheets[^1].Id, data, format, new OneCellAnchorPicturePlacementWriter(from, size));
@@ -107,316 +107,316 @@ public sealed class ExcelWriter : IAsyncDisposable
 
     public void AddCellWithSharedString(string data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
-            var reference = _sharedStringKeeper.GetOrAdd(data);
-            AddCell(reference, style, rightMerge, downMerge);
-        }
+        var reference = _sharedStringKeeper.GetOrAdd(data);
+        AddCell(reference, style, rightMerge, downMerge);
+    }
 
     public void AddCell(int data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
-            CheckWriteCell();
-            DataWriters.IntCellWriter.Write(data, _buffer, style ?? _styles.GeneralStyle);
+        CheckWriteCell();
+        DataWriters.IntCellWriter.Write(data, _buffer, style ?? _styles.GeneralStyle);
 
-            _columnCount += 1;
-            AddMerge(rightMerge, downMerge);
-        }
+        _columnCount += 1;
+        AddMerge(rightMerge, downMerge);
+    }
 
     public void AddCell(int? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
-            if (data.HasValue)
-                AddCell(data.Value, style, rightMerge, downMerge);
-            else
-                AddEmptyCell(style, rightMerge, downMerge);
-        }
+        if (data.HasValue)
+            AddCell(data.Value, style, rightMerge, downMerge);
+        else
+            AddEmptyCell(style, rightMerge, downMerge);
+    }
 
     public void AddCell(long data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
-            CheckWriteCell();
-            DataWriters.LongCellWriter.Write(data, _buffer, style ?? _styles.GeneralStyle);
+        CheckWriteCell();
+        DataWriters.LongCellWriter.Write(data, _buffer, style ?? _styles.GeneralStyle);
 
-            _columnCount += 1;
-            AddMerge(rightMerge, downMerge);
-        }
+        _columnCount += 1;
+        AddMerge(rightMerge, downMerge);
+    }
 
     public void AddCell(long? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
-            if (data.HasValue)
-                AddCell(data.Value, style, rightMerge, downMerge);
-            else
-                AddEmptyCell(style, rightMerge, downMerge);
-        }
+        if (data.HasValue)
+            AddCell(data.Value, style, rightMerge, downMerge);
+        else
+            AddEmptyCell(style, rightMerge, downMerge);
+    }
 
     public void AddCell(decimal data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
-            CheckWriteCell();
-            DataWriters.DecimalCellWriter.Write(data, _buffer, style ?? _styles.GeneralStyle);
+        CheckWriteCell();
+        DataWriters.DecimalCellWriter.Write(data, _buffer, style ?? _styles.GeneralStyle);
 
-            _columnCount += 1;
-            AddMerge(rightMerge, downMerge);
-        }
+        _columnCount += 1;
+        AddMerge(rightMerge, downMerge);
+    }
 
     public void AddCell(decimal? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
-            if (data.HasValue)
-                AddCell(data.Value, style, rightMerge, downMerge);
-            else
-                AddEmptyCell(style, rightMerge, downMerge);
-        }
+        if (data.HasValue)
+            AddCell(data.Value, style, rightMerge, downMerge);
+        else
+            AddEmptyCell(style, rightMerge, downMerge);
+    }
 
     public void AddCell(DateTime data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
-            CheckWriteCell();
-            DataWriters.DateTimeCellWriter.Write(data, _buffer, style ?? _styles.DefaultDateStyle);
+        CheckWriteCell();
+        DataWriters.DateTimeCellWriter.Write(data, _buffer, style ?? _styles.DefaultDateStyle);
 
-            _columnCount += 1;
-            AddMerge(rightMerge, downMerge);
-        }
+        _columnCount += 1;
+        AddMerge(rightMerge, downMerge);
+    }
 
     public void AddCell(DateTime? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
-            if (data.HasValue)
-                AddCell(data.Value, style, rightMerge, downMerge);
-            else
-                AddEmptyCell(style, rightMerge, downMerge);
-        }
+        if (data.HasValue)
+            AddCell(data.Value, style, rightMerge, downMerge);
+        else
+            AddEmptyCell(style, rightMerge, downMerge);
+    }
 
     public void AddCell(ReadOnlySpan<char> data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
-            CheckWriteCell();
-            DataWriters.StringCellWriter.Write(data, _buffer, _encoder, style);
+        CheckWriteCell();
+        DataWriters.StringCellWriter.Write(data, _buffer, _encoder, style);
 
-            _columnCount += 1;
-            AddMerge(rightMerge, downMerge);
-        }
+        _columnCount += 1;
+        AddMerge(rightMerge, downMerge);
+    }
 
     public void AddUtf8Cell(ReadOnlySpan<byte> data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
-            CheckWriteCell();
-            DataWriters.StringCellWriter.WriteUtf8(data, _buffer, style);
+        CheckWriteCell();
+        DataWriters.StringCellWriter.WriteUtf8(data, _buffer, style);
 
-            _columnCount += 1;
-            AddMerge(rightMerge, downMerge);
-        }
+        _columnCount += 1;
+        AddMerge(rightMerge, downMerge);
+    }
 
     public void AddCell(SharedStringReference sharedString, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
-            CheckWriteCell();
-            DataWriters.SharedStringCellWriter.Write(sharedString, _buffer, style);
+        CheckWriteCell();
+        DataWriters.SharedStringCellWriter.Write(sharedString, _buffer, style);
 
-            _columnCount += 1;
-            AddMerge(rightMerge, downMerge);
-        }
+        _columnCount += 1;
+        AddMerge(rightMerge, downMerge);
+    }
 
     public void AddCell(in Hyperlink hyperlink, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
-            CheckWriteCell();
-            DataWriters.StringCellWriter.Write(hyperlink.Text, _buffer, _encoder, style ?? _styles.DefaultHyperlinkStyle);
+        CheckWriteCell();
+        DataWriters.StringCellWriter.Write(hyperlink.Text, _buffer, _encoder, style ?? _styles.DefaultHyperlinkStyle);
 
-            _columnCount += 1;
-            AddMerge(rightMerge, downMerge);
-            AddHyperlink(hyperlink);
-        }
+        _columnCount += 1;
+        AddMerge(rightMerge, downMerge);
+        AddHyperlink(hyperlink);
+    }
 
     public void AddEmptyCell(StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
-            CheckWriteCell();
+        CheckWriteCell();
 
-            DataWriters.EmptyCellWriter.Write(_buffer, style);
+        DataWriters.EmptyCellWriter.Write(_buffer, style);
 
-            _columnCount += 1;
-            AddMerge(rightMerge, downMerge);
-        }
+        _columnCount += 1;
+        AddMerge(rightMerge, downMerge);
+    }
 
     private async ValueTask AddPictures()
     {
-            foreach (var picture in _sheetDrawings.Pictures)
-            {
-                await using var stream = OpenEntry(PathResolver.GetPictureFullPath(picture));
-                await picture.Data.WriteTo(stream);
-            }
+        foreach (var picture in _sheetDrawings.Pictures)
+        {
+            await using var stream = OpenEntry(PathResolver.GetPictureFullPath(picture));
+            await picture.Data.WriteTo(stream, _token);
         }
+    }
 
     public async ValueTask Complete()
     {
-            EnsureNotCompleted();
+        EnsureNotCompleted();
 
-            if (_rowStarted)
-                await EndRow();
+        if (_rowStarted)
+            await EndRow();
 
-            if (_sheetStream != null)
-                await EndSheet();
+        if (_sheetStream != null)
+            await EndSheet();
 
-            await AddPictures();
-            await AddWorkbook();
-            await AddContentTypes();
-            await AddWorkbookRelationships();
-            await AddStyles();
-            await AddSharedStringTable();
-            await AddRelationships();
+        await AddPictures();
+        await AddWorkbook();
+        await AddContentTypes();
+        await AddWorkbookRelationships();
+        await AddStyles();
+        await AddSharedStringTable();
+        await AddRelationships();
 
-            _isCompleted = true;
-        }
+        _isCompleted = true;
+    }
 
     public async ValueTask DisposeAsync()
     {
-            if (!_isCompleted)
-                await Complete();
+        if (!_isCompleted)
+            await Complete();
 
-            _sharedStringKeeper.Dispose();
-            _buffer.Dispose();
-            _zipArchive.Dispose();
-        }
+        _sharedStringKeeper.Dispose();
+        _buffer.Dispose();
+        _zipArchive.Dispose();
+    }
 
     private ValueTask EndRow()
     {
-            _rowStarted = false;
-            DataWriters.RowWriter.WriteEndRow(_buffer);
+        _rowStarted = false;
+        DataWriters.RowWriter.WriteEndRow(_buffer);
 
-            return _buffer.FlushCompleted(_sheetStream!, _token);
-        }
+        return _buffer.FlushCompleted(_sheetStream!, _token);
+    }
 
     private async ValueTask EndSheet()
     {
-            var sheet = _sheets[^1];
-            var drawing = _sheetDrawings.Get(sheet.Id);
+        var sheet = _sheets[^1];
+        var drawing = _sheetDrawings.Get(sheet.Id);
 
-            DataWriters.SheetWriter.WriteEndSheet(_buffer, _encoder, drawing, _merges, _hyperlinks);
+        DataWriters.SheetWriter.WriteEndSheet(_buffer, _encoder, drawing, _merges, _hyperlinks);
 
-            await _buffer.FlushAll(_sheetStream!, _token);
-            await _sheetStream!.FlushAsync(_token);
-            await _sheetStream!.DisposeAsync();
-            _sheetStream = null;
+        await _buffer.FlushAll(_sheetStream!, _token);
+        await _sheetStream!.FlushAsync(_token);
+        await _sheetStream!.DisposeAsync();
+        _sheetStream = null;
 
-            await AddSheetRelationships(sheet.Id);
+        await AddSheetRelationships(sheet.Id);
 
-            await AddDrawing(sheet.Id);
-            await AddDrawingRelationships(sheet.Id);
+        await AddDrawing(sheet.Id);
+        await AddDrawingRelationships(sheet.Id);
 
-            _hyperlinks.Clear();
-        }
+        _hyperlinks.Clear();
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void AddMerge(uint rightMerge = 0, uint downMerge = 0)
     {
-            if (rightMerge != 0 || downMerge != 0)
-                _merges.Add(new Merge(_rowCount, _columnCount, downMerge, rightMerge));
-        }
+        if (rightMerge != 0 || downMerge != 0)
+            _merges.Add(new Merge(_rowCount, _columnCount, downMerge, rightMerge));
+    }
 
     private void AddHyperlink(in Hyperlink hyperlink)
     {
-            if (!_hyperlinks.TryGetValue(hyperlink.Link, out var references))
-            {
-                references = new List<CellReference>();
-                _hyperlinks[hyperlink.Link] = references;
-            }
-
-            references.Add(new CellReference(_rowCount, _columnCount));
+        if (!_hyperlinks.TryGetValue(hyperlink.Link, out var references))
+        {
+            references = new List<CellReference>();
+            _hyperlinks[hyperlink.Link] = references;
         }
+
+        references.Add(new CellReference(_rowCount, _columnCount));
+    }
 
     private async ValueTask AddWorkbook()
     {
-            await using var stream = OpenEntry("xl/workbook.xml");
+        await using var stream = OpenEntry("xl/workbook.xml");
 
-            DataWriters.WorkbookWriter.Write(_sheets, _buffer, _encoder);
+        DataWriters.WorkbookWriter.Write(_sheets, _buffer, _encoder);
 
-            await _buffer.FlushAll(stream, _token);
-        }
+        await _buffer.FlushAll(stream, _token);
+    }
 
     private async ValueTask AddContentTypes()
     {
-            await using var stream = OpenEntry("[Content_Types].xml");
+        await using var stream = OpenEntry("[Content_Types].xml");
 
-            DataWriters.ContentTypesWriter.Write(_sheets, _sheetDrawings, _buffer, _encoder);
+        DataWriters.ContentTypesWriter.Write(_sheets, _sheetDrawings, _buffer, _encoder);
 
-            await _buffer.FlushAll(stream, _token);
-        }
+        await _buffer.FlushAll(stream, _token);
+    }
 
     private async ValueTask AddWorkbookRelationships()
     {
-            await using var stream = OpenEntry("xl/_rels/workbook.xml.rels");
+        await using var stream = OpenEntry("xl/_rels/workbook.xml.rels");
 
-            DataWriters.WorkbookRelationshipsWriter.Write(_sheets, _buffer, _encoder);
+        DataWriters.WorkbookRelationshipsWriter.Write(_sheets, _buffer, _encoder);
 
-            await _buffer.FlushAll(stream, _token);
-        }
+        await _buffer.FlushAll(stream, _token);
+    }
 
     private async ValueTask AddStyles()
     {
-            await using var stream = OpenEntry("xl/styles.xml");
-            await _styles.WriteTo(stream);
-        }
+        await using var stream = OpenEntry("xl/styles.xml");
+        await _styles.WriteTo(stream);
+    }
 
     private async ValueTask AddSharedStringTable()
     {
-            await using var stream = OpenEntry("xl/sharedStrings.xml");
+        await using var stream = OpenEntry("xl/sharedStrings.xml");
 
-            await _sharedStringKeeper.WriteTo(stream, _token);
-        }
+        await _sharedStringKeeper.WriteTo(stream, _token);
+    }
 
     private async ValueTask AddRelationships()
     {
-            await using var stream = OpenEntry("_rels/.rels");
+        await using var stream = OpenEntry("_rels/.rels");
 
-            DataWriters.RelationshipsWriter.Write(_buffer);
+        DataWriters.RelationshipsWriter.Write(_buffer);
 
-            await _buffer.FlushAll(stream, _token);
-        }
+        await _buffer.FlushAll(stream, _token);
+    }
 
     private async ValueTask AddDrawingRelationships(int sheetId)
     {
-            var drawing = _sheetDrawings.Get(sheetId);
+        var drawing = _sheetDrawings.Get(sheetId);
 
-            if (drawing.IsEmpty)
-                return;
+        if (drawing.IsEmpty)
+            return;
 
-            await using var stream = OpenEntry(PathResolver.GetDrawingRelationshipsFullPath(drawing));
-            DataWriters.DrawingRelationshipsWriter.Write(drawing, _buffer, _encoder);
+        await using var stream = OpenEntry(PathResolver.GetDrawingRelationshipsFullPath(drawing));
+        DataWriters.DrawingRelationshipsWriter.Write(drawing, _buffer, _encoder);
 
-            await _buffer.FlushAll(stream, _token);
-        }
+        await _buffer.FlushAll(stream, _token);
+    }
 
     private async ValueTask AddDrawing(int sheetId)
     {
-            var drawing = _sheetDrawings.Get(sheetId);
+        var drawing = _sheetDrawings.Get(sheetId);
 
-            if (drawing.IsEmpty)
-                return;
+        if (drawing.IsEmpty)
+            return;
 
-            await using var stream = OpenEntry(PathResolver.GetDrawingFullPath(drawing));
-            DataWriters.DrawingWriter.Write(drawing, _buffer, _encoder);
+        await using var stream = OpenEntry(PathResolver.GetDrawingFullPath(drawing));
+        DataWriters.DrawingWriter.Write(drawing, _buffer, _encoder);
 
-            await _buffer.FlushAll(stream, _token);
-        }
+        await _buffer.FlushAll(stream, _token);
+    }
 
     private async ValueTask AddSheetRelationships(int sheetId)
     {
-            await using var stream = OpenEntry(PathResolver.GetSheetRelationshipsFullPath(sheetId));
+        await using var stream = OpenEntry(PathResolver.GetSheetRelationshipsFullPath(sheetId));
 
-            var drawing = _sheetDrawings.Get(sheetId);
-            DataWriters.SheetRelationshipsWriter.Write(_hyperlinks.Keys, drawing, _buffer, _encoder);
+        var drawing = _sheetDrawings.Get(sheetId);
+        DataWriters.SheetRelationshipsWriter.Write(_hyperlinks.Keys, drawing, _buffer, _encoder);
 
-            await _buffer.FlushAll(stream, _token);
-        }
+        await _buffer.FlushAll(stream, _token);
+    }
 
     private Stream OpenEntry(string entryName)
     {
-            var entry = _zipArchive.CreateEntry(entryName, DefaultCompressionLevel);
+        var entry = _zipArchive.CreateEntry(entryName, DefaultCompressionLevel);
 
-            return entry.Open();
-        }
+        return entry.Open();
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void EnsureNotCompleted()
     {
-            if (_isCompleted)
-                throw new InvalidOperationException("Cannot use excel writer. It is completed already.");
-        }
+        if (_isCompleted)
+            throw new InvalidOperationException("Cannot use excel writer. It is completed already.");
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void CheckWriteCell()
     {
-            EnsureNotCompleted();
+        EnsureNotCompleted();
 
-            if (!_rowStarted)
-                throw new InvalidOperationException("Cannot add cell before start row.");
-        }
+        if (!_rowStarted)
+            throw new InvalidOperationException("Cannot add cell before start row.");
+    }
 }

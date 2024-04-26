@@ -14,10 +14,10 @@ public sealed class SharedStringTableBuilder
             return reference;
 
         reference = new SharedStringReference(_strings.Count);
-        
+
         _strings.Add(value);
         _references[value] = reference;
-        
+
         return reference;
     }
 
@@ -26,7 +26,7 @@ public sealed class SharedStringTableBuilder
         using var buffer = new BuffersChain(bufferSize: 4 * 1024, flushThreshold: 1.0);
 
         var encoder = Encoding.UTF8.GetEncoder();
-        foreach (var value in _strings) 
+        foreach (var value in _strings)
             DataWriters.SharedStringWriter.Write(value, buffer, encoder);
 
         var preparedData = new byte[buffer.Written];

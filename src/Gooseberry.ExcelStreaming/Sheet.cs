@@ -12,9 +12,9 @@ internal readonly struct Sheet
         RelationshipId = relationshipId;
     }
 
-    public string Name { get; } 
-    
-    public int Id { get; } 
-    
+    public string Name { get; }
+
+    public int Id { get; }
+
     public string RelationshipId { get; }
 }

@@ -20,20 +20,20 @@ public readonly record struct Sheet(
 
     public bool Equals(Sheet other)
     {
-            return string.Equals(Name, other.Name, StringComparison.Ordinal)
-                && Rows.SequenceEqual(other.Rows)
-                && Merges.SequenceEqual(other.Merges)
-                && Columns.SequenceEqual(other.Columns)
-                && Pictures.SequenceEqual(other.Pictures);
-        }
+        return string.Equals(Name, other.Name, StringComparison.Ordinal)
+            && Rows.SequenceEqual(other.Rows)
+            && Merges.SequenceEqual(other.Merges)
+            && Columns.SequenceEqual(other.Columns)
+            && Pictures.SequenceEqual(other.Pictures);
+    }
 
     public override int GetHashCode()
     {
-            return HashCode.Combine(
-                Name,
-                Rows.GetCollectionHashCode(),
-                Merges.GetCollectionHashCode(),
-                Columns.GetCollectionHashCode(),
-                Pictures.GetCollectionHashCode());
-        }
+        return HashCode.Combine(
+            Name,
+            Rows.GetCollectionHashCode(),
+            Merges.GetCollectionHashCode(),
+            Columns.GetCollectionHashCode(),
+            Pictures.GetCollectionHashCode());
+    }
 }

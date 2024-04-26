@@ -136,7 +136,7 @@ internal sealed class SheetWriter
     {
         if (merges.Count == 0)
             return;
-        
+
         Constants.Worksheet.Merges.Prefix.WriteTo(buffer, ref span, ref written);
 
         foreach (var merge in merges)
@@ -172,7 +172,7 @@ internal sealed class SheetWriter
     {
         if (hyperlinks.Count == 0)
             return;
-        
+
         Constants.Worksheet.Hyperlinks.Prefix.WriteTo(buffer, ref span, ref written);
 
         var count = 0;

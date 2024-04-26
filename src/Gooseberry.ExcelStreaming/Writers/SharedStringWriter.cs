@@ -11,14 +11,14 @@ internal readonly struct SharedStringWriter
     {
         var span = buffer.GetSpan();
         var written = 0;
-        
+
         Constants.SharedStringTable.Item.Prefix.WriteTo(buffer, ref span, ref written);
         value.WriteEscapedTo(buffer, encoder, ref span, ref written);
         Constants.SharedStringTable.Item.Postfix.WriteTo(buffer, ref span, ref written);
-        
+
         buffer.Advance(written);
     }
-    
+
     public void WritePostfix(BuffersChain buffer)
         => Constants.SharedStringTable.Postfix.WriteTo(buffer);
 }

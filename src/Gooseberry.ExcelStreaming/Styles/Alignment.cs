@@ -7,10 +7,10 @@ public readonly struct Alignment : IEquatable<Alignment>
 {
     public Alignment(HorizontalAlignment? horizontal, VerticalAlignment? vertical, bool wrapText)
     {
-            Horizontal = horizontal;
-            Vertical = vertical;
-            WrapText = wrapText;
-        }
+        Horizontal = horizontal;
+        Vertical = vertical;
+        WrapText = wrapText;
+    }
 
     public HorizontalAlignment? Horizontal { get; }
 
@@ -20,10 +20,10 @@ public readonly struct Alignment : IEquatable<Alignment>
 
     public bool Equals(Alignment other)
     {
-            return Nullable.Equals(Horizontal, other.Horizontal) &&
-               Nullable.Equals(Vertical, other.Vertical) &&
-               WrapText == other.WrapText;
-        }
+        return Nullable.Equals(Horizontal, other.Horizontal) &&
+            Nullable.Equals(Vertical, other.Vertical) &&
+            WrapText == other.WrapText;
+    }
 
     public override bool Equals(object? other)
         => other is Alignment alignment && Equals(alignment);

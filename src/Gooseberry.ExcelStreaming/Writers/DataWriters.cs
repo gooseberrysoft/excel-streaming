@@ -11,18 +11,18 @@ internal static class DataWriters
     public static readonly DrawingRelationshipsWriter DrawingRelationshipsWriter = new();
 
     public static readonly PictureWriter PictureWriter = new();
-    
+
     public static readonly RowWriter RowWriter = new();
-    
+
     public static readonly NumberCellWriter<int, IntFormatter> IntCellWriter =
         new(Constants.Worksheet.SheetData.Row.Cell.NumberDataType);
-    
+
     public static readonly NumberCellWriter<long, LongFormatter> LongCellWriter =
         new(Constants.Worksheet.SheetData.Row.Cell.NumberDataType);
-    
+
     public static readonly NumberCellWriter<decimal, DecimalFormatter> DecimalCellWriter =
         new(Constants.Worksheet.SheetData.Row.Cell.NumberDataType);
-    
+
     public static readonly NumberCellWriter<DateTime, DateTimeFormatter> DateTimeCellWriter =
         new(Constants.Worksheet.SheetData.Row.Cell.DateTimeDataType);
 

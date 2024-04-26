@@ -33,9 +33,9 @@ internal static class BytesWriter
     }
 
     private static void WriteBlocks(
-        ReadOnlySpan<byte> data, 
-        BuffersChain buffer, 
-        ref Span<byte> destination, 
+        ReadOnlySpan<byte> data,
+        BuffersChain buffer,
+        ref Span<byte> destination,
         ref int written)
     {
         var remainingData = data;

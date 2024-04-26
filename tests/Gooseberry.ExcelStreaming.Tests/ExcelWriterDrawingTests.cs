@@ -41,16 +41,20 @@ public sealed class ExcelWriterDrawingTests
             {
                 new Picture(
                     imageStream.ToArray(),
-                    placement1 with {Size = new Size(
-                        (int)EmuConverter.ConvertToEnglishMetricUnits(placement1.Size!.Value.Width, resolution: 96),
-                        (int)EmuConverter.ConvertToEnglishMetricUnits(placement1.Size!.Value.Height, resolution: 96))
+                    placement1 with
+                    {
+                        Size = new Size(
+                            (int)EmuConverter.ConvertToEnglishMetricUnits(placement1.Size!.Value.Width, resolution: 96),
+                            (int)EmuConverter.ConvertToEnglishMetricUnits(placement1.Size!.Value.Height, resolution: 96))
                     },
                     imageCase.Format),
                 new Picture(
                     imageStream.ToArray(),
-                    placement2 with {Size = new Size(
-                        (int)EmuConverter.ConvertToEnglishMetricUnits(placement2.Size!.Value.Width, resolution: 96),
-                        (int)EmuConverter.ConvertToEnglishMetricUnits(placement2.Size!.Value.Height, resolution: 96))
+                    placement2 with
+                    {
+                        Size = new Size(
+                            (int)EmuConverter.ConvertToEnglishMetricUnits(placement2.Size!.Value.Width, resolution: 96),
+                            (int)EmuConverter.ConvertToEnglishMetricUnits(placement2.Size!.Value.Height, resolution: 96))
                     },
                     imageCase.Format)
             });

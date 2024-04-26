@@ -14,6 +14,6 @@ public sealed class SharedStringTable
 
     internal void WriteTo(BuffersChain buffer)
         => _preparedData.WriteTo(buffer);
-    
+
     internal int Count { get; }
 }

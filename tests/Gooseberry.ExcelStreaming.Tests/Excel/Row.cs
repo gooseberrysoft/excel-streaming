@@ -7,9 +7,9 @@ public readonly struct Row : IEquatable<Row>
 {
     public Row(IReadOnlyCollection<Cell> cells, decimal? height = null)
     {
-            Cells = cells;
-            Height = height;
-        }
+        Cells = cells;
+        Height = height;
+    }
 
     public decimal? Height { get; }
 

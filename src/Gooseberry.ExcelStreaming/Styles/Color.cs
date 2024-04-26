@@ -14,7 +14,7 @@ public readonly struct Color : IEquatable<Color>
         => _argb.ToString("x8");
 
     public static implicit operator Color(uint argb)
-        => new (argb);
+        => new(argb);
 
     public static implicit operator Color(System.Drawing.Color color)
         => new((uint)color.ToArgb());

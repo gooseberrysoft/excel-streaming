@@ -7,9 +7,9 @@ public readonly struct Fill : IEquatable<Fill>
 {
     public Fill(Color? color = null, FillPattern pattern = FillPattern.Solid)
     {
-            Color = color;
-            Pattern = pattern;
-        }
+        Color = color;
+        Pattern = pattern;
+    }
 
     public Color? Color { get; }
 

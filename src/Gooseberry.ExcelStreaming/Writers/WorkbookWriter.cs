@@ -8,7 +8,7 @@ internal readonly struct WorkbookWriter
     {
         var span = buffer.GetSpan();
         var written = 0;
-        
+
         Constants.Workbook.Prefix.WriteTo(buffer, ref span, ref written);
 
         foreach (var sheet in sheets)
@@ -16,7 +16,7 @@ internal readonly struct WorkbookWriter
             Constants.Workbook.Sheet.StartPrefix.WriteTo(buffer, ref span, ref written);
             sheet.Name.WriteEscapedTo(buffer, encoder, ref span, ref written);
             Constants.Workbook.Sheet.EndPrefix.WriteTo(buffer, ref span, ref written);
-                
+
             sheet.Id.WriteTo(buffer, ref span, ref written);
             Constants.Workbook.Sheet.EndPostfix.WriteTo(buffer, ref span, ref written);
             sheet.RelationshipId.WriteTo(buffer, encoder, ref span, ref written);
@@ -24,7 +24,7 @@ internal readonly struct WorkbookWriter
         }
 
         Constants.Workbook.Postfix.WriteTo(buffer, ref span, ref written);
-        
-        buffer.Advance(written);        
+
+        buffer.Advance(written);
     }
 }

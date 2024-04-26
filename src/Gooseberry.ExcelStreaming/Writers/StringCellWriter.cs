@@ -7,14 +7,13 @@ internal sealed class StringCellWriter
 {
     // https://support.microsoft.com/en-us/office/excel-specifications-and-limits-1672b34d-7043-467e-8e27-269d656771c3?ui=en-us&rs=en-us&ad=us#ID0EBABAAA=Excel_2016-2013
     private const int MaxCharacters = 32_767;
-    private const int MaxBytes = MaxCharacters * 3; 
+    private const int MaxBytes = MaxCharacters * 3;
 
     private readonly NumberWriter<int, IntFormatter> _styleWriter = new();
 
     private readonly byte[] _stylelessPrefix;
     private readonly byte[] _stylePrefix;
     private readonly byte[] _stylePostfix;
-    
 
 
     public StringCellWriter()
