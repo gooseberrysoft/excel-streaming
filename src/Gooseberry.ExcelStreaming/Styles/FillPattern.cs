@@ -1,9 +1,8 @@
-namespace Gooseberry.ExcelStreaming.Styles
+namespace Gooseberry.ExcelStreaming.Styles;
+
+public enum FillPattern
 {
-    public enum FillPattern
-    {
-        None,
-        Solid,
-        Gray125
-    }
+    None,
+    Solid,
+    Gray125
 }

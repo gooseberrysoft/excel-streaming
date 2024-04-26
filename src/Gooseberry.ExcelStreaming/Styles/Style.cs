@@ -1,17 +1,17 @@
 using System.Runtime.InteropServices;
 
-namespace Gooseberry.ExcelStreaming.Styles
+namespace Gooseberry.ExcelStreaming.Styles;
+
+[StructLayout(LayoutKind.Auto)]
+public readonly struct Style
 {
-    [StructLayout(LayoutKind.Auto)]
-    public readonly struct Style
+    public Style(
+        Font? font = null,
+        Fill? fill = null,
+        Borders? borders = null,
+        string? format = null,
+        Alignment? alignment = null)
     {
-        public Style(
-            Font? font = null,
-            Fill? fill = null,
-            Borders? borders = null,
-            string? format = null,
-            Alignment? alignment = null)
-        {
             Alignment = alignment;
             Font = font;
             Fill = fill;
@@ -19,14 +19,13 @@ namespace Gooseberry.ExcelStreaming.Styles
             Format = format;
         }
 
-        public Font? Font { get; }
+    public Font? Font { get; }
 
-        public Fill? Fill { get; }
+    public Fill? Fill { get; }
 
-        public Borders? Borders { get; }
+    public Borders? Borders { get; }
 
-        public string? Format { get; }
+    public string? Format { get; }
 
-        public Alignment? Alignment { get; }
-    }
+    public Alignment? Alignment { get; }
 }

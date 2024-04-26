@@ -1,14 +1,13 @@
-namespace Gooseberry.ExcelStreaming.Styles
+namespace Gooseberry.ExcelStreaming.Styles;
+
+public enum HorizontalAlignment
 {
-    public enum HorizontalAlignment
-    {
-        Center,
-        CenterContinuous,
-        Distributed,
-        Fill,
-        General,
-        Justify,
-        Left,
-        Right
-    }
+    Center,
+    CenterContinuous,
+    Distributed,
+    Fill,
+    General,
+    Justify,
+    Left,
+    Right
 }

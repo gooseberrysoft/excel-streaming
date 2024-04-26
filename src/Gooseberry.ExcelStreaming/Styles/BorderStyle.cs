@@ -1,7 +1,6 @@
-namespace Gooseberry.ExcelStreaming.Styles
+namespace Gooseberry.ExcelStreaming.Styles;
+
+public enum BorderStyle
 {
-    public enum BorderStyle
-    {
-        Thin
-    }
+    Thin
 }

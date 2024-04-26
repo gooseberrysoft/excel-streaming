@@ -19,20 +19,20 @@ using Font = Gooseberry.ExcelStreaming.Styles.Font;
 using MarkerType = DocumentFormat.OpenXml.Drawing.Spreadsheet.MarkerType;
 using Point = System.Drawing.Point;
 
-namespace Gooseberry.ExcelStreaming.Tests.Excel
+namespace Gooseberry.ExcelStreaming.Tests.Excel;
+
+public static class ExcelReader
 {
-    public static class ExcelReader
+    public static IReadOnlyCollection<Style> ReadStyles(Stream stream)
     {
-        public static IReadOnlyCollection<Style> ReadStyles(Stream stream)
-        {
             using var spreadsheet = SpreadsheetDocument.Open(stream, isEditable: false);
 
             return GetStyles(spreadsheet.WorkbookPart!.WorkbookStylesPart!.Stylesheet)
                 .ToArray();
         }
 
-        public static IReadOnlyCollection<string> ReadSharedStrings(Stream stream)
-        {
+    public static IReadOnlyCollection<string> ReadSharedStrings(Stream stream)
+    {
             using var spreadsheet = SpreadsheetDocument.Open(stream, isEditable: false);
 
             return spreadsheet.WorkbookPart!.SharedStringTablePart!.SharedStringTable
@@ -41,55 +41,55 @@ namespace Gooseberry.ExcelStreaming.Tests.Excel
                 .ToArray();
         }
 
-        private static Dictionary<CellValues, CellValueType> CellTypesMap = new()
-        {
-            { CellValues.String, CellValueType.String },
-            { CellValues.Number, CellValueType.Number },
-            { CellValues.Date, CellValueType.DateTime },
-            { CellValues.SharedString, CellValueType.SharedString }
-        };
+    private static Dictionary<CellValues, CellValueType> CellTypesMap = new()
+    {
+        { CellValues.String, CellValueType.String },
+        { CellValues.Number, CellValueType.Number },
+        { CellValues.Date, CellValueType.DateTime },
+        { CellValues.SharedString, CellValueType.SharedString }
+    };
 
 
-        private static Dictionary<PatternValues, FillPattern> PatternMap = new()
-        {
-            { PatternValues.None, FillPattern.None },
-            { PatternValues.Gray125, FillPattern.Gray125 },
-            { PatternValues.Solid, FillPattern.Solid }
-        };
+    private static Dictionary<PatternValues, FillPattern> PatternMap = new()
+    {
+        { PatternValues.None, FillPattern.None },
+        { PatternValues.Gray125, FillPattern.Gray125 },
+        { PatternValues.Solid, FillPattern.Solid }
+    };
 
-        private static Dictionary<UnderlineValues, Styles.Underline> UnderlineMap = new()
-        {
-            { UnderlineValues.None, ExcelStreaming.Styles.Underline.None },
-            { UnderlineValues.Single, ExcelStreaming.Styles.Underline.Single },
-            { UnderlineValues.Double, ExcelStreaming.Styles.Underline.Double },
-            { UnderlineValues.SingleAccounting, ExcelStreaming.Styles.Underline.SingleAccounting },
-            { UnderlineValues.DoubleAccounting, ExcelStreaming.Styles.Underline.DoubleAccounting }
-        };
+    private static Dictionary<UnderlineValues, Styles.Underline> UnderlineMap = new()
+    {
+        { UnderlineValues.None, ExcelStreaming.Styles.Underline.None },
+        { UnderlineValues.Single, ExcelStreaming.Styles.Underline.Single },
+        { UnderlineValues.Double, ExcelStreaming.Styles.Underline.Double },
+        { UnderlineValues.SingleAccounting, ExcelStreaming.Styles.Underline.SingleAccounting },
+        { UnderlineValues.DoubleAccounting, ExcelStreaming.Styles.Underline.DoubleAccounting }
+    };
 
-        private static Dictionary<HorizontalAlignmentValues, HorizontalAlignment> HorizontalMap = new()
-        {
-            { HorizontalAlignmentValues.Center, HorizontalAlignment.Center },
-            { HorizontalAlignmentValues.CenterContinuous, HorizontalAlignment.CenterContinuous },
-            { HorizontalAlignmentValues.Distributed, HorizontalAlignment.Distributed },
-            { HorizontalAlignmentValues.Fill, HorizontalAlignment.Fill },
-            { HorizontalAlignmentValues.General, HorizontalAlignment.General },
-            { HorizontalAlignmentValues.Justify, HorizontalAlignment.Justify },
-            { HorizontalAlignmentValues.Left, HorizontalAlignment.Left },
-            { HorizontalAlignmentValues.Right, HorizontalAlignment.Right }
-        };
+    private static Dictionary<HorizontalAlignmentValues, HorizontalAlignment> HorizontalMap = new()
+    {
+        { HorizontalAlignmentValues.Center, HorizontalAlignment.Center },
+        { HorizontalAlignmentValues.CenterContinuous, HorizontalAlignment.CenterContinuous },
+        { HorizontalAlignmentValues.Distributed, HorizontalAlignment.Distributed },
+        { HorizontalAlignmentValues.Fill, HorizontalAlignment.Fill },
+        { HorizontalAlignmentValues.General, HorizontalAlignment.General },
+        { HorizontalAlignmentValues.Justify, HorizontalAlignment.Justify },
+        { HorizontalAlignmentValues.Left, HorizontalAlignment.Left },
+        { HorizontalAlignmentValues.Right, HorizontalAlignment.Right }
+    };
 
-        private static Dictionary<VerticalAlignmentValues, VerticalAlignment> VerticalMap = new()
-        {
-            { VerticalAlignmentValues.Bottom, VerticalAlignment.Bottom },
-            { VerticalAlignmentValues.Center, VerticalAlignment.Center },
-            { VerticalAlignmentValues.Distributed, VerticalAlignment.Distributed },
-            { VerticalAlignmentValues.Justify, VerticalAlignment.Justify },
-            { VerticalAlignmentValues.Top, VerticalAlignment.Top }
-        };
+    private static Dictionary<VerticalAlignmentValues, VerticalAlignment> VerticalMap = new()
+    {
+        { VerticalAlignmentValues.Bottom, VerticalAlignment.Bottom },
+        { VerticalAlignmentValues.Center, VerticalAlignment.Center },
+        { VerticalAlignmentValues.Distributed, VerticalAlignment.Distributed },
+        { VerticalAlignmentValues.Justify, VerticalAlignment.Justify },
+        { VerticalAlignmentValues.Top, VerticalAlignment.Top }
+    };
 
 
-        public static IReadOnlyCollection<Sheet> ReadSheets(Stream stream)
-        {
+    public static IReadOnlyCollection<Sheet> ReadSheets(Stream stream)
+    {
             using var spreadsheet = SpreadsheetDocument.Open(stream, isEditable: false);
 
             var styles = GetStyles(spreadsheet.WorkbookPart!.WorkbookStylesPart!.Stylesheet)
@@ -213,8 +213,8 @@ namespace Gooseberry.ExcelStreaming.Tests.Excel
             }
         }
 
-        private static IEnumerable<Style> GetStyles(Stylesheet styles)
-        {
+    private static IEnumerable<Style> GetStyles(Stylesheet styles)
+    {
             var numberFormats = styles.NumberingFormats
                 !.OfType<NumberingFormat>()
                 .ToDictionary(n => n.NumberFormatId!, n => n.FormatCode!.Value!);
@@ -243,8 +243,8 @@ namespace Gooseberry.ExcelStreaming.Tests.Excel
                             alignment: s.Alignment != null ? GetAlignment(s.Alignment) : null));
         }
 
-        private static Fill GetFill(DocumentFormat.OpenXml.Spreadsheet.Fill fill)
-        {
+    private static Fill GetFill(DocumentFormat.OpenXml.Spreadsheet.Fill fill)
+    {
             if (fill.PatternFill == null)
                 throw new InvalidOperationException("PatternFill should not be empty.");
 
@@ -258,8 +258,8 @@ namespace Gooseberry.ExcelStreaming.Tests.Excel
             return new Fill(color, pattern);
         }
 
-        private static Borders GetBorders(DocumentFormat.OpenXml.Spreadsheet.Border border)
-        {
+    private static Borders GetBorders(DocumentFormat.OpenXml.Spreadsheet.Border border)
+    {
             return new Borders(
                 left: GetBorder(border.LeftBorder),
                 right: GetBorder(border.RightBorder),
@@ -267,8 +267,8 @@ namespace Gooseberry.ExcelStreaming.Tests.Excel
                 bottom: GetBorder(border.BottomBorder));
         }
 
-        private static Border? GetBorder(BorderPropertiesType? border)
-        {
+    private static Border? GetBorder(BorderPropertiesType? border)
+    {
             if (border == null || border.Style == null && border.Color == null)
                 return null;
 
@@ -286,8 +286,8 @@ namespace Gooseberry.ExcelStreaming.Tests.Excel
             return new Border(style, color.Value);
         }
 
-        private static Font GetFont(DocumentFormat.OpenXml.Spreadsheet.Font font)
-        {
+    private static Font GetFont(DocumentFormat.OpenXml.Spreadsheet.Font font)
+    {
             var size = (int)(font.FontSize?.Val?.Value ?? 0);
             var name = font.FontName?.Val?.Value;
             var color = GetColor(font.Color?.Rgb);
@@ -303,8 +303,8 @@ namespace Gooseberry.ExcelStreaming.Tests.Excel
             return new Font(size, name, color, bold, italic, strike, underline);
         }
 
-        private static Alignment GetAlignment(DocumentFormat.OpenXml.Spreadsheet.Alignment alignment)
-        {
+    private static Alignment GetAlignment(DocumentFormat.OpenXml.Spreadsheet.Alignment alignment)
+    {
             HorizontalAlignment? horizontal = alignment.Horizontal?.Value == null
                 ? null
                 : HorizontalMap.TryGetValue(alignment.Horizontal.Value, out var hValue)
@@ -322,8 +322,8 @@ namespace Gooseberry.ExcelStreaming.Tests.Excel
             return new Alignment(horizontal, vertical, wrapText);
         }
 
-        private static Color? GetColor(HexBinaryValue? rgbColor)
-        {
+    private static Color? GetColor(HexBinaryValue? rgbColor)
+    {
             var rgbValue = rgbColor?.Value;
 
             if (!string.IsNullOrEmpty(rgbValue))
@@ -332,7 +332,6 @@ namespace Gooseberry.ExcelStreaming.Tests.Excel
             return null;
         }
 
-        public static string AsString(this IEnumValue value)
-            => value.Value;
-    }
+    public static string AsString(this IEnumValue value)
+        => value.Value;
 }

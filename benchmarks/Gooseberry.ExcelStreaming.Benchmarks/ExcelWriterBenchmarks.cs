@@ -5,20 +5,20 @@ using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 
-namespace Gooseberry.ExcelStreaming.Benchmarks
+namespace Gooseberry.ExcelStreaming.Benchmarks;
+
+[MemoryDiagnoser]
+[Orderer(SummaryOrderPolicy.Declared)]
+public class ExcelWriterBenchmarks
 {
-    [MemoryDiagnoser]
-    [Orderer(SummaryOrderPolicy.Declared)]
-    public class ExcelWriterBenchmarks
+    private const int ColumnBatchesCount = 10;
+
+    [Params(10, 100, 1000, 10_000, 100_000)]
+    public int RowsCount { get; set; }
+
+    [Benchmark]
+    public async Task ExcelWriter()
     {
-        private const int ColumnBatchesCount = 10;
-
-        [Params(10, 100, 1000, 10_000, 100_000)]
-        public int RowsCount { get; set; }
-
-        [Benchmark]
-        public async Task ExcelWriter()
-        {
             await using var outputStream = new NullStream();
 
             await using var writer = new ExcelWriter(outputStream);
@@ -41,9 +41,9 @@ namespace Gooseberry.ExcelStreaming.Benchmarks
             await writer.Complete();
         }
 
-        [Benchmark]
-        public void OpenXml()
-        {
+    [Benchmark]
+    public void OpenXml()
+    {
             using var outputStream = new MemoryStream();
             var package = Package.Open(outputStream, FileMode.Create, FileAccess.ReadWrite);
 
@@ -129,5 +129,4 @@ namespace Gooseberry.ExcelStreaming.Benchmarks
 
             writer.Close();
         }
-    }
 }

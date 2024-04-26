@@ -4,13 +4,13 @@ using Color = System.Drawing.Color;
 using Gooseberry.ExcelStreaming.Styles;
 using Xunit;
 
-namespace Gooseberry.ExcelStreaming.Tests
+namespace Gooseberry.ExcelStreaming.Tests;
+
+public sealed class ExcelWriterStylesTests
 {
-    public sealed class ExcelWriterStylesTests
+    [Fact]
+    public async Task ExcelWriter_WritesCorrectDefaultStyles()
     {
-        [Fact]
-        public async Task ExcelWriter_WritesCorrectDefaultStyles()
-        {
             var outputStream = new MemoryStream();
 
             await using (var writer = new ExcelWriter(outputStream))
@@ -24,9 +24,9 @@ namespace Gooseberry.ExcelStreaming.Tests
             styles.ShouldBeEquivalentTo(Constants.DefaultNumberStyle, Constants.DefaultDateTimeStyle, Constants.DefaultHyperlinkStyle);
         }
 
-        [Fact]
-        public async Task AddCellWithStyle_WritesCorrectData()
-        {
+    [Fact]
+    public async Task AddCellWithStyle_WritesCorrectData()
+    {
             var style = new Style(
                 format: "General",
                 font: new Font(size: 11, name: "test", color: Color.Black, bold: true, italic: true, strike: true, underline: Underline.Single),
@@ -81,5 +81,4 @@ namespace Gooseberry.ExcelStreaming.Tests
 
             sheets.ShouldBeEquivalentTo(expectedSheet);
         }
-    }
 }

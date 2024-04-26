@@ -1,11 +1,10 @@
-namespace Gooseberry.ExcelStreaming.Styles
+namespace Gooseberry.ExcelStreaming.Styles;
+
+public enum Underline
 {
-    public enum Underline
-    {
-        None,
-        Single,
-        Double,
-        SingleAccounting,
-        DoubleAccounting
-    }
+    None,
+    Single,
+    Double,
+    SingleAccounting,
+    DoubleAccounting
 }

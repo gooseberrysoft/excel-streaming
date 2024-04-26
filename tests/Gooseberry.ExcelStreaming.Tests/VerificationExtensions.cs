@@ -2,12 +2,12 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Gooseberry.ExcelStreaming.Styles;
 
-namespace Gooseberry.ExcelStreaming.Tests
+namespace Gooseberry.ExcelStreaming.Tests;
+
+internal static class VerificationExtensions
 {
-    internal static class VerificationExtensions
+    public static void ShouldBeEquivalentTo(this IReadOnlyCollection<Excel.Sheet> actualSheets, params Excel.Sheet[] expectedSheets)
     {
-        public static void ShouldBeEquivalentTo(this IReadOnlyCollection<Excel.Sheet> actualSheets, params Excel.Sheet[] expectedSheets)
-        {
             using var scope = new AssertionScope();
 
             actualSheets.Should().HaveCount(expectedSheets.Length);
@@ -36,8 +36,8 @@ namespace Gooseberry.ExcelStreaming.Tests
             }
         }
 
-        public static void ShouldBeEquivalentTo(this IReadOnlyCollection<Style> actualStyles, params Style[] expectedStyles)
-        {
+    public static void ShouldBeEquivalentTo(this IReadOnlyCollection<Style> actualStyles, params Style[] expectedStyles)
+    {
             using var scope = new AssertionScope();
 
             actualStyles.Should().HaveCount(expectedStyles.Length);
@@ -50,5 +50,4 @@ namespace Gooseberry.ExcelStreaming.Tests
                 actual.Alignment.Should().BeEquivalentTo(expected.Alignment);
             }
         }
-    }
 }

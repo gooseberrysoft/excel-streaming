@@ -1,26 +1,26 @@
 using FluentAssertions;
 using Xunit;
 
-namespace Gooseberry.ExcelStreaming.Tests
+namespace Gooseberry.ExcelStreaming.Tests;
+
+public sealed class ExcelWriterErrorTests : IAsyncLifetime
 {
-    public sealed class ExcelWriterErrorTests : IAsyncLifetime
+    private readonly ExcelWriter _excelWriter;
+
+    public ExcelWriterErrorTests()
+        => _excelWriter = new ExcelWriter(new MemoryStream());
+
+    [Fact]
+    public void CreateWithNullStream_ThrowsException()
     {
-        private readonly ExcelWriter _excelWriter;
-
-        public ExcelWriterErrorTests()
-            => _excelWriter = new ExcelWriter(new MemoryStream());
-
-        [Fact]
-        public void CreateWithNullStream_ThrowsException()
-        {
             Action action = () => new ExcelWriter(null!);
 
             action.Should().ThrowExactly<ArgumentNullException>();
         }
 
-        [Fact]
-        public async Task StartRowWithoutStartSheet_ThrowsException()
-        {
+    [Fact]
+    public async Task StartRowWithoutStartSheet_ThrowsException()
+    {
             Func<Task> action = () => _excelWriter.StartRow().AsTask();
 
             await action.Should()
@@ -28,12 +28,12 @@ namespace Gooseberry.ExcelStreaming.Tests
                 .WithMessage("Cannot start row before start sheet.");
         }
 
-        [Theory]
-        [InlineData(-10.0)]
-        [InlineData(-0.1)]
-        [InlineData(0)]
-        public async Task StartRowIncorrectHeight_ThrowsException(double height)
-        {
+    [Theory]
+    [InlineData(-10.0)]
+    [InlineData(-0.1)]
+    [InlineData(0)]
+    public async Task StartRowIncorrectHeight_ThrowsException(double height)
+    {
             await _excelWriter.StartSheet("test");
             Func<Task> action = () => _excelWriter.StartRow((decimal)height).AsTask();
 
@@ -42,9 +42,9 @@ namespace Gooseberry.ExcelStreaming.Tests
                 .WithMessage("Height of row cannot be less or equal than 0. (Parameter 'height')");
         }
 
-        [Fact]
-        public async Task AddCellWithoutStartRow_ThrowsException()
-        {
+    [Fact]
+    public async Task AddCellWithoutStartRow_ThrowsException()
+    {
             await _excelWriter.StartSheet("test");
 
             CheckAddCell(() => _excelWriter.AddCell("test"));
@@ -66,9 +66,9 @@ namespace Gooseberry.ExcelStreaming.Tests
             }
         }
 
-        [Fact]
-        public async Task AnyActionAfterComplete_ThrowsException()
-        {
+    [Fact]
+    public async Task AnyActionAfterComplete_ThrowsException()
+    {
             await _excelWriter.Complete();
 
             await CheckAction(() => _excelWriter.StartSheet("test"));
@@ -101,10 +101,9 @@ namespace Gooseberry.ExcelStreaming.Tests
             }
         }
 
-        public Task InitializeAsync()
-            => Task.CompletedTask;
+    public Task InitializeAsync()
+        => Task.CompletedTask;
 
-        public async Task DisposeAsync()
-            => await _excelWriter.DisposeAsync();
-    }
+    public async Task DisposeAsync()
+        => await _excelWriter.DisposeAsync();
 }

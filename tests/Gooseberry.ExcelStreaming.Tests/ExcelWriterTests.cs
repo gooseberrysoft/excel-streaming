@@ -5,13 +5,13 @@ using FluentAssertions;
 using Gooseberry.ExcelStreaming.Configuration;
 using Xunit;
 
-namespace Gooseberry.ExcelStreaming.Tests
+namespace Gooseberry.ExcelStreaming.Tests;
+
+public sealed class ExcelWriterTests
 {
-    public sealed class ExcelWriterTests
+    [Fact]
+    public async Task ExcelWriter_WritesCorrectData()
     {
-        [Fact]
-        public async Task ExcelWriter_WritesCorrectData()
-        {
             var outputStream = new MemoryStream();
 
             var now = DateTime.Now;
@@ -58,9 +58,9 @@ namespace Gooseberry.ExcelStreaming.Tests
             sheets.ShouldBeEquivalentTo(expectedSheet);
         }
 
-        [Fact]
-        public async Task ExcelWriterTwoSheets_WritesCorrectData()
-        {
+    [Fact]
+    public async Task ExcelWriterTwoSheets_WritesCorrectData()
+    {
             using var outputStream = new MemoryStream();
 
             await using (var writer = new ExcelWriter(outputStream))
@@ -131,9 +131,9 @@ namespace Gooseberry.ExcelStreaming.Tests
             sheets.ShouldBeEquivalentTo(expectedSheets);
         }
 
-        [Fact]
-        public async Task ExcelWriterEmptyDocument_WritesCorrectData()
-        {
+    [Fact]
+    public async Task ExcelWriterEmptyDocument_WritesCorrectData()
+    {
             var outputStream = new MemoryStream();
 
             await using (var writer = new ExcelWriter(outputStream))
@@ -148,10 +148,10 @@ namespace Gooseberry.ExcelStreaming.Tests
             sheets.Should().BeEmpty();
         }
 
-        [Theory]
-        [MemberData(nameof(SpecialSymbols))]
-        public async Task AddCellWithSpecialSymbols_WritesCorrectData(string value)
-        {
+    [Theory]
+    [MemberData(nameof(SpecialSymbols))]
+    public async Task AddCellWithSpecialSymbols_WritesCorrectData(string value)
+    {
             var outputStream = new MemoryStream();
 
             var longText = string.Join('&', Enumerable.Repeat(0, 2000)
@@ -188,9 +188,9 @@ namespace Gooseberry.ExcelStreaming.Tests
         }
 
 
-        [Fact]
-        public async Task AddCellsWithSpecialSymbols_WritesCorrectData()
-        {
+    [Fact]
+    public async Task AddCellsWithSpecialSymbols_WritesCorrectData()
+    {
             const string text = "Tags such as <img> and <input> directly &introduce \"content\" into the page.";
             const string text2 = "<img> is image tag";
             const string text3 = "Exit >>>>>>>>>>>>>>>";
@@ -236,9 +236,9 @@ namespace Gooseberry.ExcelStreaming.Tests
             sheets.ShouldBeEquivalentTo(expectedSheet);
         }
 
-        [Fact]
-        public async Task AddCellsWithSpecialSymbolsUtf8_WritesCorrectData()
-        {
+    [Fact]
+    public async Task AddCellsWithSpecialSymbolsUtf8_WritesCorrectData()
+    {
             var text = "Tags such as <img> and <input> directly &introduce \"content\" into the page.";
             var text2 = "<img> is image tag";
             var text3 = "Exit >>>>>>>>>>>>>>>";
@@ -275,8 +275,8 @@ namespace Gooseberry.ExcelStreaming.Tests
             sheets.ShouldBeEquivalentTo(expectedSheet);
         }
 
-        private static void WriteUtf8Row(ExcelWriter writer)
-        {
+    private static void WriteUtf8Row(ExcelWriter writer)
+    {
             var text = "Tags such as <img> and <input> directly &introduce \"content\" into the page."u8;
             var text2 = "<img> is image tag"u8;
             var text3 = "Exit >>>>>>>>>>>>>>>"u8;
@@ -286,10 +286,10 @@ namespace Gooseberry.ExcelStreaming.Tests
             writer.AddUtf8Cell(text3);
         }
 
-        [Theory]
-        [MemberData(nameof(SpecialSymbols))]
-        public async Task StartSheetWithSpecialSymbols_WritesCorrectData(string sheetName)
-        {
+    [Theory]
+    [MemberData(nameof(SpecialSymbols))]
+    public async Task StartSheetWithSpecialSymbols_WritesCorrectData(string sheetName)
+    {
             var outputStream = new MemoryStream();
 
             await using (var writer = new ExcelWriter(outputStream))
@@ -319,9 +319,9 @@ namespace Gooseberry.ExcelStreaming.Tests
             sheets.ShouldBeEquivalentTo(expectedSheet);
         }
 
-        [Fact]
-        public async Task AddCellWithDataLongerThanBuffer_WritesCorrectData()
-        {
+    [Fact]
+    public async Task AddCellWithDataLongerThanBuffer_WritesCorrectData()
+    {
             var outputStream = new MemoryStream();
             var longString = "long long long loong loooong loooooooon loooooooooooooooooooooong very long string";
 
@@ -352,9 +352,9 @@ namespace Gooseberry.ExcelStreaming.Tests
             sheets.ShouldBeEquivalentTo(expectedSheet);
         }
 
-        [Fact]
-        public async Task StartSheetWithNameLongerThanBuffer_WritesCorrectData()
-        {
+    [Fact]
+    public async Task StartSheetWithNameLongerThanBuffer_WritesCorrectData()
+    {
             var outputStream = new MemoryStream();
             var longString =
                 "long long long loong loooong loooooooon loooooooooooooooooooooong very long" +
@@ -387,9 +387,9 @@ namespace Gooseberry.ExcelStreaming.Tests
             sheets.ShouldBeEquivalentTo(expectedSheet);
         }
 
-        [Fact]
-        public async Task StartSheet_WritesCorrectColumnWidths()
-        {
+    [Fact]
+    public async Task StartSheet_WritesCorrectColumnWidths()
+    {
             using var outputStream = new MemoryStream();
 
             await using (var writer = new ExcelWriter(outputStream))
@@ -418,9 +418,9 @@ namespace Gooseberry.ExcelStreaming.Tests
             sheets.ShouldBeEquivalentTo(expectedSheet);
         }
 
-        [Fact]
-        public async Task AddRow_WritesCorrectRowHeight()
-        {
+    [Fact]
+    public async Task AddRow_WritesCorrectRowHeight()
+    {
             using var outputStream = new MemoryStream();
 
             await using (var writer = new ExcelWriter(outputStream))
@@ -442,8 +442,8 @@ namespace Gooseberry.ExcelStreaming.Tests
             sheets.ShouldBeEquivalentTo(expectedSheet);
         }
 
-        public static IEnumerable<object[]> SpecialSymbols()
-        {
+    public static IEnumerable<object[]> SpecialSymbols()
+    {
             return new[]
             {
                 new[] { "\"" },
@@ -459,5 +459,4 @@ namespace Gooseberry.ExcelStreaming.Tests
                 new[] { "2021 \u00a9 ozon" }
             };
         }
-    }
 }

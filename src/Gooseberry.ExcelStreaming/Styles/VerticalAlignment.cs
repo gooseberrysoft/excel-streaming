@@ -1,11 +1,10 @@
-namespace Gooseberry.ExcelStreaming.Styles
+namespace Gooseberry.ExcelStreaming.Styles;
+
+public enum VerticalAlignment
 {
-    public enum VerticalAlignment
-    {
-        Bottom,
-        Center,
-        Distributed,
-        Justify,
-        Top
-    }
+    Bottom,
+    Center,
+    Distributed,
+    Justify,
+    Top
 }

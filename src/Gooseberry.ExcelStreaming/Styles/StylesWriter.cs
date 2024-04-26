@@ -2,15 +2,15 @@ using System.Text;
 using Gooseberry.ExcelStreaming.Styles.Records;
 using Gooseberry.ExcelStreaming.Writers;
 
-namespace Gooseberry.ExcelStreaming.Styles
-{
-    internal sealed class StylesWriter : IDisposable
-    {
-        private readonly BuffersChain _buffer;
-        private readonly Encoder _encoder;        
+namespace Gooseberry.ExcelStreaming.Styles;
 
-        public StylesWriter()
-        {
+internal sealed class StylesWriter : IDisposable
+{
+    private readonly BuffersChain _buffer;
+    private readonly Encoder _encoder;        
+
+    public StylesWriter()
+    {
             _buffer = new BuffersChain(bufferSize: 8 * 1024, flushThreshold: 1.0);
             _encoder = Encoding.UTF8.GetEncoder();
 
@@ -18,8 +18,8 @@ namespace Gooseberry.ExcelStreaming.Styles
             Constants.Styles.Prefix.WriteTo(_buffer);
         }
 
-        public void AddNumberFormats(IReadOnlyCollection<FormatRecord> formats)
-        {
+    public void AddNumberFormats(IReadOnlyCollection<FormatRecord> formats)
+    {
             var span = _buffer.GetSpan();
             var written = 0;
      
@@ -39,8 +39,8 @@ namespace Gooseberry.ExcelStreaming.Styles
             _buffer.Advance(written);
         }
 
-        public void AddFills(IReadOnlyCollection<Fill> fills)
-        {
+    public void AddFills(IReadOnlyCollection<Fill> fills)
+    {
             var span = _buffer.GetSpan();
             var written = 0;
             
@@ -71,8 +71,8 @@ namespace Gooseberry.ExcelStreaming.Styles
             _buffer.Advance(written);
         }
 
-        public void AddCellStyles(IReadOnlyCollection<StyleRecord> styles)
-        {
+    public void AddCellStyles(IReadOnlyCollection<StyleRecord> styles)
+    {
             var span = _buffer.GetSpan();
             var written = 0;
             
@@ -134,8 +134,8 @@ namespace Gooseberry.ExcelStreaming.Styles
             _buffer.Advance(written);
         }
 
-        private void AddAlignment(Alignment alignment, ref Span<byte> span, ref int written)
-        {
+    private void AddAlignment(Alignment alignment, ref Span<byte> span, ref int written)
+    {
             Constants.Styles.CellStyles.Item.Open.Alignment.Prefix.WriteTo(_buffer, ref span, ref written);
 
             if (alignment.Horizontal.HasValue)
@@ -158,8 +158,8 @@ namespace Gooseberry.ExcelStreaming.Styles
             Constants.Styles.CellStyles.Item.Open.Alignment.Postfix.WriteTo(_buffer, ref span, ref written);
         }
 
-        public void AddFonts(IReadOnlyCollection<Font> fonts)
-        {
+    public void AddFonts(IReadOnlyCollection<Font> fonts)
+    {
             var span = _buffer.GetSpan();
             var written = 0;
             
@@ -208,8 +208,8 @@ namespace Gooseberry.ExcelStreaming.Styles
             _buffer.Advance(written);
         }
 
-        public void AddBorders(IReadOnlyCollection<Borders> borders)
-        {
+    public void AddBorders(IReadOnlyCollection<Borders> borders)
+    {
             var span = _buffer.GetSpan();
             var written = 0;
             
@@ -263,8 +263,8 @@ namespace Gooseberry.ExcelStreaming.Styles
             _buffer.Advance(written);
         }
 
-        public byte[] GetWrittenData()
-        {
+    public byte[] GetWrittenData()
+    {
             Constants.Styles.Postfix.WriteTo(_buffer);
 
             var preparedData = new byte[_buffer.Written];
@@ -272,18 +272,18 @@ namespace Gooseberry.ExcelStreaming.Styles
             return preparedData;
         }
 
-        public void Dispose()
-            => _buffer.Dispose();
+    public void Dispose()
+        => _buffer.Dispose();
 
-        private void AddBorder(
-            Border? border,
-            byte[] empty,
-            byte[] prefix,
-            byte[] middle,
-            byte[] postfix,
-            ref Span<byte> span,
-            ref int written)
-        {
+    private void AddBorder(
+        Border? border,
+        byte[] empty,
+        byte[] prefix,
+        byte[] middle,
+        byte[] postfix,
+        ref Span<byte> span,
+        ref int written)
+    {
             if (!border.HasValue)
             {
                 empty.WriteTo(_buffer, ref span, ref written);
@@ -304,5 +304,4 @@ namespace Gooseberry.ExcelStreaming.Styles
 
             postfix.WriteTo(_buffer, ref span, ref written);
         }
-    }
 }

@@ -1,10 +1,9 @@
 using BenchmarkDotNet.Running;
 
-namespace Gooseberry.ExcelStreaming.Benchmarks
+namespace Gooseberry.ExcelStreaming.Benchmarks;
+
+class Program
 {
-    class Program
-    {
-        static void Main(string[] args) 
-            => BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);
-    }
+    static void Main(string[] args) 
+        => BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args);
 }

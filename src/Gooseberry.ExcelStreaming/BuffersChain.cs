@@ -1,18 +1,18 @@
 using System.Runtime.CompilerServices;
 
-namespace Gooseberry.ExcelStreaming
+namespace Gooseberry.ExcelStreaming;
+
+internal sealed class BuffersChain : IDisposable
 {
-    internal sealed class BuffersChain : IDisposable
+    private readonly int _bufferSize;
+    private readonly double _flushThreshold;
+
+    private readonly List<Buffer> _buffers = new();
+    private int _currentBufferIndex;
+    private Buffer _currentBuffer;
+
+    public BuffersChain(int bufferSize, double flushThreshold)
     {
-        private readonly int _bufferSize;
-        private readonly double _flushThreshold;
-
-        private readonly List<Buffer> _buffers = new();
-        private int _currentBufferIndex;
-        private Buffer _currentBuffer;
-
-        public BuffersChain(int bufferSize, double flushThreshold)
-        {
             if (flushThreshold is <= 0 or > 1.0)
                 throw new ArgumentOutOfRangeException(nameof(flushThreshold),
                     "Flush threshold should be in range (0..1].");
@@ -26,21 +26,21 @@ namespace Gooseberry.ExcelStreaming
             _currentBufferIndex = 0;
         }
 
-        public int Written
+    public int Written
+    {
+        get
         {
-            get
-            {
                 var written = 0;
                 for (var i = 0; i <= _currentBufferIndex; i++)
                     written += _buffers[i].Written;
 
                 return written;
             }
-        }
+    }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Span<byte> GetSpan(int minSize)
-        {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Span<byte> GetSpan(int minSize)
+    {
             if (_currentBuffer.RemainingCapacity < minSize)
                 MoveToNextBuffer();
 
@@ -50,21 +50,21 @@ namespace Gooseberry.ExcelStreaming
             return _currentBuffer.GetSpan();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Span<byte> GetSpan()
-        {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Span<byte> GetSpan()
+    {
             if (_currentBuffer.RemainingCapacity == 0)
                 MoveToNextBuffer();
 
             return _currentBuffer.GetSpan();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Advance(int count)
-            => _currentBuffer.Advance(count);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Advance(int count)
+        => _currentBuffer.Advance(count);
 
-        public async ValueTask FlushCompleted(Stream stream, CancellationToken token)
-        {
+    public async ValueTask FlushCompleted(Stream stream, CancellationToken token)
+    {
             if (_currentBufferIndex > 0)
             {
                 for (var bufferIndex = 0; bufferIndex < _currentBufferIndex; bufferIndex++)
@@ -79,16 +79,16 @@ namespace Gooseberry.ExcelStreaming
                 await _currentBuffer.FlushTo(stream, token);
         }
 
-        public async ValueTask FlushAll(Stream stream, CancellationToken token)
-        {
+    public async ValueTask FlushAll(Stream stream, CancellationToken token)
+    {
             foreach (var buffer in _buffers)
                 await buffer.FlushTo(stream, token);
 
             SetCurrentBuffer(0);
         }
 
-        public void FlushAll(Span<byte> span)
-        {
+    public void FlushAll(Span<byte> span)
+    {
             if (span.Length < Written)
                 throw new ArgumentException("Span has no enough space wo flush all buffers.");
 
@@ -103,14 +103,14 @@ namespace Gooseberry.ExcelStreaming
             SetCurrentBuffer(0);
         }
 
-        public void Dispose()
-        {
+    public void Dispose()
+    {
             foreach (var buffer in _buffers)
                 buffer.Dispose();
         }
 
-        private void MoveToNextBuffer()
-        {
+    private void MoveToNextBuffer()
+    {
             var newIndex = _currentBufferIndex + 1;
             if (_buffers.Count <= newIndex)
                 _buffers.Add(new Buffer(_bufferSize));
@@ -118,10 +118,9 @@ namespace Gooseberry.ExcelStreaming
             SetCurrentBuffer(newIndex);
         }
 
-        private void SetCurrentBuffer(int newIndex)
-        {
+    private void SetCurrentBuffer(int newIndex)
+    {
             _currentBufferIndex = newIndex;
             _currentBuffer = _buffers[newIndex];
         }
-    }
 }

@@ -1,10 +1,9 @@
-namespace Gooseberry.ExcelStreaming.Tests.Excel
+namespace Gooseberry.ExcelStreaming.Tests.Excel;
+
+public enum CellValueType
 {
-    public enum CellValueType
-    {
-        String,
-        Number,
-        DateTime,
-        SharedString
-    }
+    String,
+    Number,
+    DateTime,
+    SharedString
 }
