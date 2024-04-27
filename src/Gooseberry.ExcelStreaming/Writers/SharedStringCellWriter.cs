@@ -1,3 +1,4 @@
+using Gooseberry.ExcelStreaming.Extensions;
 using Gooseberry.ExcelStreaming.SharedStrings;
 using Gooseberry.ExcelStreaming.Styles;
 
@@ -14,18 +15,15 @@ internal sealed class SharedStringCellWriter
     public SharedStringCellWriter()
     {
         _stylelessPrefix = Constants.Worksheet.SheetData.Row.Cell.Prefix
-            .Concat(Constants.Worksheet.SheetData.Row.Cell.SharedStringDataType)
-            .Concat(Constants.Worksheet.SheetData.Row.Cell.Middle)
-            .ToArray();
+            .Combine(Constants.Worksheet.SheetData.Row.Cell.SharedStringDataType,
+            Constants.Worksheet.SheetData.Row.Cell.Middle);
 
         _stylePrefix = Constants.Worksheet.SheetData.Row.Cell.Prefix
-            .Concat(Constants.Worksheet.SheetData.Row.Cell.SharedStringDataType)
-            .Concat(Constants.Worksheet.SheetData.Row.Cell.Style.Prefix)
-            .ToArray();
+            .Combine(Constants.Worksheet.SheetData.Row.Cell.SharedStringDataType,
+            Constants.Worksheet.SheetData.Row.Cell.Style.Prefix);
 
         _stylePostfix = Constants.Worksheet.SheetData.Row.Cell.Style.Postfix
-            .Concat(Constants.Worksheet.SheetData.Row.Cell.Middle)
-            .ToArray();
+            .Combine(Constants.Worksheet.SheetData.Row.Cell.Middle);
     }
 
     public void Write(SharedStringReference sharedString, BuffersChain buffer, StyleReference? style = null)

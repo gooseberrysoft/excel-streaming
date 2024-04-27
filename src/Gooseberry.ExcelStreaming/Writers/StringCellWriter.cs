@@ -1,4 +1,5 @@
 using System.Text;
+using Gooseberry.ExcelStreaming.Extensions;
 using Gooseberry.ExcelStreaming.Styles;
 
 namespace Gooseberry.ExcelStreaming.Writers;
@@ -19,18 +20,15 @@ internal sealed class StringCellWriter
     public StringCellWriter()
     {
         _stylelessPrefix = Constants.Worksheet.SheetData.Row.Cell.Prefix
-            .Concat(Constants.Worksheet.SheetData.Row.Cell.StringDataType)
-            .Concat(Constants.Worksheet.SheetData.Row.Cell.Middle)
-            .ToArray();
+            .Combine(Constants.Worksheet.SheetData.Row.Cell.StringDataType,
+                Constants.Worksheet.SheetData.Row.Cell.Middle);
 
         _stylePrefix = Constants.Worksheet.SheetData.Row.Cell.Prefix
-            .Concat(Constants.Worksheet.SheetData.Row.Cell.StringDataType)
-            .Concat(Constants.Worksheet.SheetData.Row.Cell.Style.Prefix)
-            .ToArray();
+            .Combine(Constants.Worksheet.SheetData.Row.Cell.StringDataType,
+                Constants.Worksheet.SheetData.Row.Cell.Style.Prefix);
 
         _stylePostfix = Constants.Worksheet.SheetData.Row.Cell.Style.Postfix
-            .Concat(Constants.Worksheet.SheetData.Row.Cell.Middle)
-            .ToArray();
+            .Combine(Constants.Worksheet.SheetData.Row.Cell.Middle);
     }
 
     public void Write(ReadOnlySpan<char> value, BuffersChain buffer, Encoder encoder, StyleReference? style = null)

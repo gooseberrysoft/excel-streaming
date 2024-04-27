@@ -1,4 +1,5 @@
 using System.Text;
+using Gooseberry.ExcelStreaming.Extensions;
 using Gooseberry.ExcelStreaming.Pictures;
 
 namespace Gooseberry.ExcelStreaming;
@@ -629,6 +630,8 @@ internal static partial class Constants
             Encoding.UTF8.GetBytes("<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\">");
 
         public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</sst>");
+
+        public static readonly byte[] EmptyTable = Prefix.Combine(Postfix);
 
         public static class Item
         {

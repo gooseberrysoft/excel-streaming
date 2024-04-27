@@ -1,3 +1,4 @@
+using Gooseberry.ExcelStreaming.Extensions;
 using Gooseberry.ExcelStreaming.Styles;
 
 namespace Gooseberry.ExcelStreaming.Writers;
@@ -15,18 +16,13 @@ internal sealed class NumberCellWriter<T, TFormatter>
     public NumberCellWriter(byte[] dataType)
     {
         _stylelessPrefix = Constants.Worksheet.SheetData.Row.Cell.Prefix
-            .Concat(dataType)
-            .Concat(Constants.Worksheet.SheetData.Row.Cell.Middle)
-            .ToArray();
+            .Combine(dataType, Constants.Worksheet.SheetData.Row.Cell.Middle);
 
         _stylePrefix = Constants.Worksheet.SheetData.Row.Cell.Prefix
-            .Concat(dataType)
-            .Concat(Constants.Worksheet.SheetData.Row.Cell.Style.Prefix)
-            .ToArray();
+            .Combine(dataType, Constants.Worksheet.SheetData.Row.Cell.Style.Prefix);
 
         _stylePostfix = Constants.Worksheet.SheetData.Row.Cell.Style.Postfix
-            .Concat(Constants.Worksheet.SheetData.Row.Cell.Middle)
-            .ToArray();
+            .Combine(Constants.Worksheet.SheetData.Row.Cell.Middle);
     }
 
     public void Write(in T value, BuffersChain buffer, StyleReference? style = null)

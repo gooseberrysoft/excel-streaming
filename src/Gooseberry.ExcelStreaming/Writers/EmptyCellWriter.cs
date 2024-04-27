@@ -1,3 +1,4 @@
+using Gooseberry.ExcelStreaming.Extensions;
 using Gooseberry.ExcelStreaming.Styles;
 
 namespace Gooseberry.ExcelStreaming.Writers;
@@ -12,20 +13,18 @@ internal sealed class EmptyCellWriter
 
     public EmptyCellWriter()
     {
-        _stateless = Constants.Worksheet.SheetData.Row.Cell.Prefix
-            .Concat(Constants.Worksheet.SheetData.Row.Cell.StringDataType)
-            .Concat(Constants.Worksheet.SheetData.Row.Cell.Middle)
-            .Concat(Constants.Worksheet.SheetData.Row.Cell.Postfix)
-            .ToArray();
+        _stateless = ArrayExtensions.Combine(
+            Constants.Worksheet.SheetData.Row.Cell.Prefix,
+            Constants.Worksheet.SheetData.Row.Cell.StringDataType,
+            Constants.Worksheet.SheetData.Row.Cell.Middle,
+            Constants.Worksheet.SheetData.Row.Cell.Postfix);
 
         _stylePrefix = Constants.Worksheet.SheetData.Row.Cell.Prefix
-            .Concat(Constants.Worksheet.SheetData.Row.Cell.StringDataType)
-            .Concat(Constants.Worksheet.SheetData.Row.Cell.Style.Prefix)
-            .ToArray();
+            .Combine(Constants.Worksheet.SheetData.Row.Cell.StringDataType,
+                Constants.Worksheet.SheetData.Row.Cell.Style.Prefix);
 
         _stylePostfix = Constants.Worksheet.SheetData.Row.Cell.Style.Postfix
-            .Concat(Constants.Worksheet.SheetData.Row.Cell.Middle)
-            .ToArray();
+            .Combine(Constants.Worksheet.SheetData.Row.Cell.Middle);
     }
 
     public void Write(BuffersChain buffer, StyleReference? style = null)

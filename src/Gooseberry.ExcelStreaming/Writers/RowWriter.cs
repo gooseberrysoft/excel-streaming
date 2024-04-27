@@ -1,3 +1,5 @@
+using Gooseberry.ExcelStreaming.Extensions;
+
 namespace Gooseberry.ExcelStreaming.Writers;
 
 internal sealed class RowWriter
@@ -6,24 +8,20 @@ internal sealed class RowWriter
 
     private static readonly byte[] RowCloseAndStart =
         Constants.Worksheet.SheetData.Row.Postfix
-            .Concat(Constants.Worksheet.SheetData.Row.Open.Prefix)
-            .Concat(Constants.Worksheet.SheetData.Row.Open.Postfix)
-            .ToArray();
+            .Combine(Constants.Worksheet.SheetData.Row.Open.Prefix, 
+                Constants.Worksheet.SheetData.Row.Open.Postfix);
 
     private static readonly byte[] RowStart =
         Constants.Worksheet.SheetData.Row.Open.Prefix
-            .Concat(Constants.Worksheet.SheetData.Row.Open.Postfix)
-            .ToArray();
+            .Combine(Constants.Worksheet.SheetData.Row.Open.Postfix);
 
     private static readonly byte[] RowHeightPrefix =
         Constants.Worksheet.SheetData.Row.Open.Prefix
-            .Concat(Constants.Worksheet.SheetData.Row.Open.Height.Prefix)
-            .ToArray();
+            .Combine(Constants.Worksheet.SheetData.Row.Open.Height.Prefix);
 
     private static readonly byte[] RowHeightPostfix =
         Constants.Worksheet.SheetData.Row.Open.Height.Postfix
-            .Concat(Constants.Worksheet.SheetData.Row.Open.Postfix)
-            .ToArray();
+            .Combine(Constants.Worksheet.SheetData.Row.Open.Postfix);
 
     public void WriteStartRow(BuffersChain buffer, bool rowStarted, decimal? height = null)
     {

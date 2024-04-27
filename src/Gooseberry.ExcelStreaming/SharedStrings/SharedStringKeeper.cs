@@ -35,7 +35,7 @@ internal sealed class SharedStringKeeper : IDisposable
     internal ValueTask WriteTo(Stream stream, CancellationToken token)
     {
         if (_buffer == null)
-            return ValueTask.CompletedTask;
+            return stream.WriteAsync(Constants.SharedStringTable.EmptyTable, token);
 
         DataWriters.SharedStringWriter.WritePostfix(_buffer);
         return _buffer.FlushAll(stream, token);

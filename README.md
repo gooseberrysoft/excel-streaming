@@ -1,5 +1,7 @@
 # Gooseberry.ExcelStreaming #
 
+[![NuGet](https://img.shields.io/nuget/v/Gooseberry.ExcelStreaming.svg)](https://www.nuget.org/packages/Gooseberry.ExcelStreaming)
+
 Create Excel files with high performance and low memory allocations.
 
 ### Create Excel file ###
