@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Text;
 using Gooseberry.ExcelStreaming.Writers;
 
@@ -18,6 +19,10 @@ internal sealed class SharedStringKeeper : IDisposable
         _externalAddedStrings = sharedStringTable?.Count ?? 0;
         _encoder = encoder;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsValidReference(SharedStringReference reference)
+        => reference.Value < _references.Count + _externalAddedStrings;
 
     public SharedStringReference GetOrAdd(string value)
     {

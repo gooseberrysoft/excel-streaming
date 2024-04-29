@@ -96,20 +96,20 @@ public sealed class ExcelWriter : IAsyncDisposable
         return _buffer.FlushCompleted(_sheetStream!, _token);
     }
 
-    public void AddPicture(in PictureData data, PictureFormat format, in AnchorCell from, Size size)
-        => _sheetDrawings.AddPicture(_sheets[^1].Id, data, format, new OneCellAnchorPicturePlacementWriter(from, size));
+    public void AddPicture(Stream picture, PictureFormat format, in AnchorCell from, Size size)
+        => _sheetDrawings.AddPicture(_sheets[^1].Id, picture, format, new OneCellAnchorPicturePlacementWriter(from, size));
 
-    public void AddPicture(in PictureData data, PictureFormat format, in AnchorCell from, AnchorCell to)
-        => _sheetDrawings.AddPicture(_sheets[^1].Id, data, format, new TwoCellAnchorPicturePlacementWriter(from, to));
+    public void AddPicture(Stream picture, PictureFormat format, in AnchorCell from, AnchorCell to)
+        => _sheetDrawings.AddPicture(_sheets[^1].Id, picture, format, new TwoCellAnchorPicturePlacementWriter(from, to));
+
+    public void AddPicture(ReadOnlyMemory<byte> picture, PictureFormat format, in AnchorCell from, Size size)
+        => _sheetDrawings.AddPicture(_sheets[^1].Id, picture, format, new OneCellAnchorPicturePlacementWriter(from, size));
+
+    public void AddPicture(ReadOnlyMemory<byte> picture, PictureFormat format, in AnchorCell from, AnchorCell to)
+        => _sheetDrawings.AddPicture(_sheets[^1].Id, picture, format, new TwoCellAnchorPicturePlacementWriter(from, to));
 
     public void AddCell(string data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
         => AddCell(data.AsSpan(), style, rightMerge, downMerge);
-
-    public void AddCellWithSharedString(string data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
-    {
-        var reference = _sharedStringKeeper.GetOrAdd(data);
-        AddCell(reference, style, rightMerge, downMerge);
-    }
 
     public void AddCell(int data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
@@ -197,7 +197,27 @@ public sealed class ExcelWriter : IAsyncDisposable
         AddMerge(rightMerge, downMerge);
     }
 
+    public void AddCellWithSharedString(string data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+    {
+        var reference = _sharedStringKeeper.GetOrAdd(data);
+        AddStringReferenceCell(reference, style, rightMerge, downMerge);
+    }
+
     public void AddCell(SharedStringReference sharedString, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+    {
+        if (!_sharedStringKeeper.IsValidReference(sharedString))
+            throw new ArgumentException(
+                "Invalid shared string reference. String not found in the table. Check sharedStringTable in ExcelWriter constructor.",
+                nameof(sharedString));
+
+        AddStringReferenceCell(sharedString, style, rightMerge, downMerge);
+    }
+
+    private void AddStringReferenceCell(
+        SharedStringReference sharedString,
+        StyleReference? style = null,
+        uint rightMerge = 0,
+        uint downMerge = 0)
     {
         CheckWriteCell();
         DataWriters.SharedStringCellWriter.Write(sharedString, _buffer, style);
@@ -252,6 +272,9 @@ public sealed class ExcelWriter : IAsyncDisposable
         await AddStyles();
         await AddSharedStringTable();
         await AddRelationships();
+
+        //writes data to stream
+        _zipArchive.Dispose();
 
         _isCompleted = true;
     }

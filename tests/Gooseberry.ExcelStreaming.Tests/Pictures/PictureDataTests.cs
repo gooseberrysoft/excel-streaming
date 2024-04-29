@@ -22,22 +22,7 @@ public sealed class PictureDataTests
 
         actualStream.ToArray().Should().Equal(expectedStream.ToArray());
     }
-
-    [Theory]
-    [MemberData(nameof(ImageCases.GetCases), MemberType = typeof(ImageCases))]
-    public async Task WriteTo_FromBytes_WriteData(ImageCase imageCase)
-    {
-        await using var expectedStream = imageCase.OpenStream();
-
-        await using var actualStream = new MemoryStream();
-
-        var pictureData = (PictureData)expectedStream.ToArray();
-
-        await pictureData.WriteTo(actualStream, CancellationToken.None);
-
-        actualStream.ToArray().Should().Equal(expectedStream.ToArray());
-    }
-
+    
     [Theory]
     [MemberData(nameof(ImageCases.GetCases), MemberType = typeof(ImageCases))]
     public async Task WriteTo_FromMemory_WriteData(ImageCase imageCase)
@@ -46,7 +31,7 @@ public sealed class PictureDataTests
 
         await using var actualStream = new MemoryStream();
 
-        var pictureData = (PictureData)new Memory<byte>(expectedStream.ToArray());
+        PictureData pictureData = new ReadOnlyMemory<byte>(expectedStream.ToArray());
 
         await pictureData.WriteTo(actualStream, CancellationToken.None);
 

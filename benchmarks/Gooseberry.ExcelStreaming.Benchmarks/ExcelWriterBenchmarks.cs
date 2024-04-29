@@ -4,6 +4,7 @@ using BenchmarkDotNet.Order;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.IO;
 
 namespace Gooseberry.ExcelStreaming.Benchmarks;
 
@@ -12,6 +13,7 @@ namespace Gooseberry.ExcelStreaming.Benchmarks;
 public class ExcelWriterBenchmarks
 {
     private const int ColumnBatchesCount = 10;
+    private readonly RecyclableMemoryStreamManager _streamManager = new();
 
     [Params(10, 100, 1000, 10_000, 100_000)]
     public int RowsCount { get; set; }
@@ -19,7 +21,7 @@ public class ExcelWriterBenchmarks
     [Benchmark]
     public async Task ExcelWriter()
     {
-        await using var outputStream = new NullStream();
+        await using var outputStream = _streamManager.GetStream();
 
         await using var writer = new ExcelWriter(outputStream);
 
@@ -35,6 +37,7 @@ public class ExcelWriterBenchmarks
                 writer.AddCell(DateTime.Now.Ticks);
                 writer.AddCell(DateTime.Now);
                 writer.AddCell("some text");
+                writer.AddCell("some text with <tag> & \"quote\"'s");
             }
         }
 
@@ -44,7 +47,7 @@ public class ExcelWriterBenchmarks
     [Benchmark]
     public void OpenXml()
     {
-        using var outputStream = new MemoryStream();
+        using var outputStream = _streamManager.GetStream();
         var package = Package.Open(outputStream, FileMode.Create, FileAccess.ReadWrite);
 
         using var document = SpreadsheetDocument.Create(package, SpreadsheetDocumentType.Workbook);
@@ -114,6 +117,11 @@ public class ExcelWriterBenchmarks
 
                 writer.WriteStartElement(stringCell, stringCellAttributes);
                 stringCellValue.Text = "some text";
+                writer.WriteElement(stringCellValue);
+                writer.WriteEndElement();
+
+                writer.WriteStartElement(stringCell, stringCellAttributes);
+                stringCellValue.Text = "some text with <tag> & \"quote\"'s";
                 writer.WriteElement(stringCellValue);
                 writer.WriteEndElement();
             }
