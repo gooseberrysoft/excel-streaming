@@ -6,7 +6,7 @@ namespace Gooseberry.ExcelStreaming.Tests;
 
 public sealed class ExcelFilesGenerator
 {
-    private const string skip = null!;//"Null me for manual run";
+    private const string skip = "Null me for manual run";
     const string BasePath = "c:\\temp\\excelWriter\\";
 
     private static readonly Stream Picture = Assembly.GetExecutingAssembly().GetManifestResourceStream(
