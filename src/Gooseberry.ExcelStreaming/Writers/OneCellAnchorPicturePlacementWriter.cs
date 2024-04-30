@@ -1,6 +1,5 @@
 ﻿using System.Drawing;
 using System.Text;
-using Gooseberry.ExcelStreaming.Helpers;
 using Gooseberry.ExcelStreaming.Pictures;
 
 namespace Gooseberry.ExcelStreaming.Writers;

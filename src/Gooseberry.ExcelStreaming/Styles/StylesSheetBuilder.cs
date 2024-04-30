@@ -26,16 +26,16 @@ public sealed class StylesSheetBuilder
     {
         _formats[GeneralFormat] = new FormatRecord(0, GeneralFormat);
         _borders.Add(new Borders());
-        _fills.Add(new Fill(pattern: FillPattern.None, color: null));
-        _fills.Add(new Fill(pattern: FillPattern.Gray125, color: null));
+        _fills.Add(new Fill(Pattern: FillPattern.None, Color: null));
+        _fills.Add(new Fill(Pattern: FillPattern.Gray125, Color: null));
 
         _generalStyle = GetOrAdd(new Style(
-            format: GeneralFormat,
-            font: new Font(size: 11, name: null, color: Black, bold: false)));
+            Format: GeneralFormat,
+            Font: new Font(Size: 11, Name: null, Color: Black, Bold: false)));
 
-        _defaultDateStyle = GetOrAdd(new Style(format: DefaultDateFormat));
+        _defaultDateStyle = GetOrAdd(new Style(Format: DefaultDateFormat));
 
-        _defaultHyperlinkStyle = GetOrAdd(new Style(font: new Font(color: Navy, underline: Underline.Single)));
+        _defaultHyperlinkStyle = GetOrAdd(new Style(Font: new Font(Color: Navy, Underline: Underline.Single)));
     }
 
     public StyleReference GetOrAdd(Style style)

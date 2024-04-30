@@ -1,19 +1,12 @@
 using Gooseberry.ExcelStreaming.Writers;
 
-namespace Gooseberry.ExcelStreaming.SharedStrings;
+// ReSharper disable once CheckNamespace
+namespace Gooseberry.ExcelStreaming;
 
-public sealed class SharedStringTable
+public sealed class SharedStringTable(byte[] preparedData, int count)
 {
-    private readonly byte[] _preparedData;
-
-    public SharedStringTable(byte[] preparedData, int count)
-    {
-        Count = count;
-        _preparedData = preparedData;
-    }
-
     internal void WriteTo(BuffersChain buffer)
-        => _preparedData.WriteTo(buffer);
+        => BytesWriter.WriteTo(preparedData, buffer);
 
-    internal int Count { get; }
+    internal int Count { get; } = count;
 }

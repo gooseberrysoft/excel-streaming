@@ -277,10 +277,10 @@ internal sealed class StylesWriter : IDisposable
 
     private void AddBorder(
         Border? border,
-        byte[] empty,
-        byte[] prefix,
-        byte[] middle,
-        byte[] postfix,
+        ReadOnlySpan<byte> empty,
+        ReadOnlySpan<byte> prefix,
+        ReadOnlySpan<byte> middle,
+        ReadOnlySpan<byte> postfix,
         ref Span<byte> span,
         ref int written)
     {

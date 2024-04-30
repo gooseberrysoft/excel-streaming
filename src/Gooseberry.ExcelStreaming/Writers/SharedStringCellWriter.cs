@@ -1,5 +1,4 @@
 using Gooseberry.ExcelStreaming.Extensions;
-using Gooseberry.ExcelStreaming.SharedStrings;
 using Gooseberry.ExcelStreaming.Styles;
 
 namespace Gooseberry.ExcelStreaming.Writers;

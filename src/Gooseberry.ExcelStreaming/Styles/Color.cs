@@ -3,12 +3,9 @@ using System.Runtime.InteropServices;
 namespace Gooseberry.ExcelStreaming.Styles;
 
 [StructLayout(LayoutKind.Auto)]
-public readonly struct Color : IEquatable<Color>
+public readonly struct Color(uint argb) : IEquatable<Color>
 {
-    private readonly uint _argb;
-
-    public Color(uint argb)
-        => _argb = argb;
+    private readonly uint _argb = argb;
 
     public override string ToString()
         => _argb.ToString("x8");

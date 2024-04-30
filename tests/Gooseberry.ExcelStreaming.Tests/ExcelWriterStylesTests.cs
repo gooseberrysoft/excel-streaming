@@ -28,15 +28,15 @@ public sealed class ExcelWriterStylesTests
     public async Task AddCellWithStyle_WritesCorrectData()
     {
         var style = new Style(
-            format: "General",
-            font: new Font(size: 11, name: "test", color: Color.Black, bold: true, italic: true, strike: true, underline: Underline.Single),
-            borders: new Borders(
-                left: new Border(style: BorderStyle.Thin, color: Color.Gray),
-                right: new Border(style: BorderStyle.Thin, color: Color.Gray),
-                top: new Border(style: BorderStyle.Thin, color: Color.Gray),
-                bottom: new Border(style: BorderStyle.Thin, color: Color.Gray)),
-            fill: new Fill(pattern: FillPattern.Solid, color: Color.Aqua),
-            alignment: new Alignment(horizontal: HorizontalAlignment.Center, vertical: VerticalAlignment.Top, wrapText: true));
+            Format: "General",
+            Font: new Font(Size: 11, Name: "test", Color: Color.Black, Bold: true, Italic: true, Strike: true, Underline: Underline.Single),
+            Borders: new Borders(
+                left: new Border(Style: BorderStyle.Thin, Color: Color.Gray),
+                right: new Border(Style: BorderStyle.Thin, Color: Color.Gray),
+                top: new Border(Style: BorderStyle.Thin, Color: Color.Gray),
+                bottom: new Border(Style: BorderStyle.Thin, Color: Color.Gray)),
+            Fill: new Fill(Pattern: FillPattern.Solid, Color: Color.Aqua),
+            Alignment: new Alignment(Horizontal: HorizontalAlignment.Center, Vertical: VerticalAlignment.Top, WrapText: true));
 
         var outputStream = new MemoryStream();
 

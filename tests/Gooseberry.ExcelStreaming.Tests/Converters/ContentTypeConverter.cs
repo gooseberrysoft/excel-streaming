@@ -1,6 +1,4 @@
-﻿using Gooseberry.ExcelStreaming.Pictures;
-
-namespace Gooseberry.ExcelStreaming.Tests.Converters;
+﻿namespace Gooseberry.ExcelStreaming.Tests.Converters;
 
 internal static class ContentTypeConverter
 {

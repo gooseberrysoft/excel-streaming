@@ -1,5 +1,4 @@
 using System.Text;
-using Gooseberry.ExcelStreaming.Configuration;
 using Gooseberry.ExcelStreaming.Pictures;
 
 namespace Gooseberry.ExcelStreaming.Writers;

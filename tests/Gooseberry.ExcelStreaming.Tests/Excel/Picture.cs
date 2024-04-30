@@ -1,5 +1,4 @@
 ﻿using System.Drawing;
-using Gooseberry.ExcelStreaming.Pictures;
 using Gooseberry.ExcelStreaming.Tests.Extensions;
 
 namespace Gooseberry.ExcelStreaming.Tests.Excel;

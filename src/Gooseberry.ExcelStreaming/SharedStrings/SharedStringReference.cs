@@ -1,8 +1,7 @@
-using System.Runtime.InteropServices;
+// ReSharper disable once CheckNamespace
 
-namespace Gooseberry.ExcelStreaming.SharedStrings;
+namespace Gooseberry.ExcelStreaming;
 
-[StructLayout(LayoutKind.Auto)]
 public readonly struct SharedStringReference(int value)
 {
     internal int Value { get; } = value;

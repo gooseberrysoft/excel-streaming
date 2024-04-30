@@ -1,4 +1,5 @@
-﻿namespace Gooseberry.ExcelStreaming.Pictures;
+﻿// ReSharper disable once CheckNamespace
+namespace Gooseberry.ExcelStreaming;
 
 public enum PictureFormat
 {

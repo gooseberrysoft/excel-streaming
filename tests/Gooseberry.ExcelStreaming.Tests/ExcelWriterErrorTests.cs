@@ -13,7 +13,7 @@ public sealed class ExcelWriterErrorTests : IAsyncLifetime
     [Fact]
     public void CreateWithNullStream_ThrowsException()
     {
-        Action action = () => new ExcelWriter(null!);
+        Action action = () => new ExcelWriter((Stream)null!);
 
         action.Should().ThrowExactly<ArgumentNullException>();
     }

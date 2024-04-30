@@ -1,8 +1,7 @@
-using System.Runtime.InteropServices;
+// ReSharper disable once CheckNamespace
 
-namespace Gooseberry.ExcelStreaming.Configuration;
+namespace Gooseberry.ExcelStreaming;
 
-[StructLayout(LayoutKind.Auto)]
 public readonly struct Column
 {
     public Column(decimal width)

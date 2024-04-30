@@ -1,7 +1,8 @@
 using System.Text;
 using Gooseberry.ExcelStreaming.Writers;
 
-namespace Gooseberry.ExcelStreaming.SharedStrings;
+// ReSharper disable once CheckNamespace
+namespace Gooseberry.ExcelStreaming;
 
 public sealed class SharedStringTableBuilder
 {

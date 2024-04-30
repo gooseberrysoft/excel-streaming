@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 
-namespace Gooseberry.ExcelStreaming.Configuration;
+// ReSharper disable once CheckNamespace
+namespace Gooseberry.ExcelStreaming;
 
 [StructLayout(LayoutKind.Auto)]
 public readonly struct CellReference

@@ -13,7 +13,7 @@ internal sealed class NumberCellWriter<T, TFormatter>
     private readonly byte[] _stylePrefix;
     private readonly byte[] _stylePostfix;
 
-    public NumberCellWriter(byte[] dataType)
+    public NumberCellWriter(ReadOnlySpan<byte> dataType)
     {
         _stylelessPrefix = Constants.Worksheet.SheetData.Row.Cell.Prefix
             .Combine(dataType, Constants.Worksheet.SheetData.Row.Cell.Middle);

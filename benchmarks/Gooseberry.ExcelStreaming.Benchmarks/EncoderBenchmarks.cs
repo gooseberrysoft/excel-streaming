@@ -1,8 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Configs;
-using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Order;
-using DocumentFormat.OpenXml.Bibliography;
 using System.Text.Encodings.Web;
 
 namespace Gooseberry.ExcelStreaming.Benchmarks;

@@ -5,7 +5,6 @@ using DocumentFormat.OpenXml.Drawing;
 using DocumentFormat.OpenXml.Drawing.Spreadsheet;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
-using Gooseberry.ExcelStreaming.Pictures;
 using Gooseberry.ExcelStreaming.Styles;
 using Gooseberry.ExcelStreaming.Tests.Converters;
 using Gooseberry.ExcelStreaming.Tests.Extensions;
@@ -13,7 +12,6 @@ using Alignment = Gooseberry.ExcelStreaming.Styles.Alignment;
 using Border = Gooseberry.ExcelStreaming.Styles.Border;
 using Borders = Gooseberry.ExcelStreaming.Styles.Borders;
 using Color = Gooseberry.ExcelStreaming.Styles.Color;
-using Column = Gooseberry.ExcelStreaming.Configuration.Column;
 using Fill = Gooseberry.ExcelStreaming.Styles.Fill;
 using Font = Gooseberry.ExcelStreaming.Styles.Font;
 using MarkerType = DocumentFormat.OpenXml.Drawing.Spreadsheet.MarkerType;
@@ -236,11 +234,11 @@ public static class ExcelReader
             .Select(
                 s =>
                     new Style(
-                        format: numberFormats[s.NumberFormatId!],
-                        fill: s.FillId?.HasValue == true ? fills[(int)s.FillId.Value] : null,
-                        borders: s.BorderId?.HasValue == true ? borders[(int)s.BorderId.Value] : null,
-                        font: s.FontId?.HasValue == true ? fonts[(int)s.FontId.Value] : null,
-                        alignment: s.Alignment != null ? GetAlignment(s.Alignment) : null));
+                        Format: numberFormats[s.NumberFormatId!],
+                        Fill: s.FillId?.HasValue == true ? fills[(int)s.FillId.Value] : null,
+                        Borders: s.BorderId?.HasValue == true ? borders[(int)s.BorderId.Value] : null,
+                        Font: s.FontId?.HasValue == true ? fonts[(int)s.FontId.Value] : null,
+                        Alignment: s.Alignment != null ? GetAlignment(s.Alignment) : null));
     }
 
     private static Fill GetFill(DocumentFormat.OpenXml.Spreadsheet.Fill fill)

@@ -1,12 +1,18 @@
-using System.Runtime.InteropServices;
-
 namespace Gooseberry.ExcelStreaming.Styles;
 
-[StructLayout(LayoutKind.Auto)]
-public readonly struct StyleReference
+public readonly struct StyleReference : IEquatable<StyleReference>
 {
     internal StyleReference(int value)
         => Value = value;
 
     internal int Value { get; }
+
+    public bool Equals(StyleReference other)
+        => Value == other.Value;
+
+    public override bool Equals(object? obj)
+        => obj is StyleReference other && Equals(other);
+
+    public override int GetHashCode()
+        => Value;
 }

@@ -1,8 +1,6 @@
 using System.Drawing;
-using System.IO.Compression;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Gooseberry.ExcelStreaming.Configuration;
 using Gooseberry.ExcelStreaming.Pictures;
 using Gooseberry.ExcelStreaming.SharedStrings;
 using Gooseberry.ExcelStreaming.Styles;
@@ -12,15 +10,13 @@ namespace Gooseberry.ExcelStreaming;
 
 public sealed class ExcelWriter : IAsyncDisposable
 {
-    private const CompressionLevel DefaultCompressionLevel = CompressionLevel.Optimal;
-
     private readonly List<Sheet> _sheets = new();
 
     private readonly StylesSheet _styles;
     private readonly SharedStringKeeper _sharedStringKeeper;
     private readonly CancellationToken _token;
 
-    private readonly ZipArchive _zipArchive;
+    private readonly IZipArchive _zipArchive;
     private readonly BuffersChain _buffer;
     private readonly Encoder _encoder;
     private Stream? _sheetStream;
@@ -38,17 +34,23 @@ public sealed class ExcelWriter : IAsyncDisposable
         SharedStringTable? sharedStringTable = null,
         int bufferSize = Constants.DefaultBufferSize,
         CancellationToken token = default)
+        : this(new DefaultZipArchive(outputStream), styles, sharedStringTable, bufferSize, token)
     {
-        if (outputStream == null)
-            throw new ArgumentNullException(nameof(outputStream));
+    }
 
+    public ExcelWriter(
+        IZipArchive outputArchive,
+        StylesSheet? styles = null,
+        SharedStringTable? sharedStringTable = null,
+        int bufferSize = Constants.DefaultBufferSize,
+        CancellationToken token = default)
+    {
         if (bufferSize <= 0)
             throw new ArgumentException("Should not be less or equal zero.", nameof(bufferSize));
 
-        _encoder = Encoding.UTF8.GetEncoder();
-
-        _zipArchive = new ZipArchive(outputStream, ZipArchiveMode.Create, leaveOpen: true, Encoding.UTF8);
+        _zipArchive = outputArchive ?? throw new ArgumentNullException(nameof(outputArchive));
         _styles = styles ?? StylesSheetBuilder.Default;
+        _encoder = Encoding.UTF8.GetEncoder();
         _sharedStringKeeper = new SharedStringKeeper(sharedStringTable, _encoder);
 
         _buffer = new BuffersChain(bufferSize, Constants.DefaultBufferFlushThreshold);
@@ -73,7 +75,7 @@ public sealed class ExcelWriter : IAsyncDisposable
         var relationshipId = $"sheet{sheetId}";
         _sheets.Add(new(name, sheetId, relationshipId));
 
-        _sheetStream = OpenEntry($"xl/worksheets/{relationshipId}.xml");
+        _sheetStream = _zipArchive.CreateEntry($"xl/worksheets/{relationshipId}.xml");
         DataWriters.SheetWriter.WriteStartSheet(_buffer, configuration);
     }
 
@@ -250,7 +252,7 @@ public sealed class ExcelWriter : IAsyncDisposable
     {
         foreach (var picture in _sheetDrawings.Pictures)
         {
-            await using var stream = OpenEntry(PathResolver.GetPictureFullPath(picture));
+            await using var stream = _zipArchive.CreateEntry(PathResolver.GetPictureFullPath(picture));
             await picture.Data.WriteTo(stream, _token);
         }
     }
@@ -337,7 +339,7 @@ public sealed class ExcelWriter : IAsyncDisposable
 
     private async ValueTask AddWorkbook()
     {
-        await using var stream = OpenEntry("xl/workbook.xml");
+        await using var stream = _zipArchive.CreateEntry("xl/workbook.xml");
 
         DataWriters.WorkbookWriter.Write(_sheets, _buffer, _encoder);
 
@@ -346,7 +348,7 @@ public sealed class ExcelWriter : IAsyncDisposable
 
     private async ValueTask AddContentTypes()
     {
-        await using var stream = OpenEntry("[Content_Types].xml");
+        await using var stream = _zipArchive.CreateEntry("[Content_Types].xml");
 
         DataWriters.ContentTypesWriter.Write(_sheets, _sheetDrawings, _buffer, _encoder);
 
@@ -355,7 +357,7 @@ public sealed class ExcelWriter : IAsyncDisposable
 
     private async ValueTask AddWorkbookRelationships()
     {
-        await using var stream = OpenEntry("xl/_rels/workbook.xml.rels");
+        await using var stream = _zipArchive.CreateEntry("xl/_rels/workbook.xml.rels");
 
         DataWriters.WorkbookRelationshipsWriter.Write(_sheets, _buffer, _encoder);
 
@@ -364,20 +366,20 @@ public sealed class ExcelWriter : IAsyncDisposable
 
     private async ValueTask AddStyles()
     {
-        await using var stream = OpenEntry("xl/styles.xml");
+        await using var stream = _zipArchive.CreateEntry("xl/styles.xml");
         await _styles.WriteTo(stream);
     }
 
     private async ValueTask AddSharedStringTable()
     {
-        await using var stream = OpenEntry("xl/sharedStrings.xml");
+        await using var stream = _zipArchive.CreateEntry("xl/sharedStrings.xml");
 
         await _sharedStringKeeper.WriteTo(stream, _token);
     }
 
     private async ValueTask AddRelationships()
     {
-        await using var stream = OpenEntry("_rels/.rels");
+        await using var stream = _zipArchive.CreateEntry("_rels/.rels");
 
         DataWriters.RelationshipsWriter.Write(_buffer);
 
@@ -391,7 +393,7 @@ public sealed class ExcelWriter : IAsyncDisposable
         if (drawing.IsEmpty)
             return;
 
-        await using var stream = OpenEntry(PathResolver.GetDrawingRelationshipsFullPath(drawing));
+        await using var stream = _zipArchive.CreateEntry(PathResolver.GetDrawingRelationshipsFullPath(drawing));
         DataWriters.DrawingRelationshipsWriter.Write(drawing, _buffer, _encoder);
 
         await _buffer.FlushAll(stream, _token);
@@ -404,7 +406,7 @@ public sealed class ExcelWriter : IAsyncDisposable
         if (drawing.IsEmpty)
             return;
 
-        await using var stream = OpenEntry(PathResolver.GetDrawingFullPath(drawing));
+        await using var stream = _zipArchive.CreateEntry(PathResolver.GetDrawingFullPath(drawing));
         DataWriters.DrawingWriter.Write(drawing, _buffer, _encoder);
 
         await _buffer.FlushAll(stream, _token);
@@ -412,19 +414,12 @@ public sealed class ExcelWriter : IAsyncDisposable
 
     private async ValueTask AddSheetRelationships(int sheetId)
     {
-        await using var stream = OpenEntry(PathResolver.GetSheetRelationshipsFullPath(sheetId));
+        await using var stream = _zipArchive.CreateEntry(PathResolver.GetSheetRelationshipsFullPath(sheetId));
 
         var drawing = _sheetDrawings.Get(sheetId);
         DataWriters.SheetRelationshipsWriter.Write(_hyperlinks.Keys, drawing, _buffer, _encoder);
 
         await _buffer.FlushAll(stream, _token);
-    }
-
-    private Stream OpenEntry(string entryName)
-    {
-        var entry = _zipArchive.CreateEntry(entryName, DefaultCompressionLevel);
-
-        return entry.Open();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

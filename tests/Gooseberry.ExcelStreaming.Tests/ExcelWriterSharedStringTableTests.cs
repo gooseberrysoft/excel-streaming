@@ -1,5 +1,4 @@
 using FluentAssertions;
-using Gooseberry.ExcelStreaming.SharedStrings;
 using Gooseberry.ExcelStreaming.Tests.Excel;
 using Xunit;
 

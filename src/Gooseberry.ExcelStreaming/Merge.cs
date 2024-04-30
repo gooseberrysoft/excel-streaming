@@ -1,18 +1,11 @@
 using System.Runtime.InteropServices;
-using Gooseberry.ExcelStreaming.Configuration;
 
 namespace Gooseberry.ExcelStreaming;
 
 [StructLayout(LayoutKind.Auto)]
-internal readonly struct Merge
+internal readonly struct Merge(uint fromRow, uint fromColumn, uint downSize, uint rightSize)
 {
-    public Merge(uint fromRow, uint fromColumn, uint downSize, uint rightSize)
-    {
-        TopLeft = new CellReference(fromRow, fromColumn);
-        RightBottom = new CellReference(fromRow + downSize, fromColumn + rightSize);
-    }
+    public CellReference TopLeft { get; } = new(fromRow, fromColumn);
 
-    public CellReference TopLeft { get; }
-
-    public CellReference RightBottom { get; }
+    public CellReference RightBottom { get; } = new(fromRow + downSize, fromColumn + rightSize);
 }

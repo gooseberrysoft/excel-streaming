@@ -1,7 +1,8 @@
 ﻿using System.Drawing;
 using System.Runtime.InteropServices;
 
-namespace Gooseberry.ExcelStreaming.Pictures;
+// ReSharper disable once CheckNamespace
+namespace Gooseberry.ExcelStreaming;
 
 [StructLayout(LayoutKind.Auto)]
 public readonly record struct AnchorCell(int Column, int Row, Point Offset)

@@ -4,9 +4,13 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>        
     </PropertyGroup>
+
+    <ItemGroup>
+      <None Remove="Gooseberry.ExcelStreaming.csproj.DotSettings" />
+    </ItemGroup>
     
     <ItemGroup>
-        <InternalsVisibleTo Include="Gooseberry.ExcelStreaming.Tests"/>
-        <InternalsVisibleTo Include="Gooseberry.ExcelStreaming.Benchmarks"/>
+        <InternalsVisibleTo Include="Gooseberry.ExcelStreaming.Tests" />
+        <InternalsVisibleTo Include="Gooseberry.ExcelStreaming.Benchmarks" />
     </ItemGroup>
 </Project>

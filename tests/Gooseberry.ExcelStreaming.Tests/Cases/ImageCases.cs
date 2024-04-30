@@ -1,5 +1,4 @@
-﻿using Gooseberry.ExcelStreaming.Pictures;
-using Xunit;
+﻿using Xunit;
 
 namespace Gooseberry.ExcelStreaming.Tests.Cases;
 

@@ -1,5 +1,3 @@
-using Gooseberry.ExcelStreaming.Pictures;
-
 namespace Gooseberry.ExcelStreaming.Writers;
 
 internal sealed class AnchorCellWriter

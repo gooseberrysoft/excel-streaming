@@ -1,4 +1,4 @@
-﻿namespace Gooseberry.ExcelStreaming.Helpers;
+﻿namespace Gooseberry.ExcelStreaming.Pictures;
 
 internal static class EmuConverter
 {

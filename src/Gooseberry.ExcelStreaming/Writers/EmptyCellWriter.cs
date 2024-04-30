@@ -13,9 +13,8 @@ internal sealed class EmptyCellWriter
 
     public EmptyCellWriter()
     {
-        _stateless = ArrayExtensions.Combine(
-            Constants.Worksheet.SheetData.Row.Cell.Prefix,
-            Constants.Worksheet.SheetData.Row.Cell.StringDataType,
+        _stateless = Constants.Worksheet.SheetData.Row.Cell.Prefix
+            .Combine(Constants.Worksheet.SheetData.Row.Cell.StringDataType,
             Constants.Worksheet.SheetData.Row.Cell.Middle,
             Constants.Worksheet.SheetData.Row.Cell.Postfix);
 

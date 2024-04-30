@@ -1,6 +1,5 @@
 using System.Runtime.CompilerServices;
 using System.Text;
-using Gooseberry.ExcelStreaming.Configuration;
 
 namespace Gooseberry.ExcelStreaming.Writers;
 

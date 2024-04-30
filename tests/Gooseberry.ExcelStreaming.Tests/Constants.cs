@@ -6,20 +6,20 @@ namespace Gooseberry.ExcelStreaming.Tests;
 public static class Constants
 {
     public static Style DefaultNumberStyle = new(
-        format: "General",
-        borders: new Borders(),
-        font: new Font(size: 11, name: null, color: Color.Black, bold: false),
-        fill: new Fill(pattern: FillPattern.None, color: null));
+        Format: "General",
+        Borders: new Borders(),
+        Font: new Font(Size: 11, Name: null, Color: Color.Black, Bold: false),
+        Fill: new Fill(Pattern: FillPattern.None, Color: null));
 
     public static Style DefaultDateTimeStyle = new(
-        format: "dd.mm.yyyy",
-        borders: new Borders(),
-        font: new Font(size: 11, name: null, color: Color.Black, bold: false),
-        fill: new Fill(pattern: FillPattern.None, color: null));
+        Format: "dd.mm.yyyy",
+        Borders: new Borders(),
+        Font: new Font(Size: 11, Name: null, Color: Color.Black, Bold: false),
+        Fill: new Fill(Pattern: FillPattern.None, Color: null));
 
     public static Style DefaultHyperlinkStyle = new(
-        format: "General",
-        borders: new Borders(),
-        font: new Font(size: 11, name: null, color: 0x0000007b, bold: false, underline: Underline.Single),
-        fill: new Fill(pattern: FillPattern.None, color: null));
+        Format: "General",
+        Borders: new Borders(),
+        Font: new Font(Size: 11, Name: null, Color: 0x0000007b, Bold: false, Underline: Underline.Single),
+        Fill: new Fill(Pattern: FillPattern.None, Color: null));
 }

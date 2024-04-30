@@ -1,5 +1,4 @@
 using System.Runtime.InteropServices;
-using Gooseberry.ExcelStreaming.Configuration;
 using Gooseberry.ExcelStreaming.Tests.Extensions;
 
 namespace Gooseberry.ExcelStreaming.Tests.Excel;

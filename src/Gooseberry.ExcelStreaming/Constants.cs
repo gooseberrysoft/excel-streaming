@@ -1,6 +1,5 @@
 using System.Text;
 using Gooseberry.ExcelStreaming.Extensions;
-using Gooseberry.ExcelStreaming.Pictures;
 
 namespace Gooseberry.ExcelStreaming;
 
@@ -10,101 +9,101 @@ internal static partial class Constants
 
     public const double DefaultBufferFlushThreshold = 0.9;
 
-    public static readonly byte[] TrueValue = Encoding.UTF8.GetBytes("true");
+    public static ReadOnlySpan<byte> TrueValue => "true"u8;
 
-    public static readonly byte[] FalseValue = Encoding.UTF8.GetBytes("false");
+    public static ReadOnlySpan<byte> FalseValue => "false"u8;
 
-    public static readonly byte[] XmlPrefix = Encoding.UTF8.GetBytes("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+    public static ReadOnlySpan<byte> XmlPrefix => "<?xml version=\"1.0\" encoding=\"utf-8\"?>"u8;
 
     public static class Workbook
     {
-        public static readonly byte[] Prefix = Encoding.UTF8.GetBytes($"<workbook xmlns=\"{MainNamespace}\"><sheets>");
+        public static ReadOnlySpan<byte> Prefix
+            => "<workbook xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\"><sheets>"u8;
 
-        public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</sheets></workbook>");
+        public static ReadOnlySpan<byte> Postfix => "</sheets></workbook>"u8;
 
         public static class Sheet
         {
-            public static readonly byte[] StartPrefix = Encoding.UTF8.GetBytes("<sheet name=\"");
+            public static ReadOnlySpan<byte> StartPrefix => "<sheet name=\""u8;
 
-            public static readonly byte[] EndPrefix = Encoding.UTF8.GetBytes("\" sheetId=\"");
+            public static ReadOnlySpan<byte> EndPrefix => "\" sheetId=\""u8;
 
-            public static readonly byte[] EndPostfix = Encoding.UTF8.GetBytes("\" r:id=\"");
+            public static ReadOnlySpan<byte> EndPostfix => "\" r:id=\""u8;
 
-            public static readonly byte[] Postfix =
-                Encoding.UTF8.GetBytes("\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\"/>");
+            public static ReadOnlySpan<byte> Postfix =>
+                "\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\"/>"u8;
         }
     }
 
     public static class Worksheet
     {
-        public static readonly byte[] Prefix =
-            Encoding.UTF8.GetBytes(
-                $"<worksheet xmlns=\"{MainNamespace}\"  xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">");
+        public static ReadOnlySpan<byte> Prefix =>
+            "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\"  xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"u8;
 
-        public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</worksheet>");
+        public static ReadOnlySpan<byte> Postfix => "</worksheet>"u8;
 
         public static class Columns
         {
-            public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<cols>");
+            public static ReadOnlySpan<byte> Prefix => "<cols>"u8;
 
-            public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</cols>");
+            public static ReadOnlySpan<byte> Postfix => "</cols>"u8;
 
             public static class Item
             {
-                public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<col");
+                public static ReadOnlySpan<byte> Prefix => "<col"u8;
 
-                public static readonly byte[] Postfix = Encoding.UTF8.GetBytes(" customWidth=\"1\"/>");
+                public static ReadOnlySpan<byte> Postfix => " customWidth=\"1\"/>"u8;
 
                 public static class Min
                 {
-                    public static readonly byte[] Prefix = Encoding.UTF8.GetBytes(" min=\"");
+                    public static ReadOnlySpan<byte> Prefix => " min=\""u8;
 
-                    public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"");
+                    public static ReadOnlySpan<byte> Postfix => "\""u8;
                 }
 
                 public static class Max
                 {
-                    public static readonly byte[] Prefix = Encoding.UTF8.GetBytes(" max=\"");
+                    public static ReadOnlySpan<byte> Prefix => " max=\""u8;
 
-                    public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"");
+                    public static ReadOnlySpan<byte> Postfix => "\""u8;
                 }
 
                 public static class Width
                 {
-                    public static readonly byte[] Prefix = Encoding.UTF8.GetBytes(" width=\"");
+                    public static ReadOnlySpan<byte> Prefix => " width=\""u8;
 
-                    public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"");
+                    public static ReadOnlySpan<byte> Postfix => "\""u8;
                 }
             }
         }
 
         public static class Merges
         {
-            public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<mergeCells>");
+            public static ReadOnlySpan<byte> Prefix => "<mergeCells>"u8;
 
-            public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</mergeCells>");
+            public static ReadOnlySpan<byte> Postfix => "</mergeCells>"u8;
 
             public static class Merge
             {
-                public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<mergeCell ref=\"");
+                public static ReadOnlySpan<byte> Prefix => "<mergeCell ref=\""u8;
 
-                public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"/>");
+                public static ReadOnlySpan<byte> Postfix => "\"/>"u8;
             }
         }
 
         public static class Hyperlinks
         {
-            public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<hyperlinks>");
+            public static ReadOnlySpan<byte> Prefix => "<hyperlinks>"u8;
 
-            public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</hyperlinks>");
+            public static ReadOnlySpan<byte> Postfix => "</hyperlinks>"u8;
 
             public static class Hyperlink
             {
-                public static readonly byte[] StartPrefix = Encoding.UTF8.GetBytes("<hyperlink r:id=\"link");
+                public static ReadOnlySpan<byte> StartPrefix => "<hyperlink r:id=\"link"u8;
 
-                public static readonly byte[] EndPrefix = Encoding.UTF8.GetBytes("\" ref=\"");
+                public static ReadOnlySpan<byte> EndPrefix => "\" ref=\""u8;
 
-                public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"/>");
+                public static ReadOnlySpan<byte> Postfix => "\"/>"u8;
             }
         }
 
@@ -119,96 +118,96 @@ internal static partial class Constants
 
         public static class View
         {
-            public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<sheetViews><sheetView workbookViewId=\"0\"");
+            public static ReadOnlySpan<byte> Prefix => "<sheetViews><sheetView workbookViewId=\"0\""u8;
 
-            public static readonly byte[] Middle = Encoding.UTF8.GetBytes(">");
+            public static ReadOnlySpan<byte> Middle => ">"u8;
 
-            public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</sheetView></sheetViews>");
+            public static ReadOnlySpan<byte> Postfix => "</sheetView></sheetViews>"u8;
 
             public static class ShowGridLines
             {
-                public static readonly byte[] Prefix = Encoding.UTF8.GetBytes(" showGridLines=\"");
+                public static ReadOnlySpan<byte> Prefix => " showGridLines=\""u8;
 
-                public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"");
+                public static ReadOnlySpan<byte> Postfix => "\""u8;
             }
 
             public static class Pane
             {
-                public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<pane");
+                public static ReadOnlySpan<byte> Prefix => "<pane"u8;
 
-                public static readonly byte[] Postfix = Encoding.UTF8.GetBytes(" activePane=\"bottomRight\" state=\"frozen\"/>");
+                public static ReadOnlySpan<byte> Postfix => " activePane=\"bottomRight\" state=\"frozen\"/>"u8;
 
                 public static class TopLeftCell
                 {
-                    public static readonly byte[] Prefix = Encoding.UTF8.GetBytes(" topLeftCell=\"");
+                    public static ReadOnlySpan<byte> Prefix => " topLeftCell=\""u8;
 
-                    public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"");
+                    public static ReadOnlySpan<byte> Postfix => "\""u8;
                 }
 
                 public static class YSplit
                 {
-                    public static readonly byte[] Prefix = Encoding.UTF8.GetBytes(" ySplit=\"");
+                    public static ReadOnlySpan<byte> Prefix => " ySplit=\""u8;
 
-                    public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"");
+                    public static ReadOnlySpan<byte> Postfix => "\""u8;
                 }
 
                 public static class XSplit
                 {
-                    public static readonly byte[] Prefix = Encoding.UTF8.GetBytes(" xSplit=\"");
+                    public static ReadOnlySpan<byte> Prefix => " xSplit=\""u8;
 
-                    public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"");
+                    public static ReadOnlySpan<byte> Postfix => "\""u8;
                 }
             }
         }
 
         public static class SheetData
         {
-            public static readonly byte[] Prefix = Encoding.UTF8.GetBytes($"<sheetData>");
+            public static ReadOnlySpan<byte> Prefix => "<sheetData>"u8;
 
-            public static readonly byte[] Postfix = Encoding.UTF8.GetBytes($"</sheetData>");
+            public static ReadOnlySpan<byte> Postfix => "</sheetData>"u8;
 
             public static class Row
             {
                 public static class Open
                 {
-                    public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<row");
+                    public static ReadOnlySpan<byte> Prefix => "<row"u8;
 
-                    public static readonly byte[] Postfix = Encoding.UTF8.GetBytes(">");
+                    public static ReadOnlySpan<byte> Postfix => ">"u8;
 
                     public static class Height
                     {
-                        public static readonly byte[] Prefix = Encoding.UTF8.GetBytes(" ht=\"");
+                        public static ReadOnlySpan<byte> Prefix => " ht=\""u8;
 
-                        public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\" customHeight=\"1\"");
+                        public static ReadOnlySpan<byte> Postfix => "\" customHeight=\"1\""u8;
                     }
                 }
 
-                public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</row>");
+                public static ReadOnlySpan<byte> Postfix => "</row>"u8;
 
                 public static class Cell
                 {
-                    public static readonly byte[] StringDataType = Encoding.UTF8.GetBytes(" t=\"str\"");
+                    public static ReadOnlySpan<byte> StringDataType => " t=\"str\""u8;
 
-                    public static readonly byte[] SharedStringDataType = Encoding.UTF8.GetBytes(" t=\"s\"");
+                    public static ReadOnlySpan<byte> SharedStringDataType => " t=\"s\""u8;
 
-                    public static readonly byte[] NumberDataType = Encoding.UTF8.GetBytes(" t=\"n\"");
+                    public static ReadOnlySpan<byte> NumberDataType => " t=\"n\""u8;
 
-                    public static readonly byte[] DateTimeDataType = Encoding.UTF8.GetBytes("");
+                    public static ReadOnlySpan<byte> DateTimeDataType => ""u8;
 
-                    public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<c");
+                    public static ReadOnlySpan<byte> Prefix => "<c"u8;
 
-                    public static readonly byte[] Middle = Encoding.UTF8.GetBytes("><v>");
+                    public static ReadOnlySpan<byte> Middle => "><v>"u8;
 
-                    public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</v></c>");
+                    public static ReadOnlySpan<byte> Postfix => "</v></c>"u8;
 
                     public static class Style
                     {
-                        public static readonly byte[] Prefix = Encoding.UTF8.GetBytes(" s=\"");
+                        public static ReadOnlySpan<byte> Prefix => " s=\""u8;
 
-                        public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"");
+                        public static ReadOnlySpan<byte> Postfix => "\""u8;
                     }
 
-                    public static readonly byte[] Empty = Encoding.UTF8.GetBytes("<c t=\"str\"><v></v></c>");
+                    public static ReadOnlySpan<byte> Empty => "<c t=\"str\"><v></v></c>"u8;
                 }
             }
         }
@@ -216,12 +215,15 @@ internal static partial class Constants
 
     public static class ContentTypes
     {
-        public static readonly byte[] Prefix = Encoding.UTF8.GetBytes(
-            "<Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\">"
-            + "<Default Extension=\"xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml\" />"
-            + "<Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\" />"
-            + "<Override PartName=\"/xl/styles.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml\"/>"
-            + "<Override ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml\" PartName=\"/xl/sharedStrings.xml\"/>");
+        public static ReadOnlySpan<byte> Prefix =>
+            """
+            <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+            <Default Extension="xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml" />
+             <Default Extension ="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml" />
+             <Override PartName ="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml" />
+             <Override ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml" PartName="/xl/sharedStrings.xml" />
+            """u8;
+
 
         public static ReadOnlySpan<byte> Get(PictureFormat format)
         {
@@ -263,7 +265,7 @@ internal static partial class Constants
         public static ReadOnlySpan<byte> GetWmf()
             => "<Default Extension=\"wmf\" ContentType=\"image/x-wmf\"/>"u8;
 
-        public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</Types>");
+        public static ReadOnlySpan<byte> Postfix => "</Types>"u8;
 
         public static class Drawing
         {
@@ -276,52 +278,50 @@ internal static partial class Constants
 
         public static class Sheet
         {
-            public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<Override PartName=\"/xl/worksheets/");
+            public static ReadOnlySpan<byte> Prefix => "<Override PartName=\"/xl/worksheets/"u8;
 
-            public static readonly byte[] Postfix =
-                Encoding.UTF8.GetBytes(
-                    ".xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\"/>");
+            public static ReadOnlySpan<byte> Postfix =>
+                ".xml\" ContentType=\"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml\"/>"u8;
         }
     }
 
     public static class WorkbookRelationships
     {
-        public static readonly byte[] Prefix =
-            Encoding.UTF8.GetBytes("<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">");
+        public static ReadOnlySpan<byte> Prefix
+            => "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">"u8;
 
-        public static readonly byte[] Postfix =
-            Encoding.UTF8.GetBytes(
-                "<Relationship Id=\"styles1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles\" Target=\"styles.xml\"/>"
-                + "<Relationship Id=\"sharedStrings1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings\" Target=\"sharedStrings.xml\"/>"
-                + "</Relationships>");
+        public static ReadOnlySpan<byte> Postfix =>
+            """
+            <Relationship Id="styles1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml" />
+            <Relationship Id="sharedStrings1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml" />
+            </Relationships>
+            """u8;
 
         public static class Sheet
         {
-            public static readonly byte[] Prefix =
-                Encoding.UTF8.GetBytes(
-                    "<Relationship Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet\" Target=\"/xl/worksheets/");
+            public static ReadOnlySpan<byte> Prefix
+                => "<Relationship Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet\" Target=\"/xl/worksheets/"u8;
 
-            public static readonly byte[] Middle = Encoding.UTF8.GetBytes(".xml\" Id=\"");
-            public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"/>");
+            public static ReadOnlySpan<byte> Middle => ".xml\" Id=\""u8;
+            public static ReadOnlySpan<byte> Postfix => "\"/>"u8;
         }
     }
 
     public static class SheetRelationships
     {
-        public static readonly byte[] Prefix =
-            Encoding.UTF8.GetBytes("<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">");
+        public static ReadOnlySpan<byte> Prefix =>
+            "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">"u8;
 
-        public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</Relationships>");
+        public static ReadOnlySpan<byte> Postfix => "</Relationships>"u8;
 
         public static class Hyperlink
         {
-            public static readonly byte[] StartPrefix = Encoding.UTF8.GetBytes("<Relationship Id=\"link");
+            public static ReadOnlySpan<byte> StartPrefix => "<Relationship Id=\"link"u8;
 
-            public static readonly byte[] EndPrefix =
-                Encoding.UTF8.GetBytes(
-                    "\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink\" Target=\"");
+            public static ReadOnlySpan<byte> EndPrefix =>
+                "\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink\" Target=\""u8;
 
-            public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\" TargetMode=\"External\"/>");
+            public static ReadOnlySpan<byte> Postfix => "\" TargetMode=\"External\"/>"u8;
         }
 
         public static class Drawing
@@ -352,106 +352,108 @@ internal static partial class Constants
         }
     }
 
-    public static readonly byte[] Relationships = Encoding.UTF8.GetBytes(
-        "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">"
-        + "<Relationship Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument\" Target=\"/xl/workbook.xml\" Id=\"R2196c6c3552b4024\" />"
-        + "</Relationships>");
+    public static ReadOnlySpan<byte> Relationships =>
+        """
+        <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+        <Relationship Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="/xl/workbook.xml" Id="R2196c6c3552b4024" />
+        </Relationships>
+        """u8;
 
     public static class Styles
     {
-        public static readonly byte[] Prefix = Encoding.UTF8.GetBytes($"<styleSheet xmlns=\"{MainNamespace}\">");
+        public static ReadOnlySpan<byte> Prefix => "<styleSheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\">"u8;
 
-        public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</styleSheet>");
+        public static ReadOnlySpan<byte> Postfix => "</styleSheet>"u8;
 
         public static class NumberFormats
         {
-            public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<numFmts>");
+            public static ReadOnlySpan<byte> Prefix => "<numFmts>"u8;
 
-            public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</numFmts>");
+            public static ReadOnlySpan<byte> Postfix => "</numFmts>"u8;
 
             public static class Item
             {
-                public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<numFmt numFmtId=\"");
+                public static ReadOnlySpan<byte> Prefix => "<numFmt numFmtId=\""u8;
 
-                public static readonly byte[] Middle = Encoding.UTF8.GetBytes("\" formatCode=\"");
+                public static ReadOnlySpan<byte> Middle => "\" formatCode=\""u8;
 
-                public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"/>");
+                public static ReadOnlySpan<byte> Postfix => "\"/>"u8;
             }
         }
 
         public static class Fonts
         {
-            public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<fonts>");
+            public static ReadOnlySpan<byte> Prefix => "<fonts>"u8;
 
-            public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</fonts>");
+            public static ReadOnlySpan<byte> Postfix => "</fonts>"u8;
 
             public static class Item
             {
-                public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<font>");
+                public static ReadOnlySpan<byte> Prefix => "<font>"u8;
 
-                public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</font>");
+                public static ReadOnlySpan<byte> Postfix => "</font>"u8;
 
                 public static class Size
                 {
-                    public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<sz val=\"");
+                    public static ReadOnlySpan<byte> Prefix => "<sz val=\""u8;
 
-                    public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"/>");
+                    public static ReadOnlySpan<byte> Postfix => "\"/>"u8;
                 }
 
                 public static class Color
                 {
-                    public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<color rgb=\"");
+                    public static ReadOnlySpan<byte> Prefix => "<color rgb=\""u8;
 
-                    public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"/>");
+                    public static ReadOnlySpan<byte> Postfix => "\"/>"u8;
                 }
 
                 public static class Name
                 {
-                    public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<name val=\"");
+                    public static ReadOnlySpan<byte> Prefix => "<name val=\""u8;
 
-                    public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"/>");
+                    public static ReadOnlySpan<byte> Postfix => "\"/>"u8;
                 }
 
-                public static readonly byte[] Bold = Encoding.UTF8.GetBytes("<b val=\"1\"/>");
+                public static ReadOnlySpan<byte> Bold => "<b val=\"1\"/>"u8;
 
-                public static readonly byte[] Italic = Encoding.UTF8.GetBytes("<i val=\"1\"/>");
+                public static ReadOnlySpan<byte> Italic => "<i val=\"1\"/>"u8;
 
-                public static readonly byte[] Strike = Encoding.UTF8.GetBytes("<strike val=\"1\"/>");
+                public static ReadOnlySpan<byte> Strike => "<strike val=\"1\"/>"u8;
 
                 public static class Underline
                 {
-                    public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<u val=\"");
+                    public static ReadOnlySpan<byte> Prefix => "<u val=\""u8;
 
-                    public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"/>");
+                    public static ReadOnlySpan<byte> Postfix => "\"/>"u8;
                 }
             }
         }
 
         public static class Fills
         {
-            public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<fills>");
+            public static ReadOnlySpan<byte> Prefix => "<fills>"u8;
 
-            public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</fills>");
+            public static ReadOnlySpan<byte> Postfix => "</fills>"u8;
 
             public static class Item
             {
-                public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<fill>");
+                public static ReadOnlySpan<byte> Prefix => "<fill>"u8;
 
-                public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</fill>");
+                public static ReadOnlySpan<byte> Postfix => "</fill>"u8;
 
                 public static class Pattern
                 {
-                    public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<patternFill patternType=\"");
+                    public static ReadOnlySpan<byte> Prefix => "<patternFill patternType=\""u8;
 
-                    public static readonly byte[] Medium = Encoding.UTF8.GetBytes("\">");
+                    public static ReadOnlySpan<byte> Medium => "\">"u8;
 
-                    public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</patternFill>");
+                    public static ReadOnlySpan<byte> Postfix => "</patternFill>"u8;
 
                     public static class Color
                     {
-                        public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<fgColor rgb=\"");
+                        public static ReadOnlySpan<byte> Prefix => "<fgColor rgb=\""u8;
 
-                        public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"/><bgColor auto=\"1\"/>");
+                        public static ReadOnlySpan<byte> Postfix => "\"/><bgColor auto=\"1\"/>"u8;
                     }
                 }
             }
@@ -459,187 +461,184 @@ internal static partial class Constants
 
         public static class Borders
         {
-            public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<borders>");
+            public static ReadOnlySpan<byte> Prefix => "<borders>"u8;
 
-            public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</borders>");
+            public static ReadOnlySpan<byte> Postfix => "</borders>"u8;
 
             public static class Border
             {
-                public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<border>");
+                public static ReadOnlySpan<byte> Prefix => "<border>"u8;
 
-                public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</border>");
+                public static ReadOnlySpan<byte> Postfix => "</border>"u8;
             }
 
             public static class Style
             {
-                public static readonly byte[] Prefix = Encoding.UTF8.GetBytes(" style=\"");
+                public static ReadOnlySpan<byte> Prefix => " style=\""u8;
 
-                public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"");
+                public static ReadOnlySpan<byte> Postfix => "\""u8;
             }
 
             public static class Color
             {
-                public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<color rgb=\"");
+                public static ReadOnlySpan<byte> Prefix => "<color rgb=\""u8;
 
-                public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"/>");
+                public static ReadOnlySpan<byte> Postfix => "\"/>"u8;
             }
 
             public static class Left
             {
-                public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<left");
+                public static ReadOnlySpan<byte> Prefix => "<left"u8;
 
-                public static readonly byte[] Middle = Encoding.UTF8.GetBytes(">");
+                public static ReadOnlySpan<byte> Middle => ">"u8;
 
-                public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</left>");
+                public static ReadOnlySpan<byte> Postfix => "</left>"u8;
 
-                public static readonly byte[] Empty = Encoding.UTF8.GetBytes("<left/>");
+                public static ReadOnlySpan<byte> Empty => "<left/>"u8;
             }
 
             public static class Right
             {
-                public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<right");
+                public static ReadOnlySpan<byte> Prefix => "<right"u8;
 
-                public static readonly byte[] Middle = Encoding.UTF8.GetBytes(">");
+                public static ReadOnlySpan<byte> Middle => ">"u8;
 
-                public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</right>");
+                public static ReadOnlySpan<byte> Postfix => "</right>"u8;
 
-                public static readonly byte[] Empty = Encoding.UTF8.GetBytes("<right/>");
+                public static ReadOnlySpan<byte> Empty => "<right/>"u8;
             }
 
             public static class Top
             {
-                public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<top");
+                public static ReadOnlySpan<byte> Prefix => "<top"u8;
 
-                public static readonly byte[] Middle = Encoding.UTF8.GetBytes(">");
+                public static ReadOnlySpan<byte> Middle => ">"u8;
 
-                public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</top>");
+                public static ReadOnlySpan<byte> Postfix => "</top>"u8;
 
-                public static readonly byte[] Empty = Encoding.UTF8.GetBytes("<top/>");
+                public static ReadOnlySpan<byte> Empty => "<top/>"u8;
             }
 
             public static class Bottom
             {
-                public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<bottom");
+                public static ReadOnlySpan<byte> Prefix => "<bottom"u8;
 
-                public static readonly byte[] Middle = Encoding.UTF8.GetBytes(">");
+                public static ReadOnlySpan<byte> Middle => ">"u8;
 
-                public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</bottom>");
+                public static ReadOnlySpan<byte> Postfix => "</bottom>"u8;
 
-                public static readonly byte[] Empty = Encoding.UTF8.GetBytes("<bottom/>");
+                public static ReadOnlySpan<byte> Empty => "<bottom/>"u8;
             }
         }
 
         public static class Colors
         {
-            public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<colors><indexedColors>");
+            public static ReadOnlySpan<byte> Prefix => "<colors><indexedColors>"u8;
 
-            public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</indexedColors></colors>");
+            public static ReadOnlySpan<byte> Postfix => "</indexedColors></colors>"u8;
 
             public static class Item
             {
-                public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<rgbColor rgb=\"");
+                public static ReadOnlySpan<byte> Prefix => "<rgbColor rgb=\""u8;
 
-                public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"/>");
+                public static ReadOnlySpan<byte> Postfix => "\"/>"u8;
             }
         }
 
         public static class CellStyles
         {
-            public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<cellXfs>");
+            public static ReadOnlySpan<byte> Prefix => "<cellXfs>"u8;
 
-            public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</cellXfs>");
+            public static ReadOnlySpan<byte> Postfix => "</cellXfs>"u8;
 
             public static class Item
             {
                 public static class Open
                 {
-                    public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<xf");
+                    public static ReadOnlySpan<byte> Prefix => "<xf"u8;
 
-                    public static readonly byte[] Postfix = Encoding.UTF8.GetBytes(">");
+                    public static ReadOnlySpan<byte> Postfix => ">"u8;
 
                     public static class NumberFormatId
                     {
-                        public static readonly byte[] Prefix = Encoding.UTF8.GetBytes(" numFmtId=\"");
+                        public static ReadOnlySpan<byte> Prefix => " numFmtId=\""u8;
 
-                        public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\" applyNumberFormat=\"1\"");
+                        public static ReadOnlySpan<byte> Postfix => "\" applyNumberFormat=\"1\""u8;
 
-                        public static readonly byte[] Empty = Encoding.UTF8.GetBytes(" numFmtId=\"0\" applyNumberFormat=\"0\"");
+                        public static ReadOnlySpan<byte> Empty => " numFmtId=\"0\" applyNumberFormat=\"0\""u8;
                     }
 
                     public static class FillId
                     {
-                        public static readonly byte[] Prefix = Encoding.UTF8.GetBytes(" fillId=\"");
+                        public static ReadOnlySpan<byte> Prefix => " fillId=\""u8;
 
-                        public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\" applyFill=\"1\"");
+                        public static ReadOnlySpan<byte> Postfix => "\" applyFill=\"1\""u8;
 
-                        public static readonly byte[] Empty = Encoding.UTF8.GetBytes(" fillId=\"0\" applyFill=\"0\"");
+                        public static ReadOnlySpan<byte> Empty => " fillId=\"0\" applyFill=\"0\""u8;
                     }
 
                     public static class FontId
                     {
-                        public static readonly byte[] Prefix = Encoding.UTF8.GetBytes(" fontId=\"");
+                        public static ReadOnlySpan<byte> Prefix => " fontId=\""u8;
 
-                        public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\" applyFont=\"1\"");
+                        public static ReadOnlySpan<byte> Postfix => "\" applyFont=\"1\""u8;
 
-                        public static readonly byte[] Empty = Encoding.UTF8.GetBytes(" fontId=\"0\" applyFont=\"0\"");
+                        public static ReadOnlySpan<byte> Empty => " fontId=\"0\" applyFont=\"0\""u8;
                     }
 
                     public static class BorderId
                     {
-                        public static readonly byte[] Prefix = Encoding.UTF8.GetBytes(" borderId=\"");
+                        public static ReadOnlySpan<byte> Prefix => " borderId=\""u8;
 
-                        public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\" applyBorder=\"1\"");
+                        public static ReadOnlySpan<byte> Postfix => "\" applyBorder=\"1\""u8;
 
-                        public static readonly byte[] Empty = Encoding.UTF8.GetBytes(" borderId=\"0\" applyBorder=\"0\"");
+                        public static ReadOnlySpan<byte> Empty => " borderId=\"0\" applyBorder=\"0\""u8;
                     }
 
-                    public static readonly byte[] ApplyAlignment = Encoding.UTF8.GetBytes(" applyAlignment=\"1\"");
+                    public static ReadOnlySpan<byte> ApplyAlignment => " applyAlignment=\"1\""u8;
 
                     public static class Alignment
                     {
-                        public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<alignment");
+                        public static ReadOnlySpan<byte> Prefix => "<alignment"u8;
 
-                        public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("/>");
+                        public static ReadOnlySpan<byte> Postfix => "/>"u8;
 
                         public static class Horizontal
                         {
-                            public static readonly byte[] Prefix = Encoding.UTF8.GetBytes(" horizontal=\"");
+                            public static ReadOnlySpan<byte> Prefix => " horizontal=\""u8;
 
-                            public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"");
+                            public static ReadOnlySpan<byte> Postfix => "\""u8;
                         }
 
                         public static class Vertical
                         {
-                            public static readonly byte[] Prefix = Encoding.UTF8.GetBytes(" vertical=\"");
+                            public static ReadOnlySpan<byte> Prefix => " vertical=\""u8;
 
-                            public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("\"");
+                            public static ReadOnlySpan<byte> Postfix => "\""u8;
                         }
 
-                        public static readonly byte[] WrapText = Encoding.UTF8.GetBytes(" wrapText=\"1\"");
+                        public static ReadOnlySpan<byte> WrapText => " wrapText=\"1\""u8;
                     }
                 }
 
-                public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</xf>");
+                public static ReadOnlySpan<byte> Postfix => "</xf>"u8;
             }
         }
     }
 
     public static class SharedStringTable
     {
-        public static readonly byte[] Prefix =
-            Encoding.UTF8.GetBytes("<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\">");
+        public static ReadOnlySpan<byte> Prefix => "<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\">"u8;
 
-        public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</sst>");
+        public static ReadOnlySpan<byte> Postfix => "</sst>"u8;
 
-        public static readonly byte[] EmptyTable = Prefix.Combine(Postfix);
+        public static readonly byte[] EmptyTable = "<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\"></sst>"u8.ToArray();
 
         public static class Item
         {
-            public static readonly byte[] Prefix = Encoding.UTF8.GetBytes("<si><t>");
+            public static ReadOnlySpan<byte> Prefix => "<si><t>"u8;
 
-            public static readonly byte[] Postfix = Encoding.UTF8.GetBytes("</t></si>");
+            public static ReadOnlySpan<byte> Postfix => "</t></si>"u8;
         }
     }
-
-    private const string MainNamespace = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
 }
