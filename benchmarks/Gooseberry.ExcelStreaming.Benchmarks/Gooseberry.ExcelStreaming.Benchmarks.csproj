@@ -17,7 +17,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\Gooseberry.ExcelStreaming\Gooseberry.ExcelStreaming.csproj" /> 
+      <ProjectReference Include="..\..\src\Gooseberry.ExcelStreaming\Gooseberry.ExcelStreaming.csproj" />
+      <ProjectReference Include="..\..\tests\Gooseberry.ExcelStreaming.Tests\Gooseberry.ExcelStreaming.Tests.csproj" /> 
     </ItemGroup>
 
    

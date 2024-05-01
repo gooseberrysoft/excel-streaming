@@ -1,4 +1,5 @@
 ﻿// ReSharper disable MemberHidesStaticFromOuterClass
+// ReSharper disable once CheckNamespace
 
 namespace Gooseberry.ExcelStreaming;
 

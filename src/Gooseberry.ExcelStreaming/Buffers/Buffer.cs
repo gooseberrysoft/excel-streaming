@@ -1,6 +1,7 @@
 using System.Buffers;
 using System.Runtime.CompilerServices;
 
+// ReSharper disable once CheckNamespace
 namespace Gooseberry.ExcelStreaming;
 
 internal sealed class Buffer : IDisposable

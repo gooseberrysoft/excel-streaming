@@ -1,5 +1,6 @@
 using System.Drawing;
 using System.Reflection;
+using Gooseberry.ExcelStreaming.Tests.ExternalZip;
 using Xunit;
 
 namespace Gooseberry.ExcelStreaming.Tests;
@@ -17,12 +18,35 @@ public sealed class ExcelFilesGenerator
     {
         await using var outputStream = new FileStream(BasePath + "Basic.xlsx", FileMode.Create);
 
+        await GenerateContent(outputStream);
+    }
+
+    [Fact(Skip = skip)]
+    public async Task Basic_SharpZipLib()
+    {
+        await using var outputStream = new FileStream(BasePath + "Basic_SharpZipLib.xlsx", FileMode.Create);
+
+        await GenerateContent(archive: new SharpZipLibArchive(outputStream));
+    }
+
+    [Fact(Skip = skip)]
+    public async Task Basic_SharpCompress()
+    {
+        await using var outputStream = new FileStream(BasePath + "Basic_SharpCompress.xlsx", FileMode.Create);
+
+        await GenerateContent(archive: new SharpCompressZipArchive(outputStream));
+    }
+
+    private static async Task GenerateContent(Stream? stream = null, IZipArchive? archive = null)
+    {
         var sharedStringTableBuilder = new SharedStringTableBuilder();
         var sharedStringRef1 = sharedStringTableBuilder.GetOrAdd(">>> Shared string with special & symbols <<< ");
         var sharedStringRef2 = sharedStringTableBuilder.GetOrAdd("“Tell us a story!” said the March Hare.");
         var sharedStringTable = sharedStringTableBuilder.Build();
 
-        await using var writer = new ExcelWriter(outputStream, sharedStringTable: sharedStringTable);
+        await using var writer = stream != null
+            ? new ExcelWriter(stream!, sharedStringTable: sharedStringTable)
+            : new ExcelWriter(archive!, sharedStringTable: sharedStringTable);
 
         for (var sheetIndex = 0; sheetIndex < 3; sheetIndex++)
         {
@@ -53,7 +77,6 @@ public sealed class ExcelFilesGenerator
             writer.AddPicture(Picture, PictureFormat.Jpeg, new AnchorCell(3, 10_001), new Size(100, 130));
             writer.AddPicture(Picture, PictureFormat.Jpeg, new AnchorCell(10, 10_001), new AnchorCell(15, 10_010));
         }
-
 
         await writer.Complete();
     }
