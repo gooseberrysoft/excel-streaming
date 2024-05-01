@@ -8,8 +8,9 @@ BenchmarkDotNet v0.13.12, Windows 10 (10.0.19045.4291/22H2/2022Update)
 
 
 ```
-| Method           | Mean    | Error    | StdDev   | Allocated  |
-|----------------- |--------:|---------:|---------:|-----------:|
-| DefaultZip       | 1.892 s | 0.0338 s | 0.0462 s |   11.12 KB |
-| SharpZipLib      | 2.736 s | 0.0236 s | 0.0197 s | 1320.04 KB |
-| SharpCompressLib | 3.715 s | 0.0620 s | 0.0550 s | 2981.14 KB |
+| Method           | Mean       | Error    | StdDev   | Allocated  |
+|----------------- |-----------:|---------:|---------:|-----------:|
+| NullZip          |   771.0 ms |  7.40 ms |  6.93 ms |    2.95 KB |
+| DefaultZip       | 1,676.0 ms | 17.05 ms | 13.31 ms |   10.55 KB |
+| SharpZipLib      | 2,610.8 ms | 14.04 ms | 13.13 ms | 1301.08 KB |
+| SharpCompressLib | 3,672.2 ms | 33.65 ms | 28.10 ms | 2978.44 KB |

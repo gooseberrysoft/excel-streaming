@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
 <meta charset='utf-8' />
-<title>Gooseberry.ExcelStreaming.Benchmarks.ExcelWriterZipBenchmarks-20240430-225428</title>
+<title>Gooseberry.ExcelStreaming.Benchmarks.ExcelWriterZipBenchmarks-20240501-104737</title>
 
 <style type="text/css">
 	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
@@ -24,9 +24,10 @@ BenchmarkDotNet v0.13.12, Windows 10 (10.0.19045.4291/22H2/2022Update)
 <table>
 <thead><tr><th>Method    </th><th>Mean</th><th>Error</th><th>StdDev</th><th>Allocated</th>
 </tr>
-</thead><tbody><tr><td>DefaultZip</td><td>1.892 s</td><td>0.0338 s</td><td>0.0462 s</td><td>11.12 KB</td>
-</tr><tr><td>SharpZipLib</td><td>2.736 s</td><td>0.0236 s</td><td>0.0197 s</td><td>1320.04 KB</td>
-</tr><tr><td>SharpCompressLib</td><td>3.715 s</td><td>0.0620 s</td><td>0.0550 s</td><td>2981.14 KB</td>
+</thead><tbody><tr><td>NullZip</td><td>771.0 ms</td><td>7.40 ms</td><td>6.93 ms</td><td>2.95 KB</td>
+</tr><tr><td>DefaultZip</td><td>1,676.0 ms</td><td>17.05 ms</td><td>13.31 ms</td><td>10.55 KB</td>
+</tr><tr><td>SharpZipLib</td><td>2,610.8 ms</td><td>14.04 ms</td><td>13.13 ms</td><td>1301.08 KB</td>
+</tr><tr><td>SharpCompressLib</td><td>3,672.2 ms</td><td>33.65 ms</td><td>28.10 ms</td><td>2978.44 KB</td>
 </tr></tbody></table>
 </body>
 </html>

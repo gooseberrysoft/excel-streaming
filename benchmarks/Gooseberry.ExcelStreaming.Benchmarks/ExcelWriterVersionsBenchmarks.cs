@@ -31,7 +31,7 @@ public class ExcelWriterVersionsBenchmarks
     [Benchmark]
     public async Task ExcelWriter_WithEscaping()
     {
-        await using var outputStream = new NullStream();
+        await using var outputStream = Stream.Null;
 
         await using var writer = new ExcelWriter(outputStream);
 
@@ -60,7 +60,7 @@ public class ExcelWriterVersionsBenchmarks
     [Benchmark]
     public async Task ExcelWriter_WithoutEscaping()
     {
-        await using var outputStream = new NullStream();
+        await using var outputStream = Stream.Null;
 
         await using var writer = new ExcelWriter(outputStream);
 
@@ -89,7 +89,7 @@ public class ExcelWriterVersionsBenchmarks
     [Benchmark]
     public async Task ExcelWriter_WithEscaping_Utf8()
     {
-        await using var outputStream = new NullStream();
+        await using var outputStream = Stream.Null;
 
         await using var writer = new ExcelWriter(outputStream);
 
@@ -118,7 +118,7 @@ public class ExcelWriterVersionsBenchmarks
     [Benchmark]
     public async Task ExcelWriter_WithoutEscaping_Utf8()
     {
-        await using var outputStream = new NullStream();
+        await using var outputStream = Stream.Null;
 
         await using var writer = new ExcelWriter(outputStream);
 

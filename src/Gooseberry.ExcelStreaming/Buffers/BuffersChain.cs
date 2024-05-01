@@ -91,7 +91,7 @@ internal sealed class BuffersChain : IDisposable
     public void FlushAll(Span<byte> span)
     {
         if (span.Length < Written)
-            throw new ArgumentException("Span has no enough space wo flush all buffers.");
+            throw new ArgumentException("Span has no enough space to flush all buffers.");
 
         var currentPosition = 0;
         foreach (var buffer in _buffers)
