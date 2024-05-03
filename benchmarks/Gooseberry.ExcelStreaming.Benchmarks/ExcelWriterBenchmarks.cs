@@ -15,7 +15,7 @@ public class ExcelWriterBenchmarks
     private const int ColumnBatchesCount = 10;
     private readonly RecyclableMemoryStreamManager _streamManager = new();
 
-    [Params(10, 100, 1000, 10_000, 100_000)]
+    [Params(100, 1000, 10_000, 100_000, 500_000)]
     public int RowsCount { get; set; }
 
     [Benchmark]

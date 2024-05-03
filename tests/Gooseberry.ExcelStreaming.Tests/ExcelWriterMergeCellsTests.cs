@@ -98,8 +98,8 @@ public sealed class ExcelWriterMergeCellsTests
                 {
                     new Cell("1", CellValueType.Number, Constants.DefaultNumberStyle),
                     new Cell("", CellValueType.String),
-                    new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), style: Constants.DefaultDateTimeStyle),
-                    new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), style: Constants.DefaultDateTimeStyle)
+                    new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), Style: Constants.DefaultDateTimeStyle),
+                    new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), Style: Constants.DefaultDateTimeStyle)
                 })
             },
             Merges: new[] { "A1:B2", "C1:D1", "A3:B3" });

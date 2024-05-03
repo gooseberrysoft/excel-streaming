@@ -1,5 +1,6 @@
 using System.Drawing;
 using System.Globalization;
+using System.Text;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Drawing;
 using DocumentFormat.OpenXml.Drawing.Spreadsheet;
@@ -11,11 +12,12 @@ using Gooseberry.ExcelStreaming.Tests.Extensions;
 using Alignment = Gooseberry.ExcelStreaming.Styles.Alignment;
 using Border = Gooseberry.ExcelStreaming.Styles.Border;
 using Borders = Gooseberry.ExcelStreaming.Styles.Borders;
-using Color = Gooseberry.ExcelStreaming.Styles.Color;
+using Color = System.Drawing.Color;
 using Fill = Gooseberry.ExcelStreaming.Styles.Fill;
 using Font = Gooseberry.ExcelStreaming.Styles.Font;
 using MarkerType = DocumentFormat.OpenXml.Drawing.Spreadsheet.MarkerType;
 using Point = System.Drawing.Point;
+using Underline = Gooseberry.ExcelStreaming.Styles.Underline;
 
 namespace Gooseberry.ExcelStreaming.Tests.Excel;
 
@@ -46,46 +48,7 @@ public static class ExcelReader
         { CellValues.Date, CellValueType.DateTime },
         { CellValues.SharedString, CellValueType.SharedString }
     };
-
-
-    private static Dictionary<PatternValues, FillPattern> PatternMap = new()
-    {
-        { PatternValues.None, FillPattern.None },
-        { PatternValues.Gray125, FillPattern.Gray125 },
-        { PatternValues.Solid, FillPattern.Solid }
-    };
-
-    private static Dictionary<UnderlineValues, Styles.Underline> UnderlineMap = new()
-    {
-        { UnderlineValues.None, ExcelStreaming.Styles.Underline.None },
-        { UnderlineValues.Single, ExcelStreaming.Styles.Underline.Single },
-        { UnderlineValues.Double, ExcelStreaming.Styles.Underline.Double },
-        { UnderlineValues.SingleAccounting, ExcelStreaming.Styles.Underline.SingleAccounting },
-        { UnderlineValues.DoubleAccounting, ExcelStreaming.Styles.Underline.DoubleAccounting }
-    };
-
-    private static Dictionary<HorizontalAlignmentValues, HorizontalAlignment> HorizontalMap = new()
-    {
-        { HorizontalAlignmentValues.Center, HorizontalAlignment.Center },
-        { HorizontalAlignmentValues.CenterContinuous, HorizontalAlignment.CenterContinuous },
-        { HorizontalAlignmentValues.Distributed, HorizontalAlignment.Distributed },
-        { HorizontalAlignmentValues.Fill, HorizontalAlignment.Fill },
-        { HorizontalAlignmentValues.General, HorizontalAlignment.General },
-        { HorizontalAlignmentValues.Justify, HorizontalAlignment.Justify },
-        { HorizontalAlignmentValues.Left, HorizontalAlignment.Left },
-        { HorizontalAlignmentValues.Right, HorizontalAlignment.Right }
-    };
-
-    private static Dictionary<VerticalAlignmentValues, VerticalAlignment> VerticalMap = new()
-    {
-        { VerticalAlignmentValues.Bottom, VerticalAlignment.Bottom },
-        { VerticalAlignmentValues.Center, VerticalAlignment.Center },
-        { VerticalAlignmentValues.Distributed, VerticalAlignment.Distributed },
-        { VerticalAlignmentValues.Justify, VerticalAlignment.Justify },
-        { VerticalAlignmentValues.Top, VerticalAlignment.Top }
-    };
-
-
+    
     public static IReadOnlyCollection<Sheet> ReadSheets(Stream stream)
     {
         using var spreadsheet = SpreadsheetDocument.Open(stream, isEditable: false);
@@ -246,11 +209,7 @@ public static class ExcelReader
         if (fill.PatternFill == null)
             throw new InvalidOperationException("PatternFill should not be empty.");
 
-        var pattern = fill.PatternFill.PatternType?.Value != null &&
-            PatternMap.TryGetValue(fill.PatternFill.PatternType.Value, out var value)
-                ? value
-                : throw new InvalidCastException($"Cannot convert {fill.PatternFill.PatternType?.Value} to FillPattern.");
-
+        var pattern = new FillPattern(Encoding.UTF8.GetBytes(fill.PatternFill.PatternType?.Value.AsString() ?? "none"));
         var color = GetColor(fill.PatternFill.ForegroundColor?.Rgb);
 
         return new Fill(color, pattern);
@@ -259,10 +218,10 @@ public static class ExcelReader
     private static Borders GetBorders(DocumentFormat.OpenXml.Spreadsheet.Border border)
     {
         return new Borders(
-            left: GetBorder(border.LeftBorder),
-            right: GetBorder(border.RightBorder),
-            top: GetBorder(border.TopBorder),
-            bottom: GetBorder(border.BottomBorder));
+            Left: GetBorder(border.LeftBorder),
+            Right: GetBorder(border.RightBorder),
+            Top: GetBorder(border.TopBorder),
+            Bottom: GetBorder(border.BottomBorder));
     }
 
     private static Border? GetBorder(BorderPropertiesType? border)
@@ -270,11 +229,7 @@ public static class ExcelReader
         if (border == null || border.Style == null && border.Color == null)
             return null;
 
-        var style = border.Style?.Value.AsString() switch
-        {
-            "thin" => BorderStyle.Thin,
-            _ => throw new InvalidCastException($"Cannot convert {border.Style?.Value} to BorderStyle.")
-        };
+        var style = new BorderStyle(Encoding.UTF8.GetBytes(border.Style?.Value.AsString() ?? "none"));
 
         var color = GetColor(border.Color?.Rgb);
 
@@ -293,10 +248,8 @@ public static class ExcelReader
         var italic = font.Italic?.Val?.Value ?? false;
         var strike = font.Strike?.Val?.Value ?? false;
 
-        var underline = font.Underline?.Val?.Value != null &&
-            UnderlineMap.TryGetValue(font.Underline.Val.Value, out var value)
-                ? value
-                : throw new InvalidCastException($"Cannot convert {font.Underline?.Val?.Value} to Underline.");
+        var underline = new Underline(Encoding.UTF8.GetBytes(font.Underline?.Val?.Value.AsString() ?? "none"));
+
 
         return new Font(size, name, color, bold, italic, strike, underline);
     }
@@ -305,15 +258,11 @@ public static class ExcelReader
     {
         HorizontalAlignment? horizontal = alignment.Horizontal?.Value == null
             ? null
-            : HorizontalMap.TryGetValue(alignment.Horizontal.Value, out var hValue)
-                ? hValue
-                : throw new InvalidCastException($"Cannot convert {alignment.Horizontal?.Value} to HorizontalAlignment.");
+            : new HorizontalAlignment(Encoding.UTF8.GetBytes(alignment.Horizontal?.Value.AsString() ?? "general"));
 
         VerticalAlignment? vertical = alignment.Vertical?.Value == null
             ? null
-            : VerticalMap.TryGetValue(alignment.Vertical.Value, out var vValue)
-                ? vValue
-                : throw new InvalidCastException($"Cannot convert {alignment.Horizontal?.Value} to VerticalAlignment.");
+            : new VerticalAlignment(Encoding.UTF8.GetBytes(alignment.Vertical?.Value.AsString() ?? "top"));
 
         var wrapText = alignment.WrapText?.Value == true;
 
@@ -325,7 +274,7 @@ public static class ExcelReader
         var rgbValue = rgbColor?.Value;
 
         if (!string.IsNullOrEmpty(rgbValue))
-            return new Color(uint.Parse(rgbValue, NumberStyles.HexNumber));
+            return Color.FromArgb(int.Parse(rgbValue, NumberStyles.HexNumber));
 
         return null;
     }

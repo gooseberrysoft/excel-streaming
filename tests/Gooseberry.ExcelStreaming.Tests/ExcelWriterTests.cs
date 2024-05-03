@@ -50,7 +50,7 @@ public sealed class ExcelWriterTests
                 {
                     new Cell("1", CellValueType.Number, Constants.DefaultNumberStyle),
                     new Cell("name", CellValueType.String),
-                    new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), style: Constants.DefaultDateTimeStyle)
+                    new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), Style: Constants.DefaultDateTimeStyle)
                 })
             });
 
@@ -157,7 +157,7 @@ public sealed class ExcelWriterTests
             .Select(_ => value));
         longText = longText.Substring(0, Math.Min(longText.Length, 32_767));
 
-        await using (var writer = new ExcelWriter(outputStream, bufferSize: 1024))
+        await using (var writer = new ExcelWriter(outputStream))
         {
             await writer.StartSheet("test");
 
@@ -324,7 +324,7 @@ public sealed class ExcelWriterTests
         var outputStream = new MemoryStream();
         var longString = "long long long loong loooong loooooooon loooooooooooooooooooooong very long string";
 
-        await using (var writer = new ExcelWriter(outputStream, bufferSize: 32))
+        await using (var writer = new ExcelWriter(outputStream))
         {
             await writer.StartSheet("test");
 
@@ -359,7 +359,7 @@ public sealed class ExcelWriterTests
             "long long long loong loooong loooooooon loooooooooooooooooooooong very long" +
             "long long long loong loooong loooooooon loooooooooooooooooooooong very long &string";
 
-        await using (var writer = new ExcelWriter(outputStream, bufferSize: 32))
+        await using (var writer = new ExcelWriter(outputStream))
         {
             await writer.StartSheet(longString);
 

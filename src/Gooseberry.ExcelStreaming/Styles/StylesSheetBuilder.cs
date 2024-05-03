@@ -1,12 +1,10 @@
+using System.Drawing;
 using Gooseberry.ExcelStreaming.Styles.Records;
 
 namespace Gooseberry.ExcelStreaming.Styles;
 
 public sealed class StylesSheetBuilder
 {
-    private const uint Black = 0xff000000;
-    private const uint Navy = 0x0000007B;
-
     private const string GeneralFormat = "General";
     private const string DefaultDateFormat = "dd.mm.yyyy";
 
@@ -26,16 +24,16 @@ public sealed class StylesSheetBuilder
     {
         _formats[GeneralFormat] = new FormatRecord(0, GeneralFormat);
         _borders.Add(new Borders());
-        _fills.Add(new Fill(Pattern: FillPattern.None, Color: null));
-        _fills.Add(new Fill(Pattern: FillPattern.Gray125, Color: null));
+        _fills.Add(new Fill(Pattern: FillPattern.None));
+        _fills.Add(new Fill(Pattern: FillPattern.Gray125));
 
         _generalStyle = GetOrAdd(new Style(
             Format: GeneralFormat,
-            Font: new Font(Size: 11, Name: null, Color: Black, Bold: false)));
+            Font: new Font(Size: 11, Name: null, Color: Color.Black, Bold: false)));
 
         _defaultDateStyle = GetOrAdd(new Style(Format: DefaultDateFormat));
 
-        _defaultHyperlinkStyle = GetOrAdd(new Style(Font: new Font(Color: Navy, Underline: Underline.Single)));
+        _defaultHyperlinkStyle = GetOrAdd(new Style(Font: new Font(Color: Color.Navy, Underline: Underline.Single)));
     }
 
     public StyleReference GetOrAdd(Style style)

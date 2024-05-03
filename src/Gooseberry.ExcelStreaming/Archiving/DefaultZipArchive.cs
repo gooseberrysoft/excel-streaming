@@ -1,6 +1,7 @@
 using System.IO.Compression;
 using System.Text;
 
+// ReSharper disable once CheckNamespace
 namespace Gooseberry.ExcelStreaming;
 
 public sealed class DefaultZipArchive(Stream outputStream, CompressionLevel? compressionLevel = null) : IZipArchive

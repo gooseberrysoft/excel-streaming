@@ -5,11 +5,11 @@ namespace Gooseberry.ExcelStreaming;
 
 internal sealed class BuffersChain : IDisposable
 {
-    private readonly int _bufferSize;
+    private const int MaxBufferSize = 1024 * 1024;
+    private int _bufferSize;
     private readonly double _flushThreshold;
 
-    private readonly List<Buffer> _buffers = new();
-    private int _currentBufferIndex;
+    private readonly Queue<Buffer> _completedBuffers = new(2);
     private Buffer _currentBuffer;
 
     public BuffersChain(int bufferSize, double flushThreshold)
@@ -23,39 +23,38 @@ internal sealed class BuffersChain : IDisposable
 
         var buffer = new Buffer(_bufferSize);
         _currentBuffer = buffer;
-        _buffers.Add(buffer);
-        _currentBufferIndex = 0;
     }
+
+    public void SetBufferSize(int size)
+        => _bufferSize = size;
 
     public int Written
     {
         get
         {
-            var written = 0;
-            for (var i = 0; i <= _currentBufferIndex; i++)
-                written += _buffers[i].Written;
+            var written = _currentBuffer.Written;
+
+            if (_completedBuffers.Count > 0)
+            {
+                foreach (var buffer in _completedBuffers)
+                    written += buffer.Written;
+            }
 
             return written;
         }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Span<byte> GetSpan(int minSize)
+    public Span<byte> GetSpan(int minSize = 1)
     {
         if (_currentBuffer.RemainingCapacity < minSize)
-            MoveToNextBuffer();
+        {
+            if (!_currentBuffer.IsEmpty)
+                _completedBuffers.Enqueue(_currentBuffer);
 
-        if (_currentBuffer.RemainingCapacity < minSize)
-            throw new InvalidOperationException($"Cannot get span of size {minSize} from buffer.");
-
-        return _currentBuffer.GetSpan();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Span<byte> GetSpan()
-    {
-        if (_currentBuffer.RemainingCapacity == 0)
-            MoveToNextBuffer();
+            _bufferSize = Math.Min(MaxBufferSize, _bufferSize * 2);
+            _currentBuffer = new Buffer(Math.Max(_bufferSize, minSize));
+        }
 
         return _currentBuffer.GetSpan();
     }
@@ -64,28 +63,30 @@ internal sealed class BuffersChain : IDisposable
     public void Advance(int count)
         => _currentBuffer.Advance(count);
 
-    public async ValueTask FlushCompleted(Stream stream, CancellationToken token)
+    public async ValueTask FlushCompleted(IEntryWriter output)
     {
-        if (_currentBufferIndex > 0)
-        {
-            for (var bufferIndex = 0; bufferIndex < _currentBufferIndex; bufferIndex++)
-                await _buffers[bufferIndex].FlushTo(stream, token);
-
-            (_buffers[0], _buffers[_currentBufferIndex]) = (_buffers[_currentBufferIndex], _buffers[0]);
-
-            SetCurrentBuffer(0);
-        }
+        while (_completedBuffers.Count > 0)
+            await output.Write(_completedBuffers.Dequeue());
 
         if (_currentBuffer.Saturation >= _flushThreshold)
-            await _currentBuffer.FlushTo(stream, token);
+        {
+            if (!_currentBuffer.IsEmpty)
+                await output.Write(_currentBuffer);
+
+            _bufferSize = Math.Min(MaxBufferSize, _bufferSize * 2);
+            _currentBuffer = new Buffer(_bufferSize);
+        }
     }
 
-    public async ValueTask FlushAll(Stream stream, CancellationToken token)
+    public async ValueTask FlushAll(IEntryWriter output)
     {
-        foreach (var buffer in _buffers)
-            await buffer.FlushTo(stream, token);
+        while (_completedBuffers.Count > 0)
+            await output.Write(_completedBuffers.Dequeue());
 
-        SetCurrentBuffer(0);
+        if (!_currentBuffer.IsEmpty)
+            await output.Write(_currentBuffer);
+
+        _currentBuffer = Buffer.Empty;
     }
 
     public void FlushAll(Span<byte> span)
@@ -94,34 +95,28 @@ internal sealed class BuffersChain : IDisposable
             throw new ArgumentException("Span has no enough space to flush all buffers.");
 
         var currentPosition = 0;
-        foreach (var buffer in _buffers)
+
+        while (_completedBuffers.Count > 0)
         {
+            using var buffer = _completedBuffers.Dequeue();
             var chunk = span.Slice(currentPosition, buffer.Written);
-            buffer.FlushTo(chunk);
+            buffer.WrittenSpan.CopyTo(chunk);
             currentPosition += chunk.Length;
         }
 
-        SetCurrentBuffer(0);
+        if (!_currentBuffer.IsEmpty)
+        {
+            _currentBuffer.WrittenSpan.CopyTo(span.Slice(currentPosition, _currentBuffer.Written));
+            _currentBuffer.Dispose();
+            _currentBuffer = Buffer.Empty;
+        }
     }
 
     public void Dispose()
     {
-        foreach (var buffer in _buffers)
-            buffer.Dispose();
-    }
+        while (_completedBuffers.Count > 0)
+            _completedBuffers.Dequeue().Dispose();
 
-    private void MoveToNextBuffer()
-    {
-        var newIndex = _currentBufferIndex + 1;
-        if (_buffers.Count <= newIndex)
-            _buffers.Add(new Buffer(_bufferSize));
-
-        SetCurrentBuffer(newIndex);
-    }
-
-    private void SetCurrentBuffer(int newIndex)
-    {
-        _currentBufferIndex = newIndex;
-        _currentBuffer = _buffers[newIndex];
+        _currentBuffer.Dispose();
     }
 }

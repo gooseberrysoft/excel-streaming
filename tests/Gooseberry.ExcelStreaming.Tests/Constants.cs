@@ -20,6 +20,6 @@ public static class Constants
     public static Style DefaultHyperlinkStyle = new(
         Format: "General",
         Borders: new Borders(),
-        Font: new Font(Size: 11, Name: null, Color: 0x0000007b, Bold: false, Underline: Underline.Single),
+        Font: new Font(Size: 11, Name: null, Color: Color.Navy, Bold: false, Underline: Underline.Single),
         Fill: new Fill(Pattern: FillPattern.None, Color: null));
 }

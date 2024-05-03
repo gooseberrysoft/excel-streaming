@@ -1,6 +1,7 @@
+using System.Drawing;
 using System.Runtime.InteropServices;
 
 namespace Gooseberry.ExcelStreaming.Styles;
 
 [StructLayout(LayoutKind.Auto)]
-public readonly record struct Fill(Color? Color = null, FillPattern Pattern = FillPattern.Solid);
+public readonly record struct Fill(Color? Color = null, FillPattern Pattern = default);

@@ -21,23 +21,24 @@ public class ExcelWriterVersionsBenchmarks
 
             AddJob(Job.Default.WithNuGet(new NuGetReferenceList()
             {
-                new NuGetReference("Gooseberry.ExcelStreaming", "1.4.0"),
+                new NuGetReference("Gooseberry.ExcelStreaming", "1.5.0"),
             }));
         }
     }
+
+    [Params(100, 1000, 10_000, 100_000, 500_000)]
+    public int RowsCount { get; set; }
 
     private const int ColumnBatchesCount = 10;
 
     [Benchmark]
     public async Task ExcelWriter_WithEscaping()
     {
-        await using var outputStream = Stream.Null;
-
-        await using var writer = new ExcelWriter(outputStream);
+        await using var writer = new ExcelWriter(Stream.Null);
 
         await writer.StartSheet("test");
 
-        for (var row = 0; row < 100_000; row++)
+        for (var row = 0; row < RowsCount; row++)
         {
             await writer.StartRow();
 
@@ -60,13 +61,11 @@ public class ExcelWriterVersionsBenchmarks
     [Benchmark]
     public async Task ExcelWriter_WithoutEscaping()
     {
-        await using var outputStream = Stream.Null;
-
-        await using var writer = new ExcelWriter(outputStream);
+        await using var writer = new ExcelWriter(Stream.Null);
 
         await writer.StartSheet("test");
 
-        for (var row = 0; row < 100_000; row++)
+        for (var row = 0; row < RowsCount; row++)
         {
             await writer.StartRow();
 
@@ -89,13 +88,11 @@ public class ExcelWriterVersionsBenchmarks
     [Benchmark]
     public async Task ExcelWriter_WithEscaping_Utf8()
     {
-        await using var outputStream = Stream.Null;
-
-        await using var writer = new ExcelWriter(outputStream);
+        await using var writer = new ExcelWriter(Stream.Null);
 
         await writer.StartSheet("test");
 
-        for (var row = 0; row < 100_000; row++)
+        for (var row = 0; row < RowsCount; row++)
         {
             await writer.StartRow();
 
@@ -118,13 +115,11 @@ public class ExcelWriterVersionsBenchmarks
     [Benchmark]
     public async Task ExcelWriter_WithoutEscaping_Utf8()
     {
-        await using var outputStream = Stream.Null;
-
-        await using var writer = new ExcelWriter(outputStream);
+        await using var writer = new ExcelWriter(Stream.Null);
 
         await writer.StartSheet("test");
 
-        for (var row = 0; row < 100_000; row++)
+        for (var row = 0; row < RowsCount; row++)
         {
             await writer.StartRow();
 

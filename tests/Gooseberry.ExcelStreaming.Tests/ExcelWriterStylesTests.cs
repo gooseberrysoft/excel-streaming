@@ -31,10 +31,10 @@ public sealed class ExcelWriterStylesTests
             Format: "General",
             Font: new Font(Size: 11, Name: "test", Color: Color.Black, Bold: true, Italic: true, Strike: true, Underline: Underline.Single),
             Borders: new Borders(
-                left: new Border(Style: BorderStyle.Thin, Color: Color.Gray),
-                right: new Border(Style: BorderStyle.Thin, Color: Color.Gray),
-                top: new Border(Style: BorderStyle.Thin, Color: Color.Gray),
-                bottom: new Border(Style: BorderStyle.Thin, Color: Color.Gray)),
+                Left: new Border(Style: BorderStyle.Thin, Color: Color.Gray),
+                Right: new Border(Style: BorderStyle.Thin, Color: Color.Gray),
+                Top: new Border(Style: BorderStyle.Thin, Color: Color.Gray),
+                Bottom: new Border(Style: BorderStyle.Thin, Color: Color.Gray)),
             Fill: new Fill(Pattern: FillPattern.Solid, Color: Color.Aqua),
             Alignment: new Alignment(Horizontal: HorizontalAlignment.Center, Vertical: VerticalAlignment.Top, WrapText: true));
 
@@ -74,7 +74,7 @@ public sealed class ExcelWriterStylesTests
                     new Cell("1", CellValueType.Number, style),
                     new Cell("2", CellValueType.Number, style),
                     new Cell("3.55", CellValueType.Number, style),
-                    new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), style: style),
+                    new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), Style: style),
                     new Cell("", CellValueType.String, style)
                 })
             });

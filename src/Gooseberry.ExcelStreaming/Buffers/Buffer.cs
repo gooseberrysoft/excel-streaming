@@ -4,12 +4,14 @@ using System.Runtime.CompilerServices;
 // ReSharper disable once CheckNamespace
 namespace Gooseberry.ExcelStreaming;
 
-internal sealed class Buffer : IDisposable
+internal sealed class Buffer : IMemoryOwner<byte>
 {
     public const int MinSize = 24;
 
-    private readonly byte[] _buffer;
+    private byte[] _buffer;
     private int _bufferIndex = 0;
+
+    public static readonly Buffer Empty = new();
 
     public Buffer(int size)
     {
@@ -18,6 +20,15 @@ internal sealed class Buffer : IDisposable
 
         _buffer = ArrayPool<byte>.Shared.Rent(size);
     }
+
+    private Buffer()
+        => _buffer = Array.Empty<byte>();
+
+    public bool IsEmpty => _buffer.Length == 0;
+
+    public Memory<byte> Memory => _buffer.AsMemory(0, _bufferIndex);
+
+    public ReadOnlySpan<byte> WrittenSpan => _buffer.AsSpan(0, _bufferIndex);
 
     public int RemainingCapacity
         => _buffer.Length - _bufferIndex;
@@ -42,20 +53,13 @@ internal sealed class Buffer : IDisposable
         _bufferIndex += count;
     }
 
-    public ValueTask FlushTo(Stream stream, CancellationToken token)
-    {
-        var buffer = _buffer.AsMemory(0, _bufferIndex);
-        _bufferIndex = 0;
-
-        return stream.WriteAsync(buffer, token);
-    }
-
-    public void FlushTo(Span<byte> span)
-    {
-        _buffer.AsSpan(0, _bufferIndex).CopyTo(span);
-        _bufferIndex = 0;
-    }
-
     public void Dispose()
-        => ArrayPool<byte>.Shared.Return(_buffer);
+    {
+        if (_buffer.Length == 0)
+            return;
+
+        ArrayPool<byte>.Shared.Return(_buffer);
+        _buffer = Array.Empty<byte>();
+        _bufferIndex = 0;
+    }
 }

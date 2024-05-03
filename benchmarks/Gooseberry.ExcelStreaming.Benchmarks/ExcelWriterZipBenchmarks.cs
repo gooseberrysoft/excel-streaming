@@ -15,9 +15,7 @@ public class ExcelWriterZipBenchmarks
     [Benchmark]
     public async Task DefaultZip()
     {
-        await using var outputStream = Stream.Null;
-
-        await using var writer = new ExcelWriter(new DefaultZipArchive(outputStream, CompressionLevel.Optimal));
+        await using var writer = new ExcelWriter(new DefaultZipArchive(Stream.Null, CompressionLevel.Optimal));
 
         await writer.StartSheet("test");
 
@@ -71,9 +69,7 @@ public class ExcelWriterZipBenchmarks
     [Benchmark]
     public async Task SharpZipLib()
     {
-        await using var outputStream = Stream.Null;
-
-        await using var writer = new ExcelWriter(new SharpZipLibArchive(outputStream));
+        await using var writer = new ExcelWriter(new SharpZipLibArchive(Stream.Null));
 
         await writer.StartSheet("test");
 
@@ -100,9 +96,7 @@ public class ExcelWriterZipBenchmarks
     [Benchmark]
     public async Task SharpCompressLib()
     {
-        await using var outputStream = Stream.Null;
-
-        await using var writer = new ExcelWriter(new SharpCompressZipArchive(outputStream));
+        await using var writer = new ExcelWriter(new SharpCompressZipArchive(Stream.Null));
 
         await writer.StartSheet("test");
 
@@ -134,7 +128,7 @@ public class ExcelWriterZipBenchmarks
 
         public Stream CreateEntry(string entryPath)
         {
-           return Stream.Null;
+            return Stream.Null;
         }
     }
 }

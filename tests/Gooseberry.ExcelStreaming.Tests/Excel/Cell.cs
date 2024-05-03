@@ -4,18 +4,4 @@ using Gooseberry.ExcelStreaming.Styles;
 namespace Gooseberry.ExcelStreaming.Tests.Excel;
 
 [StructLayout(LayoutKind.Auto)]
-public readonly struct Cell
-{
-    public Cell(string value, CellValueType? type = null, Style? style = null)
-    {
-        Value = value;
-        Type = type;
-        Style = style;
-    }
-
-    public string Value { get; }
-
-    public CellValueType? Type { get; }
-
-    public Style? Style { get; }
-}
+public readonly record struct Cell(string Value, CellValueType? Type = null, Style? Style = null);

@@ -37,13 +37,13 @@ internal sealed class SharedStringKeeper : IDisposable
         return reference;
     }
 
-    internal ValueTask WriteTo(Stream stream, CancellationToken token)
+    internal ValueTask WriteTo(IArchiveWriter archive, string entryPath)
     {
         if (_buffer == null)
-            return stream.WriteAsync(Constants.SharedStringTable.EmptyTable, token);
+            return archive.WriteEntry(entryPath, Constants.SharedStringTable.EmptyTable);
 
         DataWriters.SharedStringWriter.WritePostfix(_buffer);
-        return _buffer.FlushAll(stream, token);
+        return _buffer.FlushAll(archive.CreateEntry(entryPath));
     }
 
     public void Dispose()

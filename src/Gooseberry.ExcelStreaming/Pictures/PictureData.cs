@@ -19,16 +19,15 @@ internal readonly struct PictureData
         _memory = memory;
     }
 
-    public async Task WriteTo(Stream stream, CancellationToken token)
+    public async Task WriteTo(IArchiveWriter archive, string entryPath)
     {
         if (_stream is not null)
         {
-            await _stream.CopyToAsync(stream, token);
-            _stream.Position = 0;
+            await archive.WriteEntry(entryPath, _stream);
         }
         else if (_memory is not null)
         {
-            await stream.WriteAsync(_memory.Value, token);
+            await archive.WriteEntry(entryPath, _memory.Value);
         }
     }
 

@@ -1,3 +1,4 @@
+using System.Drawing;
 using System.Runtime.InteropServices;
 
 namespace Gooseberry.ExcelStreaming.Styles;
@@ -10,4 +11,4 @@ public readonly record struct Font(
     bool Bold = false,
     bool Italic = false,
     bool Strike = false,
-    Underline Underline = Underline.None);
+    Underline Underline = default);

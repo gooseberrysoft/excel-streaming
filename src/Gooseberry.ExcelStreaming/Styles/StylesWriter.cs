@@ -11,7 +11,7 @@ internal sealed class StylesWriter : IDisposable
 
     public StylesWriter()
     {
-        _buffer = new BuffersChain(bufferSize: 8 * 1024, flushThreshold: 1.0);
+        _buffer = new BuffersChain(bufferSize: 16 * 1024, flushThreshold: 1.0);
         _encoder = Encoding.UTF8.GetEncoder();
 
         Constants.XmlPrefix.WriteTo(_buffer);
@@ -51,13 +51,13 @@ internal sealed class StylesWriter : IDisposable
             Constants.Styles.Fills.Item.Prefix.WriteTo(_buffer, ref span, ref written);
 
             Constants.Styles.Fills.Item.Pattern.Prefix.WriteTo(_buffer, ref span, ref written);
-            fill.Pattern.ToString().ToLower().WriteTo(_buffer, _encoder, ref span, ref written);
+            fill.Pattern.Value.WriteTo(_buffer, ref span, ref written);
             Constants.Styles.Fills.Item.Pattern.Medium.WriteTo(_buffer, ref span, ref written);
 
             if (fill.Color.HasValue)
             {
                 Constants.Styles.Fills.Item.Pattern.Color.Prefix.WriteTo(_buffer, ref span, ref written);
-                fill.Color.Value.ToString().WriteTo(_buffer, _encoder, ref span, ref written);
+                fill.Color.Value.ToArgb().WriteHex8To(_buffer, ref span, ref written);
                 Constants.Styles.Fills.Item.Pattern.Color.Postfix.WriteTo(_buffer, ref span, ref written);
             }
 
@@ -141,14 +141,14 @@ internal sealed class StylesWriter : IDisposable
         if (alignment.Horizontal.HasValue)
         {
             Constants.Styles.CellStyles.Item.Open.Alignment.Horizontal.Prefix.WriteTo(_buffer, ref span, ref written);
-            alignment.Horizontal.Value.ToString().ToLower().WriteTo(_buffer, _encoder, ref span, ref written);
+            alignment.Horizontal.Value.Value.WriteTo(_buffer, ref span, ref written);
             Constants.Styles.CellStyles.Item.Open.Alignment.Horizontal.Postfix.WriteTo(_buffer, ref span, ref written);
         }
 
         if (alignment.Vertical.HasValue)
         {
             Constants.Styles.CellStyles.Item.Open.Alignment.Vertical.Prefix.WriteTo(_buffer, ref span, ref written);
-            alignment.Vertical.Value.ToString().ToLower().WriteTo(_buffer, _encoder, ref span, ref written);
+            alignment.Vertical.Value.Value.WriteTo(_buffer, ref span, ref written);
             Constants.Styles.CellStyles.Item.Open.Alignment.Vertical.Postfix.WriteTo(_buffer, ref span, ref written);
         }
 
@@ -183,7 +183,7 @@ internal sealed class StylesWriter : IDisposable
             if (font.Color.HasValue)
             {
                 Constants.Styles.Fonts.Item.Color.Prefix.WriteTo(_buffer, ref span, ref written);
-                font.Color.Value.ToString().WriteTo(_buffer, _encoder, ref span, ref written);
+                font.Color.Value.ToArgb().WriteHex8To(_buffer, ref span, ref written);
                 Constants.Styles.Fonts.Item.Color.Postfix.WriteTo(_buffer, ref span, ref written);
             }
 
@@ -197,7 +197,7 @@ internal sealed class StylesWriter : IDisposable
                 Constants.Styles.Fonts.Item.Strike.WriteTo(_buffer, ref span, ref written);
 
             Constants.Styles.Fonts.Item.Underline.Prefix.WriteTo(_buffer, ref span, ref written);
-            font.Underline.ToString().ToLower().WriteTo(_buffer, _encoder, ref span, ref written);
+            font.Underline.Value.WriteTo(_buffer, ref span, ref written);
             Constants.Styles.Fonts.Item.Underline.Postfix.WriteTo(_buffer, ref span, ref written);
 
             Constants.Styles.Fonts.Item.Postfix.WriteTo(_buffer, ref span, ref written);
@@ -293,13 +293,13 @@ internal sealed class StylesWriter : IDisposable
         prefix.WriteTo(_buffer, ref span, ref written);
 
         Constants.Styles.Borders.Style.Prefix.WriteTo(_buffer, ref span, ref written);
-        border.Value.Style.ToString().ToLower().WriteTo(_buffer, _encoder, ref span, ref written);
+        border.Value.Style.Value.WriteTo(_buffer, ref span, ref written);
         Constants.Styles.Borders.Style.Postfix.WriteTo(_buffer, ref span, ref written);
 
         middle.WriteTo(_buffer, ref span, ref written);
 
         Constants.Styles.Borders.Color.Prefix.WriteTo(_buffer, ref span, ref written);
-        border.Value.Color.ToString().WriteTo(_buffer, _encoder, ref span, ref written);
+        border.Value.Color.ToArgb().WriteHex8To(_buffer, ref span, ref written);
         Constants.Styles.Borders.Color.Postfix.WriteTo(_buffer, ref span, ref written);
 
         postfix.WriteTo(_buffer, ref span, ref written);

@@ -22,6 +22,6 @@ public sealed class StylesSheet
 
     internal StyleReference DefaultHyperlinkStyle { get; }
 
-    internal ValueTask WriteTo(Stream stream)
-        => stream.WriteAsync(_preparedData);
+    internal ValueTask WriteTo(IArchiveWriter archive, string entryPath)
+        => archive.WriteEntry(entryPath, _preparedData);
 }
