@@ -54,7 +54,7 @@ public sealed class ExcelWriter : IAsyncDisposable
         _encoder = Encoding.UTF8.GetEncoder();
         _sharedStringKeeper = new SharedStringKeeper(sharedStringTable, _encoder);
 
-        _buffer = new BuffersChain(DefaultSheetBufferSize, Constants.DefaultBufferFlushThreshold);
+        _buffer = new BuffersChain(DefaultSheetBufferSize);
     }
 
     public async ValueTask StartSheet(string name, SheetConfiguration? configuration = null)
@@ -303,9 +303,8 @@ public sealed class ExcelWriter : IAsyncDisposable
 
         DataWriters.SheetWriter.WriteEndSheet(_buffer, _encoder, drawing, _merges, _hyperlinks);
 
-        await _buffer.FlushAll(_sheetWriter!);
+        await _buffer.FlushAll(_sheetWriter!, DefaultBufferSize);
         _sheetWriter = null;
-        _buffer.SetBufferSize(DefaultBufferSize);
 
         await AddSheetRelationships(sheet.Id);
 
@@ -337,21 +336,21 @@ public sealed class ExcelWriter : IAsyncDisposable
     {
         DataWriters.WorkbookWriter.Write(_sheets, _buffer, _encoder);
 
-        return _buffer.FlushAll(_archiveWriter.CreateEntry("xl/workbook.xml"));
+        return _buffer.FlushAll(_archiveWriter.CreateEntry("xl/workbook.xml"), DefaultBufferSize);
     }
 
     private ValueTask AddContentTypes()
     {
         DataWriters.ContentTypesWriter.Write(_sheets, _sheetDrawings, _buffer, _encoder);
 
-        return _buffer.FlushAll(_archiveWriter.CreateEntry("[Content_Types].xml"));
+        return _buffer.FlushAll(_archiveWriter.CreateEntry("[Content_Types].xml"), DefaultBufferSize);
     }
 
     private ValueTask AddWorkbookRelationships()
     {
         DataWriters.WorkbookRelationshipsWriter.Write(_sheets, _buffer, _encoder);
 
-        return _buffer.FlushAll(_archiveWriter.CreateEntry("xl/_rels/workbook.xml.rels"));
+        return _buffer.FlushAll(_archiveWriter.CreateEntry("xl/_rels/workbook.xml.rels"), DefaultBufferSize);
     }
 
     private ValueTask AddStyles()
@@ -364,7 +363,7 @@ public sealed class ExcelWriter : IAsyncDisposable
     {
         DataWriters.RelationshipsWriter.Write(_buffer);
 
-        return _buffer.FlushAll(_archiveWriter.CreateEntry("_rels/.rels"));
+        return _buffer.FlushAll(_archiveWriter.CreateEntry("_rels/.rels"), DefaultBufferSize);
     }
 
     private ValueTask AddDrawingRelationships(int sheetId)
@@ -376,7 +375,7 @@ public sealed class ExcelWriter : IAsyncDisposable
 
         DataWriters.DrawingRelationshipsWriter.Write(drawing, _buffer, _encoder);
 
-        return _buffer.FlushAll(_archiveWriter.CreateEntry(PathResolver.GetDrawingRelationshipsFullPath(drawing)));
+        return _buffer.FlushAll(_archiveWriter.CreateEntry(PathResolver.GetDrawingRelationshipsFullPath(drawing)), DefaultBufferSize);
     }
 
     private ValueTask AddDrawing(int sheetId)
@@ -388,7 +387,7 @@ public sealed class ExcelWriter : IAsyncDisposable
 
         DataWriters.DrawingWriter.Write(drawing, _buffer, _encoder);
 
-        return _buffer.FlushAll(_archiveWriter.CreateEntry(PathResolver.GetDrawingFullPath(drawing)));
+        return _buffer.FlushAll(_archiveWriter.CreateEntry(PathResolver.GetDrawingFullPath(drawing)), DefaultBufferSize);
     }
 
     private ValueTask AddSheetRelationships(int sheetId)
@@ -396,7 +395,7 @@ public sealed class ExcelWriter : IAsyncDisposable
         var drawing = _sheetDrawings.Get(sheetId);
         DataWriters.SheetRelationshipsWriter.Write(_hyperlinks.Keys, drawing, _buffer, _encoder);
 
-        return _buffer.FlushAll(_archiveWriter.CreateEntry(PathResolver.GetSheetRelationshipsFullPath(sheetId)));
+        return _buffer.FlushAll(_archiveWriter.CreateEntry(PathResolver.GetSheetRelationshipsFullPath(sheetId)), DefaultBufferSize);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

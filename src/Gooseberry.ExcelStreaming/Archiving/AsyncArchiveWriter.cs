@@ -1,4 +1,3 @@
-using System.Buffers;
 using System.Threading.Channels;
 
 // ReSharper disable once CheckNamespace
@@ -12,7 +11,7 @@ internal sealed class AsyncArchiveWriter : IArchiveWriter
     private readonly CancellationToken _token;
     private Stream? _currentEntry;
 
-    public AsyncArchiveWriter(IZipArchive zipArchive, CancellationToken token, int capacity = 16)
+    public AsyncArchiveWriter(IZipArchive zipArchive, CancellationToken token, int capacity = 1)
     {
         _zipArchive = zipArchive;
         _token = token;
@@ -78,7 +77,7 @@ internal sealed class AsyncArchiveWriter : IArchiveWriter
     {
         private bool _created;
 
-        public async ValueTask Write(IMemoryOwner<byte> buffer)
+        public async ValueTask Write(MemoryOwner buffer)
         {
             if (_created)
             {
@@ -95,16 +94,16 @@ internal sealed class AsyncArchiveWriter : IArchiveWriter
     private readonly struct Action : IDisposable
     {
         private readonly string? _entryPath;
-        private readonly IMemoryOwner<byte>? _memoryOwner;
+        private readonly MemoryOwner? _memoryOwner;
         private readonly Stream? _stream;
         private readonly ReadOnlyMemory<byte>? _memory;
 
-        public Action(string entryPath, IMemoryOwner<byte> memoryOwner)
+        public Action(string entryPath, MemoryOwner memoryOwner)
             : this(entryPath, memoryOwner, null, null)
         {
         }
 
-        public Action(IMemoryOwner<byte> memoryOwner)
+        public Action(MemoryOwner memoryOwner)
             : this(null, memoryOwner, null, null)
         {
         }
@@ -119,7 +118,7 @@ internal sealed class AsyncArchiveWriter : IArchiveWriter
         {
         }
 
-        private Action(string? entryPath, IMemoryOwner<byte>? memoryOwner, Stream? stream, ReadOnlyMemory<byte>? memory)
+        private Action(string? entryPath, MemoryOwner? memoryOwner, Stream? stream, ReadOnlyMemory<byte>? memory)
         {
             _entryPath = entryPath;
             _memoryOwner = memoryOwner;
@@ -131,7 +130,7 @@ internal sealed class AsyncArchiveWriter : IArchiveWriter
         {
             if (_entryPath == null)
             {
-                await currentEntry!.WriteAsync(_memoryOwner!.Memory, token);
+                await currentEntry!.WriteAsync(_memoryOwner!.Value.Memory, token);
                 return currentEntry;
             }
 
@@ -140,7 +139,7 @@ internal sealed class AsyncArchiveWriter : IArchiveWriter
 
             if (_memoryOwner != null)
             {
-                await newEntry!.WriteAsync(_memoryOwner!.Memory, token);
+                await newEntry!.WriteAsync(_memoryOwner.Value.Memory, token);
             }
             else if (_memory != null)
             {

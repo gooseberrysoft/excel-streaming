@@ -6,27 +6,24 @@ namespace Gooseberry.ExcelStreaming;
 internal sealed class BuffersChain : IDisposable
 {
     private const int MaxBufferSize = 1024 * 1024;
-    private int _bufferSize;
-    private readonly double _flushThreshold;
+    private const int MaxRemainingBytes = 4 * 1024;
 
-    private readonly Queue<Buffer> _completedBuffers = new(2);
+    private int _bufferSize;
+    private int _maxBytesPerFlush = 24;
+    private int _prevWritten = 0;
+
+    private readonly Queue<Buffer> _completedBuffers = new();
     private Buffer _currentBuffer;
 
-    public BuffersChain(int bufferSize, double flushThreshold)
+    public BuffersChain(int initialBufferSize)
     {
-        if (flushThreshold is <= 0 or > 1.0)
-            throw new ArgumentOutOfRangeException(nameof(flushThreshold),
-                "Flush threshold should be in range (0..1].");
+        _bufferSize = initialBufferSize;
 
-        _bufferSize = bufferSize;
-        _flushThreshold = flushThreshold;
-
-        var buffer = new Buffer(_bufferSize);
-        _currentBuffer = buffer;
+        _currentBuffer = new Buffer(_bufferSize);
     }
 
     public void SetBufferSize(int size)
-        => _bufferSize = size;
+        => _bufferSize = Math.Max(size, Buffer.MinSize);
 
     public int Written
     {
@@ -65,28 +62,37 @@ internal sealed class BuffersChain : IDisposable
 
     public async ValueTask FlushCompleted(IEntryWriter output)
     {
+        var written = Written;
+
+        _maxBytesPerFlush = Math.Max(written - _prevWritten, (int)(_maxBytesPerFlush * 0.98));
+
         while (_completedBuffers.Count > 0)
-            await output.Write(_completedBuffers.Dequeue());
-
-        if (_currentBuffer.Saturation >= _flushThreshold)
         {
-            if (!_currentBuffer.IsEmpty)
-                await output.Write(_currentBuffer);
-
-            _bufferSize = Math.Min(MaxBufferSize, _bufferSize * 2);
-            _currentBuffer = new Buffer(_bufferSize);
+            using var buffer = _completedBuffers.Dequeue();
+            await buffer.Flush(output, newSize: 0);
         }
+
+        if (_currentBuffer.RemainingCapacity <= Math.Min((int)(_maxBytesPerFlush * 1.1), MaxRemainingBytes))
+        {
+            _bufferSize = Math.Min(MaxBufferSize, _bufferSize * 2);
+
+            await _currentBuffer.Flush(output, newSize: _bufferSize);
+        }
+
+        _prevWritten = written;
     }
 
-    public async ValueTask FlushAll(IEntryWriter output)
+    public async ValueTask FlushAll(IEntryWriter output, int nextBufferSize)
     {
         while (_completedBuffers.Count > 0)
-            await output.Write(_completedBuffers.Dequeue());
+        {
+            using var buffer = _completedBuffers.Dequeue();
+            await buffer.Flush(output, newSize: 0);
+        }
 
-        if (!_currentBuffer.IsEmpty)
-            await output.Write(_currentBuffer);
+        _bufferSize = Math.Max(nextBufferSize, Buffer.MinSize);
 
-        _currentBuffer = Buffer.Empty;
+        await _currentBuffer.Flush(output, newSize: nextBufferSize);
     }
 
     public void FlushAll(Span<byte> span)
@@ -100,16 +106,12 @@ internal sealed class BuffersChain : IDisposable
         {
             using var buffer = _completedBuffers.Dequeue();
             var chunk = span.Slice(currentPosition, buffer.Written);
-            buffer.WrittenSpan.CopyTo(chunk);
+            buffer.Flush(chunk);
             currentPosition += chunk.Length;
         }
 
         if (!_currentBuffer.IsEmpty)
-        {
-            _currentBuffer.WrittenSpan.CopyTo(span.Slice(currentPosition, _currentBuffer.Written));
-            _currentBuffer.Dispose();
-            _currentBuffer = Buffer.Empty;
-        }
+            _currentBuffer.Flush(span.Slice(currentPosition, _currentBuffer.Written));
     }
 
     public void Dispose()

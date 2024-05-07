@@ -8,7 +8,7 @@ namespace Gooseberry.ExcelStreaming.Tests;
 
 public sealed class ExcelFilesGenerator
 {
-    private const string skip ="Null me for manual run";
+    private const string? skip = "Null me for manual run";
     const string BasePath = "c:\\temp\\excelWriter\\";
 
     private static readonly Stream Picture = Assembly.GetExecutingAssembly().GetManifestResourceStream(
@@ -59,7 +59,7 @@ public sealed class ExcelFilesGenerator
         {
             await writer.StartSheet($"test#{sheetIndex}");
 
-            for (var row = 0; row < 10_000; row++)
+            for (var row = 0; row < 100_000; row++)
             {
                 await writer.StartRow();
 

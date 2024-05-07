@@ -61,7 +61,7 @@ internal sealed class SyncArchiveWriter : IArchiveWriter
         private bool _created;
         private Stream? _entry;
 
-        public async ValueTask Write(IMemoryOwner<byte> buffer)
+        public async ValueTask Write(MemoryOwner buffer)
         {
             using (buffer)
             {
