@@ -2,14 +2,16 @@
 
     <PropertyGroup>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>        
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
 
-    <ItemGroup>
-      <None Remove="Gooseberry.ExcelStreaming.csproj.DotSettings" />
-    </ItemGroup>
-    
-    <ItemGroup>
+	<ItemGroup>
+		<None Include="..\..\README.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
+
+
+	<ItemGroup>
         <InternalsVisibleTo Include="Gooseberry.ExcelStreaming.Tests" />
         <InternalsVisibleTo Include="Gooseberry.ExcelStreaming.Benchmarks" />
     </ItemGroup>
