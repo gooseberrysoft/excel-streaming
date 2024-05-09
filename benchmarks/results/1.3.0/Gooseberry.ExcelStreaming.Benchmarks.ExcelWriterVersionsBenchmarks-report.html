@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
 <meta charset='utf-8' />
-<title>Gooseberry.ExcelStreaming.Benchmarks.ExcelWriterVersionsBenchmarks-20240505-091519</title>
+<title>Gooseberry.ExcelStreaming.Benchmarks.ExcelWriterVersionsBenchmarks-20240509-224545</title>
 
 <style type="text/css">
 	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
@@ -22,23 +22,14 @@ BenchmarkDotNet v0.13.12, Windows 10 (10.0.19045.4291/22H2/2022Update)
 <pre><code></code></pre>
 
 <table>
-<thead><tr><th>Method               </th><th>RowsCount</th><th>Mean    </th><th>Error </th><th>StdDev</th><th>Version</th><th>Gen0</th><th>Allocated</th>
+<thead><tr><th>Method            </th><th>RowsCount</th><th>Mean   </th><th>Error</th><th>StdDev</th><th>Version</th><th>Allocated</th>
 </tr>
-</thead><tbody><tr><td>ExcelWriter_RealWorldReport</td><td>100</td><td>373.9 &mu;s</td><td>6.29 &mu;s</td><td>5.88 &mu;s</td><td>1.3.0</td><td>0.9766</td><td>8.85 KB</td>
-</tr><tr><td>ExcelWriter_WithoutEscaping</td><td>100</td><td>1,806.7 &mu;s</td><td>26.05 &mu;s</td><td>24.37 &mu;s</td><td>1.3.0</td><td>-</td><td>8.99 KB</td>
-</tr><tr><td>ExcelWriter_WithEscaping</td><td>100</td><td>1,897.2 &mu;s</td><td>36.57 &mu;s</td><td>34.20 &mu;s</td><td>1.3.0</td><td>-</td><td>8.99 KB</td>
-</tr><tr><td>ExcelWriter_RealWorldReport</td><td>1000</td><td>3,372.8 &mu;s</td><td>40.70 &mu;s</td><td>33.99 &mu;s</td><td>1.3.0</td><td>-</td><td>8.86 KB</td>
-</tr><tr><td>ExcelWriter_WithoutEscaping</td><td>1000</td><td>16,434.0 &mu;s</td><td>258.77 &mu;s</td><td>242.05 &mu;s</td><td>1.3.0</td><td>-</td><td>9.01 KB</td>
-</tr><tr><td>ExcelWriter_WithEscaping</td><td>1000</td><td>17,082.3 &mu;s</td><td>168.77 &mu;s</td><td>140.93 &mu;s</td><td>1.3.0</td><td>-</td><td>9.01 KB</td>
-</tr><tr><td>ExcelWriter_RealWorldReport</td><td>10000</td><td>31,980.2 &mu;s</td><td>443.98 &mu;s</td><td>370.74 &mu;s</td><td>1.3.0</td><td>-</td><td>8.9 KB</td>
-</tr><tr><td>ExcelWriter_WithoutEscaping</td><td>10000</td><td>162,550.0 &mu;s</td><td>1,680.26 &mu;s</td><td>1,489.51 &mu;s</td><td>1.3.0</td><td>-</td><td>9.22 KB</td>
-</tr><tr><td>ExcelWriter_WithEscaping</td><td>10000</td><td>169,705.7 &mu;s</td><td>1,923.78 &mu;s</td><td>1,799.50 &mu;s</td><td>1.3.0</td><td>-</td><td>9.22 KB</td>
-</tr><tr><td>ExcelWriter_RealWorldReport</td><td>100000</td><td>311,851.3 &mu;s</td><td>2,257.40 &mu;s</td><td>2,001.13 &mu;s</td><td>1.3.0</td><td>-</td><td>9.62 KB</td>
-</tr><tr><td>ExcelWriter_RealWorldReport</td><td>500000</td><td>1,551,753.2 &mu;s</td><td>5,599.00 &mu;s</td><td>4,371.33 &mu;s</td><td>1.3.0</td><td>-</td><td>9.62 KB</td>
-</tr><tr><td>ExcelWriter_WithoutEscaping</td><td>100000</td><td>1,608,105.3 &mu;s</td><td>6,010.26 &mu;s</td><td>5,018.84 &mu;s</td><td>1.3.0</td><td>-</td><td>9.75 KB</td>
-</tr><tr><td>ExcelWriter_WithEscaping</td><td>100000</td><td>1,675,903.5 &mu;s</td><td>10,013.96 &mu;s</td><td>7,818.24 &mu;s</td><td>1.3.0</td><td>-</td><td>9.75 KB</td>
-</tr><tr><td>ExcelWriter_WithoutEscaping</td><td>500000</td><td>7,858,517.2 &mu;s</td><td>40,653.12 &mu;s</td><td>36,037.93 &mu;s</td><td>1.3.0</td><td>-</td><td>9.75 KB</td>
-</tr><tr><td>ExcelWriter_WithEscaping</td><td>500000</td><td>8,475,834.5 &mu;s</td><td>51,801.36 &mu;s</td><td>48,455.02 &mu;s</td><td>1.3.0</td><td>-</td><td>9.75 KB</td>
+</thead><tbody><tr><td>ExcelWriter_WithEscaping</td><td>100</td><td>2.023 ms</td><td>0.0402 ms</td><td>0.0508 ms</td><td>1.3.0</td><td>8.99 KB</td>
+</tr><tr><td>ExcelWriter_WithEscaping</td><td>1000</td><td>17.450 ms</td><td>0.2556 ms</td><td>0.2390 ms</td><td>1.3.0</td><td>9.01 KB</td>
+</tr><tr><td>ExcelWriter_WithEscaping</td><td>10000</td><td>168.661 ms</td><td>1.0603 ms</td><td>0.9400 ms</td><td>1.3.0</td><td>9.22 KB</td>
+</tr><tr><td>ExcelWriter_WithEscaping</td><td>100000</td><td>1,690.950 ms</td><td>11.8483 ms</td><td>10.5032 ms</td><td>1.3.0</td><td>9.75 KB</td>
+</tr><tr><td>ExcelWriter_WithEscaping</td><td>500000</td><td>8,364.383 ms</td><td>115.4255 ms</td><td>96.3855 ms</td><td>1.3.0</td><td>9.75 KB</td>
+</tr><tr><td>ExcelWriter_WithEscaping</td><td>1000000</td><td>16,534.636 ms</td><td>140.1426 ms</td><td>131.0895 ms</td><td>1.3.0</td><td>9.75 KB</td>
 </tr></tbody></table>
 </body>
 </html>
