@@ -36,8 +36,9 @@ public class ExcelWriterBenchmarks
                 writer.AddCell(row);
                 writer.AddCell(DateTime.Now.Ticks);
                 writer.AddCell(DateTime.Now);
-                writer.AddCell("some text");
-                writer.AddCell("some text with <tag> & \"quote\"'s");
+                writer.AddUtf8Cell("some text"u8);
+                writer.AddUtf8Cell("some text with <tag> & \"quote\"'s"u8);
+                writer.AddCell(102456.7655M);
             }
         }
 
@@ -80,8 +81,8 @@ public class ExcelWriterBenchmarks
         var stringCellAttributes = new[] { new OpenXmlAttribute("t", "", "str") };
         var dateTimeCellAttributes = new[] { new OpenXmlAttribute("t", "", "d") };
 
-        var intCell = new Cell();
-        var intCellValue = new CellValue();
+        var numberCell = new Cell();
+        var numberCellValue = new CellValue();
 
         var longCell = new Cell();
         var longCellValue = new CellValue();
@@ -100,9 +101,9 @@ public class ExcelWriterBenchmarks
 
             for (var columnBatch = 0; columnBatch < ColumnBatchesCount; columnBatch++)
             {
-                writer.WriteStartElement(intCell, numCellAttributes);
-                intCellValue.Text = row.ToString();
-                writer.WriteElement(intCellValue);
+                writer.WriteStartElement(numberCell, numCellAttributes);
+                numberCellValue.Text = row.ToString();
+                writer.WriteElement(numberCellValue);
                 writer.WriteEndElement();
 
                 writer.WriteStartElement(longCell, numCellAttributes);
@@ -124,6 +125,13 @@ public class ExcelWriterBenchmarks
                 stringCellValue.Text = "some text with <tag> & \"quote\"'s";
                 writer.WriteElement(stringCellValue);
                 writer.WriteEndElement();
+
+                writer.WriteStartElement(numberCell, numCellAttributes);
+                numberCellValue.Text = 102456.7655M.ToString();
+                writer.WriteElement(numberCellValue);
+                writer.WriteEndElement();
+
+
             }
 
             // this is for Row

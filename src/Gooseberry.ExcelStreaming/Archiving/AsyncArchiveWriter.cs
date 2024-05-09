@@ -89,6 +89,19 @@ internal sealed class AsyncArchiveWriter : IArchiveWriter
                 await writer._channel.Writer.WriteAsync(new Action(entryPath, buffer), writer._token);
             }
         }
+
+        public async ValueTask Write(ReadOnlyMemory<byte> buffer)
+        {
+            if (_created)
+            {
+                await writer._channel.Writer.WriteAsync(new Action(buffer), writer._token);
+            }
+            else
+            {
+                _created = true;
+                await writer._channel.Writer.WriteAsync(new Action(entryPath, buffer), writer._token);
+            }
+        }
     }
 
     private readonly struct Action : IDisposable
@@ -105,6 +118,11 @@ internal sealed class AsyncArchiveWriter : IArchiveWriter
 
         public Action(MemoryOwner memoryOwner)
             : this(null, memoryOwner, null, null)
+        {
+        }
+
+        public Action(ReadOnlyMemory<byte> memory)
+            : this(null, null, null, memory)
         {
         }
 
@@ -130,7 +148,11 @@ internal sealed class AsyncArchiveWriter : IArchiveWriter
         {
             if (_entryPath == null)
             {
-                await currentEntry!.WriteAsync(_memoryOwner!.Value.Memory, token);
+                if (_memory != null)
+                    await currentEntry!.WriteAsync(_memory.Value, token);
+                else
+                    await currentEntry!.WriteAsync(_memoryOwner!.Value.Memory, token);
+
                 return currentEntry;
             }
 

@@ -3,10 +3,10 @@ using System.Buffers;
 // ReSharper disable once CheckNamespace
 namespace Gooseberry.ExcelStreaming;
 
-internal readonly struct MemoryOwner(byte[] pooledArray, int length) : IDisposable
+internal readonly struct MemoryOwner(ReadOnlyMemory<byte> memory, byte[] underlyingArray) : IDisposable
 {
-    public ReadOnlyMemory<byte> Memory => pooledArray.AsMemory(0, length);
+    public ReadOnlyMemory<byte> Memory => memory;
 
-    public void Dispose() 
-        => ArrayPool<byte>.Shared.Return(pooledArray);
+    public void Dispose()
+        => ArrayPool<byte>.Shared.Return(underlyingArray);
 }

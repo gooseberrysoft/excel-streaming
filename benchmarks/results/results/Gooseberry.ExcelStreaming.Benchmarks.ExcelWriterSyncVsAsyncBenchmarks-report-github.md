@@ -8,13 +8,13 @@ BenchmarkDotNet v0.13.12, Windows 10 (10.0.19045.4291/22H2/2022Update)
 
 
 ```
-| Method   | RowsCount | Mean         | Error     | StdDev    | Allocated |
-|--------- |---------- |-------------:|----------:|----------:|----------:|
-| AsyncZip | 100       |     1.706 ms | 0.0154 ms | 0.0128 ms |  13.25 KB |
-| SyncZip  | 100       |     1.847 ms | 0.0368 ms | 0.0344 ms |  10.54 KB |
-| AsyncZip | 1000      |    12.516 ms | 0.0775 ms | 0.0647 ms |  13.39 KB |
-| SyncZip  | 1000      |    16.595 ms | 0.3158 ms | 0.3379 ms |  10.69 KB |
-| AsyncZip | 10000     |   109.857 ms | 1.1263 ms | 0.9984 ms |  15.44 KB |
-| SyncZip  | 10000     |   162.789 ms | 1.0781 ms | 0.9557 ms |     12 KB |
-| AsyncZip | 100000    | 1,106.287 ms | 8.8515 ms | 6.9107 ms |  86.54 KB |
-| SyncZip  | 100000    | 1,601.511 ms | 6.6775 ms | 5.9194 ms |  23.29 KB |
+| Method   | RowsCount | Mean         | Error      | StdDev     | Allocated |
+|--------- |---------- |-------------:|-----------:|-----------:|----------:|
+| AsyncZip | 100       |     1.630 ms |  0.0315 ms |  0.0323 ms |  15.33 KB |
+| SyncZip  | 100       |     1.758 ms |  0.0231 ms |  0.0216 ms |  10.49 KB |
+| AsyncZip | 1000      |    11.563 ms |  0.0353 ms |  0.0276 ms |  15.35 KB |
+| SyncZip  | 1000      |    15.862 ms |  0.1990 ms |  0.1662 ms |   10.7 KB |
+| AsyncZip | 10000     |   107.735 ms |  1.5390 ms |  1.4396 ms |  39.55 KB |
+| SyncZip  | 10000     |   156.068 ms |  1.2315 ms |  1.0284 ms |  12.21 KB |
+| AsyncZip | 100000    | 1,045.828 ms |  7.4986 ms |  7.0142 ms | 283.48 KB |
+| SyncZip  | 100000    | 1,554.097 ms | 14.5628 ms | 12.9096 ms |  26.86 KB |

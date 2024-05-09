@@ -43,7 +43,7 @@ internal sealed class SharedStringKeeper : IDisposable
             return archive.WriteEntry(entryPath, Constants.SharedStringTable.EmptyTable);
 
         DataWriters.SharedStringWriter.WritePostfix(_buffer);
-        return _buffer.FlushAll(archive.CreateEntry(entryPath), nextBufferSize: 0);
+        return _buffer.FlushAll(archive.CreateEntry(entryPath));
     }
 
     public void Dispose()

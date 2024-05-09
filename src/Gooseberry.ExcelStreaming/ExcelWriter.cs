@@ -10,8 +10,7 @@ namespace Gooseberry.ExcelStreaming;
 
 public sealed class ExcelWriter : IAsyncDisposable
 {
-    private const int DefaultBufferSize = 2 * 1024;
-    private const int DefaultSheetBufferSize = 32 * 1024;
+    private const int DefaultBufferSize = 32 * 1024;
 
     private readonly List<Sheet> _sheets = new();
 
@@ -54,7 +53,7 @@ public sealed class ExcelWriter : IAsyncDisposable
         _encoder = Encoding.UTF8.GetEncoder();
         _sharedStringKeeper = new SharedStringKeeper(sharedStringTable, _encoder);
 
-        _buffer = new BuffersChain(DefaultSheetBufferSize);
+        _buffer = new BuffersChain(DefaultBufferSize);
     }
 
     public async ValueTask StartSheet(string name, SheetConfiguration? configuration = null)
@@ -76,7 +75,6 @@ public sealed class ExcelWriter : IAsyncDisposable
         _sheets.Add(new(name, sheetId, relationshipId));
 
         _sheetWriter = _archiveWriter.CreateEntry($"xl/worksheets/{relationshipId}.xml");
-        _buffer.SetBufferSize(DefaultSheetBufferSize);
         DataWriters.SheetWriter.WriteStartSheet(_buffer, configuration);
     }
 
@@ -96,7 +94,9 @@ public sealed class ExcelWriter : IAsyncDisposable
         _rowCount += 1;
         _columnCount = 0;
 
-        return _buffer.FlushCompleted(_sheetWriter!);
+        return _rowCount % 7 == 0 
+            ? _buffer.FlushCompleted(_sheetWriter!)
+            : ValueTask.CompletedTask;
     }
 
     public void AddPicture(Stream picture, PictureFormat format, in AnchorCell from, Size size)
@@ -303,7 +303,7 @@ public sealed class ExcelWriter : IAsyncDisposable
 
         DataWriters.SheetWriter.WriteEndSheet(_buffer, _encoder, drawing, _merges, _hyperlinks);
 
-        await _buffer.FlushAll(_sheetWriter!, DefaultBufferSize);
+        await _buffer.FlushAll(_sheetWriter!);
         _sheetWriter = null;
 
         await AddSheetRelationships(sheet.Id);
@@ -336,21 +336,21 @@ public sealed class ExcelWriter : IAsyncDisposable
     {
         DataWriters.WorkbookWriter.Write(_sheets, _buffer, _encoder);
 
-        return _buffer.FlushAll(_archiveWriter.CreateEntry("xl/workbook.xml"), DefaultBufferSize);
+        return _buffer.FlushAll(_archiveWriter.CreateEntry("xl/workbook.xml"));
     }
 
     private ValueTask AddContentTypes()
     {
         DataWriters.ContentTypesWriter.Write(_sheets, _sheetDrawings, _buffer, _encoder);
 
-        return _buffer.FlushAll(_archiveWriter.CreateEntry("[Content_Types].xml"), DefaultBufferSize);
+        return _buffer.FlushAll(_archiveWriter.CreateEntry("[Content_Types].xml"));
     }
 
     private ValueTask AddWorkbookRelationships()
     {
         DataWriters.WorkbookRelationshipsWriter.Write(_sheets, _buffer, _encoder);
 
-        return _buffer.FlushAll(_archiveWriter.CreateEntry("xl/_rels/workbook.xml.rels"), DefaultBufferSize);
+        return _buffer.FlushAll(_archiveWriter.CreateEntry("xl/_rels/workbook.xml.rels"));
     }
 
     private ValueTask AddStyles()
@@ -363,7 +363,7 @@ public sealed class ExcelWriter : IAsyncDisposable
     {
         DataWriters.RelationshipsWriter.Write(_buffer);
 
-        return _buffer.FlushAll(_archiveWriter.CreateEntry("_rels/.rels"), DefaultBufferSize);
+        return _buffer.FlushAll(_archiveWriter.CreateEntry("_rels/.rels"));
     }
 
     private ValueTask AddDrawingRelationships(int sheetId)
@@ -375,7 +375,7 @@ public sealed class ExcelWriter : IAsyncDisposable
 
         DataWriters.DrawingRelationshipsWriter.Write(drawing, _buffer, _encoder);
 
-        return _buffer.FlushAll(_archiveWriter.CreateEntry(PathResolver.GetDrawingRelationshipsFullPath(drawing)), DefaultBufferSize);
+        return _buffer.FlushAll(_archiveWriter.CreateEntry(PathResolver.GetDrawingRelationshipsFullPath(drawing)));
     }
 
     private ValueTask AddDrawing(int sheetId)
@@ -387,7 +387,7 @@ public sealed class ExcelWriter : IAsyncDisposable
 
         DataWriters.DrawingWriter.Write(drawing, _buffer, _encoder);
 
-        return _buffer.FlushAll(_archiveWriter.CreateEntry(PathResolver.GetDrawingFullPath(drawing)), DefaultBufferSize);
+        return _buffer.FlushAll(_archiveWriter.CreateEntry(PathResolver.GetDrawingFullPath(drawing)));
     }
 
     private ValueTask AddSheetRelationships(int sheetId)
@@ -395,14 +395,14 @@ public sealed class ExcelWriter : IAsyncDisposable
         var drawing = _sheetDrawings.Get(sheetId);
         DataWriters.SheetRelationshipsWriter.Write(_hyperlinks.Keys, drawing, _buffer, _encoder);
 
-        return _buffer.FlushAll(_archiveWriter.CreateEntry(PathResolver.GetSheetRelationshipsFullPath(sheetId)), DefaultBufferSize);
+        return _buffer.FlushAll(_archiveWriter.CreateEntry(PathResolver.GetSheetRelationshipsFullPath(sheetId)));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void EnsureNotCompleted()
     {
         if (_isCompleted)
-            throw new InvalidOperationException("Cannot use excel writer. It is completed already.");
+            throw new InvalidOperationException("Excel writer is already completed.");
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -411,6 +411,6 @@ public sealed class ExcelWriter : IAsyncDisposable
         EnsureNotCompleted();
 
         if (!_rowStarted)
-            throw new InvalidOperationException("Cannot add cell before start row.");
+            throw new InvalidOperationException("Row is not started yet.");
     }
 }

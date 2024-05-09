@@ -57,7 +57,7 @@ internal static class BytesWriter
             remainingData.Slice(0, copyLength).CopyTo(destination);
             written += copyLength;
 
-            if (remainingData.Length - copyLength == 0)
+            if (remainingData.Length == copyLength)
             {
                 destination = destination.Slice(copyLength);
                 return;
@@ -66,7 +66,7 @@ internal static class BytesWriter
             remainingData = remainingData.Slice(copyLength);
             buffer.Advance(written);
 
-            destination = buffer.GetSpan();
+            destination = buffer.GetSpan(remainingData.Length);
             written = 0;
         }
     }
