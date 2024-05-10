@@ -43,8 +43,8 @@ await foreach(var record in store.GetRecordsAsync(cancellationToken))
 writer.AddPicture(someStream, PictureFormat.Jpeg, new AnchorCell(3, 1), new Size(100, 130));
 
 // Adding picture from byte array or ReadOnlyMemory<byte> to "First sheet" 
-// with top left corner placed to cell (column 16, row 2, values are zero-based) 
-// and right bottom corner placed to another cell (column 16, row 11)
+// with top left corner placed in the cell (column 16, row 2, values are zero-based) 
+// and right bottom corner is placed in another cell (column 16, row 11)
 writer.AddPicture(someByteArray, PictureFormat.Jpeg, new AnchorCell(10, 1), new AnchorCell(15, 10));
 
 
