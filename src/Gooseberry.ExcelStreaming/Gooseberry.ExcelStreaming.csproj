@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	<PropertyGroup>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
-    </PropertyGroup>
+	</PropertyGroup>
 
 	<ItemGroup>
 		<None Include="..\..\README.md" Pack="true" PackagePath="\" />
@@ -12,7 +12,7 @@
 
 
 	<ItemGroup>
-        <InternalsVisibleTo Include="Gooseberry.ExcelStreaming.Tests" />
-        <InternalsVisibleTo Include="Gooseberry.ExcelStreaming.Benchmarks" />
-    </ItemGroup>
+		<InternalsVisibleTo Include="Gooseberry.ExcelStreaming.Tests" />
+		<InternalsVisibleTo Include="Gooseberry.ExcelStreaming.Benchmarks" />
+	</ItemGroup>
 </Project>
