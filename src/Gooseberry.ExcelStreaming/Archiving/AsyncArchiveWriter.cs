@@ -77,30 +77,22 @@ internal sealed class AsyncArchiveWriter : IArchiveWriter
     {
         private bool _created;
 
-        public async ValueTask Write(MemoryOwner buffer)
+        public ValueTask Write(MemoryOwner buffer)
         {
             if (_created)
-            {
-                await writer._channel.Writer.WriteAsync(new Action(buffer), writer._token);
-            }
-            else
-            {
-                _created = true;
-                await writer._channel.Writer.WriteAsync(new Action(entryPath, buffer), writer._token);
-            }
+                return writer._channel.Writer.WriteAsync(new Action(buffer), writer._token);
+
+            _created = true;
+            return writer._channel.Writer.WriteAsync(new Action(entryPath, buffer), writer._token);
         }
 
-        public async ValueTask Write(ReadOnlyMemory<byte> buffer)
+        public ValueTask Write(ReadOnlyMemory<byte> buffer)
         {
             if (_created)
-            {
-                await writer._channel.Writer.WriteAsync(new Action(buffer), writer._token);
-            }
-            else
-            {
-                _created = true;
-                await writer._channel.Writer.WriteAsync(new Action(entryPath, buffer), writer._token);
-            }
+                return writer._channel.Writer.WriteAsync(new Action(buffer), writer._token);
+
+            _created = true;
+            return writer._channel.Writer.WriteAsync(new Action(entryPath, buffer), writer._token);
         }
     }
 
