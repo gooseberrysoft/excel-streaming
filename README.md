@@ -5,7 +5,7 @@
 Create Excel files with high performance and low memory allocations.
 
 ### Features ###
-* Extremely fast streaming write (100 columns * 500 000 rows in [1 second, 30Kb allocated memory](https://github.com/gooseberrysoft/excel-streaming/blob/main/benchmarks/results/Gooseberry.ExcelStreaming.Benchmarks.RealWorldReportBenchmarks-report-github.md))
+* Extremely fast streaming write (100 columns * 100 000 rows in [1 second, 30Kb allocated memory](https://github.com/gooseberrysoft/excel-streaming/blob/main/benchmarks/results/Gooseberry.ExcelStreaming.Benchmarks.RealWorldReportBenchmarks-report-github.md))
 * Most basic excel column types are supported (incl. hyperlinks)
 * Shared strings and utf8 binary strings
 * Cell formatting, styling and merging
@@ -145,17 +145,15 @@ await writer.Complete();
 Benchmarks [results](https://github.com/gooseberrysoft/excel-streaming/tree/main/benchmarks/results/) and [source code](https://github.com/gooseberrysoft/excel-streaming/tree/main/benchmarks/Gooseberry.ExcelStreaming.Benchmarks)
 
 #### Real world report ####
-[20 columns](https://github.com/gooseberrysoft/excel-streaming/blob/main/benchmarks/Gooseberry.ExcelStreaming.Benchmarks/RealWorldReportBenchmarks.cs): numbers, dates, strings
+[100 columns](https://github.com/gooseberrysoft/excel-streaming/blob/main/benchmarks/Gooseberry.ExcelStreaming.Benchmarks/RealWorldReportBenchmarks.cs): numbers, dates, strings
 
-| Method          | RowsCount | Mean           | Error        | StdDev       | Gen0   | Allocated |
-|---------------- |---------- |---------------:|-------------:|-------------:|-------:|----------:|
-| RealWorldReport | 100       |       444.6 μs |      6.48 μs |      5.41 μs | 1.9531 |  14.64 KB |
-| RealWorldReport | 1000      |     2,814.5 μs |     10.28 μs |      9.62 μs |      - |  14.33 KB |
-| RealWorldReport | 10000     |    22,716.7 μs |    188.57 μs |    157.46 μs |      - |  14.51 KB |
-| RealWorldReport | 100000    |   222,671.2 μs |  3,985.74 μs |  3,728.26 μs |      - |  16.82 KB |
-| RealWorldReport | 500000    | 1,068,404.1 μs |  6,046.85 μs |  5,360.37 μs |      - |  17.59 KB |
-| RealWorldReport | 1000000   | 2,152,742.1 μs | 18,952.10 μs | 16,800.54 μs |      - |   17.5 KB |
-
+| Method          | RowsCount | Mean         | Error      | StdDev     | Allocated |
+|---------------- |---------- |-------------:|-----------:|-----------:|----------:|
+| RealWorldReport | 100       |     1.387 ms |  0.0200 ms |  0.0178 ms |  14.65 KB |
+| RealWorldReport | 1000      |    11.347 ms |  0.2221 ms |  0.1969 ms |  14.43 KB |
+| RealWorldReport | 10000     |   105.855 ms |  1.5015 ms |  1.2538 ms |  15.82 KB |
+| RealWorldReport | 100000    | 1,028.135 ms | 19.5208 ms | 20.8870 ms |  29.59 KB |
+| RealWorldReport | 500000    | 5,142.961 ms | 73.5973 ms | 65.2421 ms |   92.4 KB |
 
 #### OpenXml comparison ####
 |      Method | RowsCount |           Mean |        Error |       StdDev |      Gen 0 |  Allocated |
