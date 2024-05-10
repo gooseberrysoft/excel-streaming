@@ -62,7 +62,7 @@ public sealed class ExcelWriterErrorTests : IAsyncLifetime
         {
             action.Should()
                 .ThrowExactly<InvalidOperationException>()
-                .WithMessage("Cannot add cell before start row.");
+                .WithMessage("Row is not started yet.");
         }
     }
 
@@ -90,14 +90,14 @@ public sealed class ExcelWriterErrorTests : IAsyncLifetime
             Func<Task> actionToCheck = () => action().AsTask();
             await actionToCheck.Should()
                 .ThrowExactlyAsync<InvalidOperationException>()
-                .WithMessage("Cannot use excel writer. It is completed already.");
+                .WithMessage("Excel writer is already completed.");
         }
 
         void CheckAddCell(Action action)
         {
             action.Should()
                 .ThrowExactly<InvalidOperationException>()
-                .WithMessage("Cannot use excel writer. It is completed already.");
+                .WithMessage("Excel writer is already completed.");
         }
     }
 

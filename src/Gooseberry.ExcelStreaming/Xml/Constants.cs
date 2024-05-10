@@ -3,8 +3,6 @@ namespace Gooseberry.ExcelStreaming;
 
 internal static partial class Constants
 {
-    public const double DefaultBufferFlushThreshold = 0.9;
-
     public static ReadOnlySpan<byte> TrueValue => "true"u8;
 
     public static ReadOnlySpan<byte> FalseValue => "false"u8;

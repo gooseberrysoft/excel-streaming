@@ -10,8 +10,7 @@ namespace Gooseberry.ExcelStreaming;
 
 public sealed class ExcelWriter : IAsyncDisposable
 {
-    private const int DefaultBufferSize = 2 * 1024;
-    private const int DefaultSheetBufferSize = 32 * 1024;
+    private const int DefaultBufferSize = 32 * 1024;
 
     private readonly List<Sheet> _sheets = new();
 
@@ -54,7 +53,7 @@ public sealed class ExcelWriter : IAsyncDisposable
         _encoder = Encoding.UTF8.GetEncoder();
         _sharedStringKeeper = new SharedStringKeeper(sharedStringTable, _encoder);
 
-        _buffer = new BuffersChain(DefaultSheetBufferSize, Constants.DefaultBufferFlushThreshold);
+        _buffer = new BuffersChain(DefaultBufferSize);
     }
 
     public async ValueTask StartSheet(string name, SheetConfiguration? configuration = null)
@@ -76,7 +75,6 @@ public sealed class ExcelWriter : IAsyncDisposable
         _sheets.Add(new(name, sheetId, relationshipId));
 
         _sheetWriter = _archiveWriter.CreateEntry($"xl/worksheets/{relationshipId}.xml");
-        _buffer.SetBufferSize(DefaultSheetBufferSize);
         DataWriters.SheetWriter.WriteStartSheet(_buffer, configuration);
     }
 
@@ -96,7 +94,9 @@ public sealed class ExcelWriter : IAsyncDisposable
         _rowCount += 1;
         _columnCount = 0;
 
-        return _buffer.FlushCompleted(_sheetWriter!);
+        return _rowCount % 7 == 0 
+            ? _buffer.FlushCompleted(_sheetWriter!)
+            : ValueTask.CompletedTask;
     }
 
     public void AddPicture(Stream picture, PictureFormat format, in AnchorCell from, Size size)
@@ -305,7 +305,6 @@ public sealed class ExcelWriter : IAsyncDisposable
 
         await _buffer.FlushAll(_sheetWriter!);
         _sheetWriter = null;
-        _buffer.SetBufferSize(DefaultBufferSize);
 
         await AddSheetRelationships(sheet.Id);
 
@@ -403,7 +402,7 @@ public sealed class ExcelWriter : IAsyncDisposable
     private void EnsureNotCompleted()
     {
         if (_isCompleted)
-            throw new InvalidOperationException("Cannot use excel writer. It is completed already.");
+            throw new InvalidOperationException("Excel writer is already completed.");
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -412,6 +411,6 @@ public sealed class ExcelWriter : IAsyncDisposable
         EnsureNotCompleted();
 
         if (!_rowStarted)
-            throw new InvalidOperationException("Cannot add cell before start row.");
+            throw new InvalidOperationException("Row is not started yet.");
     }
 }

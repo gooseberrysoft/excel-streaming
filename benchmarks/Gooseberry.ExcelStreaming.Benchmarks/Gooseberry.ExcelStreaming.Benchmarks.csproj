@@ -6,6 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Compile Remove="EncoderBenchmarks.cs" />
       <Compile Remove="StringEncodingOptimization.cs" />
     </ItemGroup>
 

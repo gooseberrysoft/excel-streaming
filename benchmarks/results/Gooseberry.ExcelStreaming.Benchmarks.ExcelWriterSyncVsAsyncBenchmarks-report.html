@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>Gooseberry.ExcelStreaming.Benchmarks.ExcelWriterSyncVsAsyncBenchmarks-20240509-213407</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.13.12, Windows 10 (10.0.19045.4291/22H2/2022Update)
+11th Gen Intel Core i7-1185G7 3.00GHz, 1 CPU, 8 logical and 4 physical cores
+.NET SDK 8.0.204
+  [Host]     : .NET 8.0.4 (8.0.424.16909), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+  DefaultJob : .NET 8.0.4 (8.0.424.16909), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+</code></pre>
+<pre><code></code></pre>
+
+<table>
+<thead><tr><th>Method</th><th>RowsCount</th><th>Mean  </th><th>Error</th><th>StdDev</th><th>Allocated</th>
+</tr>
+</thead><tbody><tr><td>AsyncZip</td><td>100</td><td>1.630 ms</td><td>0.0315 ms</td><td>0.0323 ms</td><td>15.33 KB</td>
+</tr><tr><td>SyncZip</td><td>100</td><td>1.758 ms</td><td>0.0231 ms</td><td>0.0216 ms</td><td>10.49 KB</td>
+</tr><tr><td>AsyncZip</td><td>1000</td><td>11.563 ms</td><td>0.0353 ms</td><td>0.0276 ms</td><td>15.35 KB</td>
+</tr><tr><td>SyncZip</td><td>1000</td><td>15.862 ms</td><td>0.1990 ms</td><td>0.1662 ms</td><td>10.7 KB</td>
+</tr><tr><td>AsyncZip</td><td>10000</td><td>107.735 ms</td><td>1.5390 ms</td><td>1.4396 ms</td><td>39.55 KB</td>
+</tr><tr><td>SyncZip</td><td>10000</td><td>156.068 ms</td><td>1.2315 ms</td><td>1.0284 ms</td><td>12.21 KB</td>
+</tr><tr><td>AsyncZip</td><td>100000</td><td>1,045.828 ms</td><td>7.4986 ms</td><td>7.0142 ms</td><td>283.48 KB</td>
+</tr><tr><td>SyncZip</td><td>100000</td><td>1,554.097 ms</td><td>14.5628 ms</td><td>12.9096 ms</td><td>26.86 KB</td>
+</tr></tbody></table>
+</body>
+</html>

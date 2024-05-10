@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
-    <VersionPrefix>1.5.0</VersionPrefix>
-    <Version>1.5.0</Version>
+    <VersionPrefix>1.5.1</VersionPrefix>
+    <Version>1.5.1</Version>
     <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
@@ -19,7 +19,8 @@
     <Copyright>Copyright 2024 © Gooseberry Team</Copyright>
     <Company>Gooseberry</Company>
     <Authors>Gooseberry Team</Authors>
-    <PackageTags>excel;streaming;fast;create</PackageTags>
+    <Description>The simplest, fastest and lowest memory consumption library for writing Excel files to streams. Completely free to use.</Description>
+    <PackageTags>excel;stream;streaming;fast;write;create</PackageTags>
     <PackageProjectUrl>https://github.com/gooseberrysoft/excel-streaming</PackageProjectUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>

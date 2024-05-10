@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>Gooseberry.ExcelStreaming.Benchmarks.ExcelWriterVersionsBenchmarks-20240509-213648</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.13.12, Windows 10 (10.0.19045.4291/22H2/2022Update)
+11th Gen Intel Core i7-1185G7 3.00GHz, 1 CPU, 8 logical and 4 physical cores
+.NET SDK 8.0.204
+  [Host]     : .NET 8.0.4 (8.0.424.16909), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+  DefaultJob : .NET 8.0.4 (8.0.424.16909), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+</code></pre>
+<pre><code></code></pre>
+
+<table>
+<thead><tr><th>Method                 </th><th>RowsCount</th><th>Mean   </th><th>Error</th><th>StdDev</th><th>Version</th><th>Allocated</th>
+</tr>
+</thead><tbody><tr><td>ExcelWriter_WithEscaping_Utf8</td><td>100</td><td>1.545 ms</td><td>0.0287 ms</td><td>0.0268 ms</td><td>1.5.1</td><td>15.18 KB</td>
+</tr><tr><td>ExcelWriter_WithEscaping</td><td>100</td><td>1.582 ms</td><td>0.0238 ms</td><td>0.0185 ms</td><td>1.5.1</td><td>15.34 KB</td>
+</tr><tr><td>ExcelWriter_WithEscaping_Utf8</td><td>1000</td><td>11.570 ms</td><td>0.2313 ms</td><td>0.2375 ms</td><td>1.5.1</td><td>15.76 KB</td>
+</tr><tr><td>ExcelWriter_WithEscaping</td><td>1000</td><td>11.655 ms</td><td>0.2206 ms</td><td>0.2064 ms</td><td>1.5.1</td><td>15.49 KB</td>
+</tr><tr><td>ExcelWriter_WithEscaping_Utf8</td><td>10000</td><td>105.545 ms</td><td>1.0024 ms</td><td>0.8371 ms</td><td>1.5.1</td><td>40.68 KB</td>
+</tr><tr><td>ExcelWriter_WithEscaping</td><td>10000</td><td>106.743 ms</td><td>1.1740 ms</td><td>1.0981 ms</td><td>1.5.1</td><td>39.51 KB</td>
+</tr><tr><td>ExcelWriter_WithEscaping_Utf8</td><td>100000</td><td>1,033.685 ms</td><td>2.8644 ms</td><td>2.3919 ms</td><td>1.5.1</td><td>286.36 KB</td>
+</tr><tr><td>ExcelWriter_WithEscaping</td><td>100000</td><td>1,040.069 ms</td><td>3.5074 ms</td><td>3.1093 ms</td><td>1.5.1</td><td>281.7 KB</td>
+</tr><tr><td>ExcelWriter_WithEscaping_Utf8</td><td>500000</td><td>5,175.774 ms</td><td>10.2418 ms</td><td>9.0791 ms</td><td>1.5.1</td><td>2371.66 KB</td>
+</tr><tr><td>ExcelWriter_WithEscaping</td><td>500000</td><td>5,234.404 ms</td><td>32.4442 ms</td><td>30.3484 ms</td><td>1.5.1</td><td>2365.66 KB</td>
+</tr><tr><td>ExcelWriter_WithEscaping_Utf8</td><td>1000000</td><td>10,331.080 ms</td><td>24.4270 ms</td><td>19.0710 ms</td><td>1.5.1</td><td>2750.41 KB</td>
+</tr><tr><td>ExcelWriter_WithEscaping</td><td>1000000</td><td>10,441.862 ms</td><td>50.0232 ms</td><td>46.7917 ms</td><td>1.5.1</td><td>2719.27 KB</td>
+</tr></tbody></table>
+</body>
+</html>

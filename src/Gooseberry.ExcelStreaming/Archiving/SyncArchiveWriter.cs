@@ -1,6 +1,5 @@
-using System.Buffers;
-
 // ReSharper disable once CheckNamespace
+
 namespace Gooseberry.ExcelStreaming;
 
 internal sealed class SyncArchiveWriter : IArchiveWriter
@@ -61,23 +60,26 @@ internal sealed class SyncArchiveWriter : IArchiveWriter
         private bool _created;
         private Stream? _entry;
 
-        public async ValueTask Write(IMemoryOwner<byte> buffer)
+        public async ValueTask Write(MemoryOwner buffer)
         {
             using (buffer)
+                await Write(buffer.Memory);
+        }
+
+        public async ValueTask Write(ReadOnlyMemory<byte> buffer)
+        {
+            if (!_created)
             {
-                if (!_created)
-                {
-                    if (previousWriter != null)
-                        await previousWriter.DisposeAsync();
+                if (previousWriter != null)
+                    await previousWriter.DisposeAsync();
 
-                    previousWriter = null;
-                    _created = true;
+                previousWriter = null;
+                _created = true;
 
-                    _entry = archive.CreateEntry(entryPath);
-                }
-
-                await _entry!.WriteAsync(buffer.Memory, token);
+                _entry = archive.CreateEntry(entryPath);
             }
+
+            await _entry!.WriteAsync(buffer, token);
         }
 
         public ValueTask DisposeAsync()

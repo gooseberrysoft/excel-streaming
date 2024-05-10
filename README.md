@@ -1,62 +1,163 @@
-# Gooseberry.ExcelStreaming #
+﻿# Gooseberry.ExcelStreaming #
 
 [![NuGet](https://img.shields.io/nuget/v/Gooseberry.ExcelStreaming.svg)](https://www.nuget.org/packages/Gooseberry.ExcelStreaming)
 
 Create Excel files with high performance and low memory allocations.
 
-### Create Excel file ###
+### Features ###
+* Extremely fast streaming write (100 columns * 500 000 rows in [1 second, 30Kb allocated memory](https://github.com/gooseberrysoft/excel-streaming/blob/main/benchmarks/results/Gooseberry.ExcelStreaming.Benchmarks.RealWorldReportBenchmarks-report-github.md))
+* Most basic excel column types are supported (incl. hyperlinks)
+* Shared strings and utf8 binary strings
+* Cell formatting, styling and merging
+* Basic pictures support
+* Asynchronous compression
+* Used in heavy-load production environment 
 
+
+### Create Excel file ###
 ```csharp
 await using var file = new FileStream("myExcelReport.xlsx", FileMode.Create);
 
-await using var writer = new ExcelWriter(file);
+await using var writer = new ExcelWriter(file, token: cancellationToken);
 
 await writer.StartSheet("First sheet");
-for (var row = 0; row < 100; row++)
+
+await foreach(var record in store.GetRecordsAsync(cancellationToken))
 {
     await writer.StartRow();
 
-    writer.AddCell(row); // int
-    writer.AddCell(DateTime.Now); // DateTime
+    writer.AddEmptyCell(); // empty
+    writer.AddCell(record.IntValue); // int
     writer.AddCell(DateTime.Now.Ticks); // long
-    writer.AddCell(DateTime.Now.Ticks / 2.0m); // decimal
+    writer.AddCell(DateTime.Now); // DateTime
+    writer.AddCell(123.765M); // decimal
     writer.AddCell("string"); // string
+    writer.AddUtf8Cell("string"u8); // utf8 string
+    writer.AddCellWithSharedString("shard"); // shared string
+    // hyperlink
+    writer.AddCell(new Hyperlink("https://[address]", "Label text")); 
 }
+
+// Adding picture from stream to "First sheet" placed to
+// cell (column 4, row 2, values are zero-based) with fixed size
+writer.AddPicture(someStream, PictureFormat.Jpeg, new AnchorCell(3, 1), new Size(100, 130));
+
+// Adding picture from byte array or ReadOnlyMemory<byte> to "First sheet" 
+// with top left corner placed in the cell (column 16, row 2, values are zero-based) 
+// and right bottom corner is placed in another cell (column 16, row 11)
+writer.AddPicture(someByteArray, PictureFormat.Jpeg, new AnchorCell(10, 1), new AnchorCell(15, 10));
+
 
 await writer.StartSheet("Second sheet");
 for (var row = 0; row < 100; row++)
 {
-    await writer.StartRow();
-
-    writer.AddCell(row); 
+   ... //write rows
 }
 
 await writer.Complete();
 ```
+More [working samples](https://github.com/gooseberrysoft/excel-streaming/blob/main/tests/Gooseberry.ExcelStreaming.Tests/ExcelFilesGenerator.cs)
+
 
 ### Write Excel file to Http response ###
-The Data isn't accumulated in memory. It is flushed to Http response smoothly.      
+The data isn't accumulated in memory. It is flushed to Http response streamingly.   
 ```csharp
 Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-
 Response.Headers.Add("Content-Disposition", $"attachment; filename=fileName.xlsx");
 
 await Response.StartAsync();
 
-await using var writer = new ExcelWriter(Response.BodyWriter.AsStream());
+await using var writer = new ExcelWriter(Response.BodyWriter.AsStream(), token: cancellationToken);
 
 await writer.StartSheet("Sheet name");
 await writer.StartRow();
-
 writer.AddCell(123);
 
 await writer.Complete();
 ```
 
-The ExcelWriter can work with styles. It can set column widths and row heights.
+### Using styles ###
+```csharp
+// 1. Define styles
+
+var styleBuilder = new StylesSheetBuilder();
+
+staticSomeStyle = styleBuilder.GetOrAdd(
+    new Style(
+        Format: "0.00%",
+        Font: new Font(Size: 24, Color: Color.DodgerBlue),
+        Fill: new Fill(Color: Color.Crimson, FillPattern.Gray125),
+        Borders: new Borders(
+            Left: new Border(BorderStyle.Thick, Color.BlueViolet),
+            Right: new Border(BorderStyle.MediumDashed, Color.Coral)),
+        Alignment: new Alignment(HorizontalAlignment.Center, VerticalAlignment.Center, false)
+    ));
+
+// 2. Build styles. We can reuse single style sheet many times to increase performance. 
+//    Style sheet is immutable and thread safe.
+
+staticStyleSheet = styleBuilder.Build();
+
+// 3. Using styles
+
+await using var writer = new ExcelWriter(file, staticStyleSheet);
+
+await writer.StartSheet("First sheet");
+await writer.StartRow(15); //optional row height specified
+
+writer.AddCell(123, staticSomeStyle);  // all cells support style reference
+
+await writer.Complete();
+```
+
+### Shared strings ###
+Shared strings decrease the size of the resulting file when it contains repeated strings. It's implemented as unique list of strings, and cell contains only reference to the list index.
+```csharp
+// 1. We can use global shared strings table
+
+var tableBuilder = new SharedStringTableBuilder();
+
+staticSharedStringRef1 = tableBuilder.GetOrAdd("String");
+staticSharedStringRef2 = tableBuilder.GetOrAdd("Another String");
+
+// 2. Build table
+
+staticSharedStringTable = sharedStringTableBuilder.Build();
+
+// 3. Using shared strings
+await using var writer = new ExcelWriter(stream, sharedStringTable: staticSharedStringTable);
+
+await writer.StartSheet("First sheet");
+await writer.StartRow();
+
+// using refernce from global table
+writer.AddCell(staticSharedStringRef1);  
+writer.AddCell(staticSharedStringRef2);  
+
+// using local dictionary automatically maintained in the ExcelWriter instance
+writer.AddCellWithSharedString("Some string from exteranal store");
+writer.AddCellWithSharedString("Some string from exteranal store");
+
+await writer.Complete();
+```
 
 ### Benchmarks ###
+Benchmarks [results](https://github.com/gooseberrysoft/excel-streaming/tree/main/benchmarks/results/) and [source code](https://github.com/gooseberrysoft/excel-streaming/tree/main/benchmarks/Gooseberry.ExcelStreaming.Benchmarks)
 
+#### Real world report ####
+[20 columns](https://github.com/gooseberrysoft/excel-streaming/blob/main/benchmarks/Gooseberry.ExcelStreaming.Benchmarks/RealWorldReportBenchmarks.cs): numbers, dates, strings
+
+| Method          | RowsCount | Mean           | Error        | StdDev       | Gen0   | Allocated |
+|---------------- |---------- |---------------:|-------------:|-------------:|-------:|----------:|
+| RealWorldReport | 100       |       444.6 μs |      6.48 μs |      5.41 μs | 1.9531 |  14.64 KB |
+| RealWorldReport | 1000      |     2,814.5 μs |     10.28 μs |      9.62 μs |      - |  14.33 KB |
+| RealWorldReport | 10000     |    22,716.7 μs |    188.57 μs |    157.46 μs |      - |  14.51 KB |
+| RealWorldReport | 100000    |   222,671.2 μs |  3,985.74 μs |  3,728.26 μs |      - |  16.82 KB |
+| RealWorldReport | 500000    | 1,068,404.1 μs |  6,046.85 μs |  5,360.37 μs |      - |  17.59 KB |
+| RealWorldReport | 1000000   | 2,152,742.1 μs | 18,952.10 μs | 16,800.54 μs |      - |   17.5 KB |
+
+
+#### OpenXml comparison ####
 |      Method | RowsCount |           Mean |        Error |       StdDev |      Gen 0 |  Allocated |
 |------------ |---------- |---------------:|-------------:|-------------:|-----------:|-----------:|
 | ExcelWriter |        10 |       407.7 us |      7.08 us |     12.94 us |     3.4180 |      15 KB |

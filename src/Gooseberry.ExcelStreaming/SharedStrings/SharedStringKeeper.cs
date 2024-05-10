@@ -53,7 +53,7 @@ internal sealed class SharedStringKeeper : IDisposable
     {
         if (_buffer == null)
         {
-            _buffer = new BuffersChain(bufferSize: 8 * 1024, flushThreshold: 1.0);
+            _buffer = new BuffersChain(initialBufferSize: 8 * 1024);
             DataWriters.SharedStringWriter.WritePrefix(_buffer);
         }
 
