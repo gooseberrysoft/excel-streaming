@@ -90,8 +90,7 @@ staticSomeStyle = styleBuilder.GetOrAdd(
         Borders: new Borders(
             Left: new Border(BorderStyle.Thick, Color.BlueViolet),
             Right: new Border(BorderStyle.MediumDashed, Color.Coral)),
-        Alignment: new Alignment(HorizontalAlignment.Center, VerticalAlignment.Center, false)
-    ));
+        Alignment: new Alignment(HorizontalAlignment.Center, VerticalAlignment.Center, false)));
 
 // 2. Build styles. We can reuse single style sheet many times to increase performance. 
 //    Style sheet is immutable and thread safe.
@@ -125,6 +124,7 @@ staticSharedStringRef2 = tableBuilder.GetOrAdd("Another String");
 staticSharedStringTable = sharedStringTableBuilder.Build();
 
 // 3. Using shared strings
+
 await using var writer = new ExcelWriter(stream, sharedStringTable: staticSharedStringTable);
 
 await writer.StartSheet("First sheet");
