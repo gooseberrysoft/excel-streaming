@@ -8,6 +8,7 @@ namespace Gooseberry.ExcelStreaming.Writers;
 internal static class StringWriter
 {
     private const int StackBytesThreshold = 512;
+    private static readonly int MaxBytesPerChar = Encoding.UTF8.GetMaxByteCount(1);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void WriteEscapedTo(
@@ -33,17 +34,15 @@ internal static class StringWriter
     }
 
     internal static void WriteEscapedTo(
-        this ReadOnlySpan<char> data,
+        this scoped ReadOnlySpan<char> data,
         BuffersChain buffer,
         Encoder encoder,
         ref Span<byte> destination,
         ref int written)
     {
-        var multiByteChar = false;
-
         while (true)
         {
-            if (destination.Length == 0 || multiByteChar)
+            if (destination.Length < MaxBytesPerChar)
             {
                 buffer.Advance(written);
 
@@ -80,7 +79,6 @@ internal static class StringWriter
                 break;
 
             data = data.Slice(charsConsumed);
-            multiByteChar = destination.Length is > 0 and < 3 && data.Length > 0;
         }
     }
 
@@ -168,27 +166,24 @@ internal static class StringWriter
     }
 
     internal static void WriteTo(
-        this ReadOnlySpan<char> value,
+        this scoped ReadOnlySpan<char> data,
         BuffersChain buffer,
         Encoder encoder,
         ref Span<byte> destination,
         ref int written)
     {
-        var sourceChars = value;
-        var multiByteChar = false;
-
         while (true)
         {
-            if (destination.Length == 0 || multiByteChar)
+            if (destination.Length < MaxBytesPerChar)
             {
                 buffer.Advance(written);
 
                 destination = buffer.GetSpan(Buffer.MinSize);
                 written = 0;
             }
-
+            
             encoder.Convert(
-                sourceChars,
+                data,
                 destination,
                 flush: true,
                 out var charsConsumed,
@@ -201,9 +196,7 @@ internal static class StringWriter
             if (isCompleted)
                 break;
 
-            sourceChars = sourceChars.Slice(charsConsumed);
-
-            multiByteChar = destination.Length is > 0 and < 3 && sourceChars.Length > 0;
+            data = data.Slice(charsConsumed);
         }
     }
 }

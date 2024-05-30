@@ -1,5 +1,6 @@
-using System.Drawing;
+﻿using System.Drawing;
 using System.Reflection;
+using System.Text;
 using Gooseberry.ExcelStreaming.Styles;
 using Gooseberry.ExcelStreaming.Tests.ExternalZip;
 using Xunit;
@@ -8,7 +9,7 @@ namespace Gooseberry.ExcelStreaming.Tests;
 
 public sealed class ExcelFilesGenerator
 {
-    private const string? Skip = "Null me for manual run";
+    private const string? Skip = null; // "Null me for manual run";
     private const string? IgnoreZip = "ignore";
 
     const string BasePath = "c:\\temp\\excelWriter\\";
@@ -49,8 +50,8 @@ public sealed class ExcelFilesGenerator
         bool async = true)
     {
         var sharedStringTableBuilder = new SharedStringTableBuilder();
-        var sharedStringRef1 = sharedStringTableBuilder.GetOrAdd(">>> Shared string with special & symbols <<< ");
-        var sharedStringRef2 = sharedStringTableBuilder.GetOrAdd("�Tell us a story!� said the March Hare.");
+        var sharedStringRef1 = sharedStringTableBuilder.GetOrAdd("‰>>> Shared string with specialЪ & symbols <<‰< Я");
+        var sharedStringRef2 = sharedStringTableBuilder.GetOrAdd("“Tell us a story!” said the March Hare.‰");
         var sharedStringTable = sharedStringTableBuilder.Build();
 
         await using var writer = stream != null
@@ -61,7 +62,7 @@ public sealed class ExcelFilesGenerator
         {
             await writer.StartSheet($"test#{sheetIndex}");
 
-            for(var i=0; i < 10; i++)
+            for (var i = 0; i < 10; i++)
                 await writer.StartRow();
 
             writer.AddPicture(Picture, PictureFormat.Jpeg, new AnchorCell(3, 1), new Size(100, 130));
@@ -79,7 +80,7 @@ public sealed class ExcelFilesGenerator
                     writer.AddCell(DateTime.Now.Ticks);
                     writer.AddCell(DateTime.Now);
                     writer.AddCell(1234567.9876M);
-                    writer.AddCell("Tags such as <img> and <input> directly introduce content into the page.");
+                    writer.AddCell("Tags such as ‰<img> and <input>‰ directly introduce content into the page.");
                     writer.AddCell("The cat (Felis catus), commonly referred to as the domestic cat");
                     writer.AddEmptyCell();
                     writer.AddCellWithSharedString(
@@ -91,7 +92,6 @@ public sealed class ExcelFilesGenerator
                     writer.AddCell(sharedStringRef2);
                 }
             }
-
         }
 
         await writer.Complete();
@@ -118,8 +118,8 @@ public sealed class ExcelFilesGenerator
                     writer.AddCell(DateTime.Now.Ticks);
                     writer.AddCell(DateTime.Now);
                     writer.AddCell(1234567.9876M);
-                    writer.AddCell("Tags such as <img> and <input> directly introduce content into the page.");
-                    writer.AddUtf8Cell("Utf8 string with <tags>"u8);
+                    writer.AddCell("‰Tags such as <img> and <input> directly introduce content into the page.");
+                    writer.AddUtf8Cell("Utf8 string with <tags>‰"u8);
                     writer.AddCell("String as chars".AsSpan());
                 }
             }
@@ -143,17 +143,21 @@ public sealed class ExcelFilesGenerator
 
             for (var column = 0; column < row % 16_384; column++)
             {
-                writer.AddCell(column+row);
+                writer.AddCell(column + row);
             }
         }
 
         await writer.Complete();
     }
 
-    [Fact(Skip = Skip)]
-    public async Task IncreaseValue()
+    [Theory(Skip = Skip)]
+    [InlineData('‰', "ThreeBytes")]
+    [InlineData('Я', "TwoBytes")]
+    [InlineData('x', "OneByte")]
+    public async Task IncreaseValue(char symbol, string suffix)
     {
-        await using var outputStream = new FileStream(BasePath + "IncreaseValue.xlsx", FileMode.Create);
+        var symbolBytes = Encoding.UTF8.GetBytes(new[] { symbol });
+        await using var outputStream = new FileStream(BasePath + $"IncreaseValue_{suffix}.xlsx", FileMode.Create);
 
         await using var writer = new ExcelWriter(outputStream);
 
@@ -163,20 +167,24 @@ public sealed class ExcelFilesGenerator
         {
             await writer.StartRow();
 
-            for (var column = 0; column < 16_384; column++)
+            for (var column = 0; column < 1_024; column++)
             {
-                WriteSpan(column, writer);
+                WriteUtf8Cell(writer, symbolBytes, column);
             }
         }
 
         await writer.Complete();
     }
 
-    private static void WriteSpan(int column, ExcelWriter writer)
+    private static void WriteUtf8Cell(ExcelWriter writer, ReadOnlySpan<byte> symbolBytes, int column)
     {
-        Span<byte> span = stackalloc byte[column];
+        Span<byte> span = new byte[symbolBytes.Length * (column + 1)];
 
-        span.Fill((byte)'x');
+        for (int i = 0; i <= column; i++)
+        {
+            symbolBytes.CopyTo(span.Slice(i*symbolBytes.Length));
+        }
+
         writer.AddUtf8Cell(span);
     }
 
