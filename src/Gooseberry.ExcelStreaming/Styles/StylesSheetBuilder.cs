@@ -24,8 +24,8 @@ public sealed class StylesSheetBuilder
     {
         _formats[GeneralFormat] = new FormatRecord(0, GeneralFormat);
         _borders.Add(new Borders());
-        _fills.Add(new Fill(Pattern: FillPattern.None));
-        _fills.Add(new Fill(Pattern: FillPattern.Gray125));
+        _fills.Add(new Fill(FillPattern.None));
+        _fills.Add(new Fill(FillPattern.Gray125));
 
         _generalStyle = GetOrAdd(new Style(
             Format: GeneralFormat,
