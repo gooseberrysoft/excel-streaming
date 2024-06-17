@@ -5,6 +5,7 @@ namespace Gooseberry.ExcelStreaming.Writers;
 internal static class NumberWriterExtensions
 {
     private static readonly NumberWriter<int, IntFormatter> IntWriter = new();
+    private static readonly NumberWriter<uint, UIntFormatter> UIntWriter = new();
     private static readonly NumberWriter<int, IntHex8Formatter> IntHex8Writer = new();
     private static readonly NumberWriter<long, LongFormatter> LongWriter = new();
     private static readonly NumberWriter<decimal, DecimalFormatter> DecimalWriter = new();
@@ -39,7 +40,7 @@ internal static class NumberWriterExtensions
         BuffersChain buffer,
         ref Span<byte> destination,
         ref int written)
-        => LongWriter.WriteValue(value, buffer, ref destination, ref written);
+        => UIntWriter.WriteValue(value, buffer, ref destination, ref written);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void WriteTo(

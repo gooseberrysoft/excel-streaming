@@ -56,6 +56,11 @@ public sealed class ExcelWriter : IAsyncDisposable
         _buffer = new BuffersChain(DefaultBufferSize);
     }
 
+    /// <summary>
+    /// Returns row count for current sheet
+    /// </summary>
+    public uint RowCount => _rowCount;
+
     public async ValueTask StartSheet(string name, SheetConfiguration? configuration = null)
     {
         EnsureNotCompleted();
@@ -94,10 +99,31 @@ public sealed class ExcelWriter : IAsyncDisposable
         _rowCount += 1;
         _columnCount = 0;
 
-        return _rowCount % 7 == 0 
+        return _rowCount % 7 == 0
             ? _buffer.FlushCompleted(_sheetWriter!)
             : ValueTask.CompletedTask;
     }
+
+    public void AddEmptyRows(uint count)
+    {
+        EnsureNotCompleted();
+
+        if (_sheetWriter == null)
+            throw new InvalidOperationException("Cannot start row before start sheet.");
+
+        if (count == 0)
+            return;
+
+        for (int i = 0; i < count; i++)
+        {
+            DataWriters.RowWriter.WriteStartRow(_buffer, _rowStarted);
+            _rowStarted = true;
+        }
+
+        _rowCount += count;
+        _columnCount = 0;
+    }
+
 
     public void AddPicture(Stream picture, PictureFormat format, in AnchorCell from, Size size)
         => _sheetDrawings.AddPicture(_sheets[^1].Id, picture, format, new OneCellAnchorPicturePlacementWriter(from, size));
@@ -110,6 +136,29 @@ public sealed class ExcelWriter : IAsyncDisposable
 
     public void AddPicture(ReadOnlyMemory<byte> picture, PictureFormat format, in AnchorCell from, AnchorCell to)
         => _sheetDrawings.AddPicture(_sheets[^1].Id, picture, format, new TwoCellAnchorPicturePlacementWriter(from, to));
+
+    public void AddCellPicture(Stream picture, PictureFormat format, Size size, uint rightMerge = 0, uint downMerge = 0)
+    {
+        CheckWriteCell();
+        
+        _sheetDrawings.AddPicture(_sheets[^1].Id, picture, format,
+            new OneCellAnchorPicturePlacementWriter(new AnchorCell(_columnCount, _rowCount), size));
+
+        _columnCount += 1;
+        AddMerge(rightMerge, downMerge);
+    }
+
+    public void AddCellPicture(ReadOnlyMemory<byte> picture, PictureFormat format, Size size, uint rightMerge = 0, uint downMerge = 0)
+    {
+        CheckWriteCell();
+
+        _sheetDrawings.AddPicture(_sheets[^1].Id, picture, format, 
+            new OneCellAnchorPicturePlacementWriter(new AnchorCell(_columnCount, _rowCount), size));
+
+        _columnCount += 1;
+        AddMerge(rightMerge, downMerge);
+    }
+
 
     public void AddCell(string data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
         => AddCell(data.AsSpan(), style, rightMerge, downMerge);
@@ -182,6 +231,16 @@ public sealed class ExcelWriter : IAsyncDisposable
             AddEmptyCell(style, rightMerge, downMerge);
     }
 
+    public void AddCell(char data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+    {
+#if NET8_0_OR_GREATER
+        var span = new Span<char>(ref data);
+#else
+        Span<char> span = stackalloc char[] { data };
+#endif
+        AddCell(span, style, rightMerge, downMerge);
+    }
+
     public void AddCell(ReadOnlySpan<char> data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
         CheckWriteCell();
@@ -247,6 +306,19 @@ public sealed class ExcelWriter : IAsyncDisposable
 
         _columnCount += 1;
         AddMerge(rightMerge, downMerge);
+    }
+
+    public void AddEmptyCells(uint count, StyleReference? style = null)
+    {
+        CheckWriteCell();
+
+        if (count == 0)
+            return;
+
+        for (var i = 0; i < count; i++)
+            DataWriters.EmptyCellWriter.Write(_buffer, style);
+
+        _columnCount += count;
     }
 
     private async ValueTask AddPictures()

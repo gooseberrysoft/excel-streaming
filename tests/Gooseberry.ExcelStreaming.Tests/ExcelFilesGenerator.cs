@@ -97,7 +97,7 @@ public sealed class ExcelFilesGenerator
         await writer.Complete();
     }
 
-    [Fact(Skip = Skip)]
+    [Fact(Skip = null)]
     public async Task Primitive()
     {
         await using var outputStream = new FileStream(BasePath + "Primitive.xlsx", FileMode.Create);
@@ -108,12 +108,14 @@ public sealed class ExcelFilesGenerator
         {
             await writer.StartSheet($"test#{sheetIndex}");
 
+            writer.AddEmptyRows(3);
             for (var row = 0; row < 10_000; row++)
             {
                 await writer.StartRow();
 
                 for (var columnBatch = 0; columnBatch < 2; columnBatch++)
                 {
+                    writer.AddEmptyCells(2);
                     writer.AddCell(row);
                     writer.AddCell(DateTime.Now.Ticks);
                     writer.AddCell(DateTime.Now);
@@ -121,8 +123,13 @@ public sealed class ExcelFilesGenerator
                     writer.AddCell("‰Tags such as <img> and <input> directly introduce content into the page.");
                     writer.AddUtf8Cell("Utf8 string with <tags>‰"u8);
                     writer.AddCell("String as chars".AsSpan());
+                    writer.AddEmptyCells(2);
+                    writer.AddCell('&');
+                    writer.AddCell('!');
                 }
             }
+
+            writer.AddEmptyRows(3);
         }
 
         await writer.Complete();
@@ -182,7 +189,7 @@ public sealed class ExcelFilesGenerator
 
         for (int i = 0; i <= column; i++)
         {
-            symbolBytes.CopyTo(span.Slice(i*symbolBytes.Length));
+            symbolBytes.CopyTo(span.Slice(i * symbolBytes.Length));
         }
 
         writer.AddUtf8Cell(span);

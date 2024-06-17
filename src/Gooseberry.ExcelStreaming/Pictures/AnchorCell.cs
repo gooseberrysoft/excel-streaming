@@ -5,14 +5,14 @@ using System.Runtime.InteropServices;
 namespace Gooseberry.ExcelStreaming;
 
 [StructLayout(LayoutKind.Auto)]
-public readonly record struct AnchorCell(int Column, int Row, Point Offset)
+public readonly record struct AnchorCell(uint Column, uint Row, Point Offset)
 {
-    public AnchorCell(int column, int row)
+    public AnchorCell(uint column, uint row)
         : this(column, row, Point.Empty)
     {
     }
 
-    public AnchorCell(int column, int row, int columnOffset, int rowOffset)
+    public AnchorCell(uint column, uint row, int columnOffset, int rowOffset)
         : this(column, row, new Point(columnOffset, rowOffset))
     {
     }
