@@ -1,13 +1,13 @@
 using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace Gooseberry.ExcelStreaming.Writers;
 
 internal static class CellAliasWriter
 {
-    private static readonly byte[] EncodedRowAlphabet = Encoding.UTF8.GetBytes(CellReference.RowAlphabet);
-    private static readonly byte[] EncodedColumnAlphabet = Encoding.UTF8.GetBytes(CellReference.ColumnAlphabet);
-    private static readonly byte Colon = Encoding.UTF8.GetBytes(":").Single();
+    private static readonly byte[] Colon = [(byte)':'];
+    private const int ColumnNameMaxLength = 3; //XFD last column name
+    private const int RowMaxLength = 7; //1000000 
+    private const int MaxLength = ColumnNameMaxLength + RowMaxLength;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void WriteTo(
@@ -16,26 +16,9 @@ internal static class CellAliasWriter
         ref Span<byte> destination,
         ref int written)
     {
-        var aliasSize = CalculateSize(merge.TopLeft) + CalculateSize(merge.RightBottom) + 1;
-
-        if (destination.Length < aliasSize)
-        {
-            buffer.Advance(written);
-            destination = buffer.GetSpan(minSize: aliasSize);
-            written = 0;
-        }
-
-        var span = destination.Slice(0, aliasSize);
-
-        WriteAlias(merge.RightBottom, ref span);
-
-        span[^1] = Colon;
-        span = span[..^1];
-
-        WriteAlias(merge.TopLeft, ref span);
-
-        written += aliasSize;
-        destination = destination.Slice(aliasSize);
+        WriteTo(merge.RightBottom, buffer, ref destination, ref written);
+        Colon.WriteTo(buffer, ref destination, ref written);
+        WriteTo(merge.TopLeft, buffer, ref destination, ref written);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -45,67 +28,50 @@ internal static class CellAliasWriter
         ref Span<byte> destination,
         ref int written)
     {
-        var aliasSize = CalculateSize(cellReference);
-
-        if (destination.Length < aliasSize)
+        if (destination.Length < MaxLength)
         {
             buffer.Advance(written);
-            destination = buffer.GetSpan(minSize: aliasSize);
+            destination = buffer.GetSpan(MaxLength);
             written = 0;
         }
 
-        var span = destination.Slice(0, aliasSize);
-
-        WriteAlias(cellReference, ref span);
-
-        written += aliasSize;
-        destination = destination.Slice(aliasSize);
+        WriteColumnName(cellReference.Column, ref destination, ref written);
+        cellReference.Row.WriteTo(buffer, ref destination, ref written);
     }
 
-    private static int CalculateSize(CellReference cellReference)
+    private static void WriteColumnName(uint columnNumber, ref Span<byte> destination, ref int written)
     {
-        return CalculateSize(cellReference.Row, EncodedRowAlphabet.Length) +
-            CalculateSize(cellReference.Column, EncodedColumnAlphabet.Length);
-    }
-
-    private static int CalculateSize(uint value, int alphabetLength)
-    {
-        var size = 0;
-        var remain = (int)value;
-        do
+        if (columnNumber <= 26)
         {
-            remain /= alphabetLength;
-            size++;
-        } while (remain > 0);
+            destination[0] = Convert.ToByte('A' + (columnNumber - 1));
+            destination = destination.Slice(1);
+            written += 1;
 
-        return size;
+            return;
+        }
+
+        WriteMultiSymbolColumnName(columnNumber, ref destination, ref written);
     }
 
-    private static void WriteAlias(CellReference cellReference, ref Span<byte> destination)
+    private static void WriteMultiSymbolColumnName(uint columnNumber, ref Span<byte> destination, ref int written)
     {
-        Write(cellReference.Row, EncodedRowAlphabet, ref destination);
-        // Column alias A is 1, so pass column - 1
-        Write(cellReference.Column - 1, EncodedColumnAlphabet, ref destination);
-    }
+        Span<byte> columnName = stackalloc byte[ColumnNameMaxLength];
+        int index = 0;
 
-    private static void Write(uint value, byte[] alphabet, ref Span<byte> destination)
-    {
-        var destinationIndex = destination.Length - 1;
-
-        var remain = (int)value;
-        do
+        while (columnNumber > 0)
         {
-            var charIndex = remain % alphabet.Length;
+            var modulo = (columnNumber - 1) % 26;
+            columnName[index] = Convert.ToByte('A' + modulo);
+            columnNumber = (columnNumber - modulo) / 26;
+            index++;
+        }
 
-            if (destinationIndex < 0)
-                throw new InvalidOperationException("Destination has no enough size to write alias.");
+        columnName = columnName[..index];
+        columnName.Reverse();
 
-            destination[destinationIndex] = alphabet[charIndex];
+        columnName.CopyTo(destination);
 
-            destinationIndex--;
-            remain /= alphabet.Length;
-        } while (remain > 0);
-
-        destination = destination.Slice(0, destinationIndex + 1);
+        destination = destination.Slice(columnName.Length);
+        written += columnName.Length;
     }
 }

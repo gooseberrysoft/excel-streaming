@@ -56,13 +56,14 @@ internal sealed class SheetWriter
 
         Constants.Worksheet.View.Middle.WriteTo(buffer, ref span, ref written);
 
-        if (configuration.TopLeftUnpinnedCell.HasValue)
-            WriteTopLeftUnpinnedCell(configuration.TopLeftUnpinnedCell.Value, buffer, ref span, ref written);
+        if (configuration.FreezeColumns.HasValue || configuration.FreezeRows.HasValue)
+            WriteFreezePanes(
+                new CellReference(configuration.FreezeColumns ?? 0, configuration.FreezeRows ?? 0), buffer, ref span, ref written);
 
         Constants.Worksheet.View.Postfix.WriteTo(buffer, ref span, ref written);
     }
 
-    private static void WriteTopLeftUnpinnedCell(
+    private static void WriteFreezePanes(
         CellReference cellReference,
         BuffersChain buffer,
         ref Span<byte> span,

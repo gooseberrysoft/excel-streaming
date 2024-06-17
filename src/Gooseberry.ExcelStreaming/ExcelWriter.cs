@@ -401,7 +401,7 @@ public sealed class ExcelWriter : IAsyncDisposable
             _hyperlinks[hyperlink.Link] = references;
         }
 
-        references.Add(new CellReference(_rowCount, _columnCount));
+        references.Add(new CellReference(_columnCount, _rowCount));
     }
 
     private ValueTask AddWorkbook()
