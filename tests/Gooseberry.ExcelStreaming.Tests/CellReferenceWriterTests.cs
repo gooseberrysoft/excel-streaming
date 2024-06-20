@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using DocumentFormat.OpenXml.Bibliography;
 using FluentAssertions;
 using Gooseberry.ExcelStreaming.Writers;
 using Xunit;
