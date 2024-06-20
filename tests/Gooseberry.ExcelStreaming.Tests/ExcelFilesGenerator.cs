@@ -97,7 +97,7 @@ public sealed class ExcelFilesGenerator
         await writer.Complete();
     }
 
-    [Fact(Skip = null)]
+    [Fact(Skip = Skip)]
     public async Task Primitive()
     {
         await using var outputStream = new FileStream(BasePath + "Primitive.xlsx", FileMode.Create);

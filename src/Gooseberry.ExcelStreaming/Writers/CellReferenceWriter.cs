@@ -2,7 +2,7 @@ using System.Runtime.CompilerServices;
 
 namespace Gooseberry.ExcelStreaming.Writers;
 
-internal static class CellAliasWriter
+internal static class CellReferenceWriter
 {
     private static readonly byte[] Colon = [(byte)':'];
     private const int ColumnNameMaxLength = 3; //XFD last column name
@@ -10,7 +10,7 @@ internal static class CellAliasWriter
     private const int MaxLength = ColumnNameMaxLength + RowMaxLength;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static void WriteTo(
+    public static void WriteTo(
         this in Merge merge,
         BuffersChain buffer,
         ref Span<byte> destination,
@@ -22,7 +22,7 @@ internal static class CellAliasWriter
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static void WriteTo(
+    public static void WriteTo(
         this CellReference cellReference,
         BuffersChain buffer,
         ref Span<byte> destination,
@@ -39,6 +39,7 @@ internal static class CellAliasWriter
         cellReference.Row.WriteTo(buffer, ref destination, ref written);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void WriteColumnName(uint columnNumber, ref Span<byte> destination, ref int written)
     {
         if (columnNumber <= 26)
