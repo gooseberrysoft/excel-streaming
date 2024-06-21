@@ -16,9 +16,9 @@ internal static class CellReferenceWriter
         ref Span<byte> destination,
         ref int written)
     {
-        WriteTo(merge.RightBottom, buffer, ref destination, ref written);
-        Colon.WriteTo(buffer, ref destination, ref written);
         WriteTo(merge.TopLeft, buffer, ref destination, ref written);
+        Colon.WriteTo(buffer, ref destination, ref written);
+        WriteTo(merge.RightBottom, buffer, ref destination, ref written);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
