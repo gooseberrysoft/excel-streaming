@@ -8,6 +8,7 @@ internal static class CellReferenceWriter
     private const int ColumnNameMaxLength = 3; //XFD last column name
     private const int RowMaxLength = 7; //1000000 
     private const int MaxLength = ColumnNameMaxLength + RowMaxLength;
+    private const byte A = (byte)'A';
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteTo(
@@ -44,8 +45,8 @@ internal static class CellReferenceWriter
     {
         if (columnNumber <= 26)
         {
-            destination[0] = Convert.ToByte('A' + (columnNumber - 1));
-            destination = destination.Slice(1);
+            destination[0] = (byte)(A + (columnNumber - 1));
+            destination = destination[1..];
             written += 1;
 
             return;
@@ -62,7 +63,7 @@ internal static class CellReferenceWriter
         while (columnNumber > 0)
         {
             var modulo = (columnNumber - 1) % 26;
-            columnName[index] = Convert.ToByte('A' + modulo);
+            columnName[index] = (byte)(A + modulo);
             columnNumber = (columnNumber - modulo) / 26;
             index++;
         }
@@ -72,7 +73,7 @@ internal static class CellReferenceWriter
 
         columnName.CopyTo(destination);
 
-        destination = destination.Slice(columnName.Length);
+        destination = destination[columnName.Length..];
         written += columnName.Length;
     }
 }
