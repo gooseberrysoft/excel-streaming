@@ -398,8 +398,8 @@ public sealed class ExcelWriterTests
                 new SheetConfiguration(
                     new[]
                     {
-                        new Column(width: 10m),
-                        new Column(width: 15m)
+                        new Column(Width: 10m),
+                        new Column(Width: 15m)
                     }));
 
             await writer.Complete();

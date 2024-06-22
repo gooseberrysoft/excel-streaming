@@ -4,6 +4,6 @@ namespace Gooseberry.ExcelStreaming;
 
 public readonly record struct SheetConfiguration(
     IReadOnlyCollection<Column>? Columns = null,
-    uint? FreezeRows = null,
-    uint? FreezeColumns = null,
+    uint? FrozenRows = null,
+    uint? FrozenColumns = null,
     bool ShowGridLines = true);

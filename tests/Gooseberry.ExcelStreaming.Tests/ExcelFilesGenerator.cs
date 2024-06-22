@@ -135,14 +135,14 @@ public sealed class ExcelFilesGenerator
         await writer.Complete();
     }
 
-    [Fact(Skip = Skip)]
+    [Fact(Skip = null)]
     public async Task IncreaseColumns()
     {
         await using var outputStream = new FileStream(BasePath + "IncreaseColumns.xlsx", FileMode.Create);
 
         await using var writer = new ExcelWriter(outputStream);
 
-        await writer.StartSheet($"test#1");
+        await writer.StartSheet($"test#1", new SheetConfiguration(FrozenRows: 3));
 
         for (var row = 0; row < 1000; row++)
         {
