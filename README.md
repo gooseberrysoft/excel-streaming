@@ -27,7 +27,7 @@ var sheetConfig = new SheetConfiguration(
     FrozenRows: 3, // freeze pane: rows count
     ShowGridLines: true);
 
-await writer.StartSheet("First sheet", sheetConf);
+await writer.StartSheet("First sheet", sheetConfig);
 
 writer.AddEmptyRows(3); // three empty rows
 
