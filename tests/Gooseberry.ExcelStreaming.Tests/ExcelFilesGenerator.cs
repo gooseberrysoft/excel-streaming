@@ -65,7 +65,7 @@ public sealed class ExcelFilesGenerator
             for (var i = 0; i < 10; i++)
                 await writer.StartRow();
 
-            writer.AddPicture(Picture, PictureFormat.Jpeg, new AnchorCell(3, 1), new Size(100, 130));
+            writer.AddPicture(Picture, PictureFormat.Jpeg, new AnchorCell(0, 0), new Size(100, 130));
             writer.AddPicture(Picture, PictureFormat.Jpeg, new AnchorCell(10, 1), new AnchorCell(15, 10));
 
 
@@ -91,6 +91,11 @@ public sealed class ExcelFilesGenerator
                     writer.AddCell(sharedStringRef1);
                     writer.AddCell(sharedStringRef2);
                 }
+
+                if (row == 0)
+                {
+                    writer.AddCellPicture(Picture, PictureFormat.Jpeg, new Size(100, 100));
+                }
             }
         }
 
@@ -108,12 +113,14 @@ public sealed class ExcelFilesGenerator
         {
             await writer.StartSheet($"test#{sheetIndex}");
 
+            writer.AddEmptyRows(3);
             for (var row = 0; row < 10_000; row++)
             {
                 await writer.StartRow();
 
                 for (var columnBatch = 0; columnBatch < 2; columnBatch++)
                 {
+                    writer.AddEmptyCells(2);
                     writer.AddCell(row);
                     writer.AddCell(DateTime.Now.Ticks);
                     writer.AddCell(DateTime.Now);
@@ -121,8 +128,13 @@ public sealed class ExcelFilesGenerator
                     writer.AddCell("‰Tags such as <img> and <input> directly introduce content into the page.");
                     writer.AddUtf8Cell("Utf8 string with <tags>‰"u8);
                     writer.AddCell("String as chars".AsSpan());
+                    writer.AddEmptyCells(2);
+                    writer.AddCell('&');
+                    writer.AddCell('!');
                 }
             }
+
+            writer.AddEmptyRows(3);
         }
 
         await writer.Complete();
@@ -135,7 +147,7 @@ public sealed class ExcelFilesGenerator
 
         await using var writer = new ExcelWriter(outputStream);
 
-        await writer.StartSheet($"test#1");
+        await writer.StartSheet($"test#1", new SheetConfiguration(FrozenRows: 3));
 
         for (var row = 0; row < 1000; row++)
         {
@@ -146,6 +158,27 @@ public sealed class ExcelFilesGenerator
                 writer.AddCell(column + row);
             }
         }
+
+        await writer.Complete();
+    }
+
+    [Fact(Skip = Skip)]
+    public async Task Pictures()
+    {
+        await using var outputStream = new FileStream(BasePath + "Picture.xlsx", FileMode.Create);
+
+        await using var writer = new ExcelWriter(outputStream);
+
+        await writer.StartSheet($"test#1");
+
+        await writer.StartRow();
+        writer.AddCellPicture(Picture, PictureFormat.Jpeg, new Size(100, 100));
+
+        writer.AddEmptyRows(5);
+
+        await writer.StartRow();
+        writer.AddEmptyCells(3);
+        writer.AddCellPicture(Picture, PictureFormat.Jpeg, new Size(100, 100));
 
         await writer.Complete();
     }
@@ -182,7 +215,7 @@ public sealed class ExcelFilesGenerator
 
         for (int i = 0; i <= column; i++)
         {
-            symbolBytes.CopyTo(span.Slice(i*symbolBytes.Length));
+            symbolBytes.CopyTo(span.Slice(i * symbolBytes.Length));
         }
 
         writer.AddUtf8Cell(span);

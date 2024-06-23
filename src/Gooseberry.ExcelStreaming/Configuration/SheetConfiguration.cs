@@ -2,21 +2,8 @@
 
 namespace Gooseberry.ExcelStreaming;
 
-public readonly struct SheetConfiguration
-{
-    public SheetConfiguration(
-        IReadOnlyCollection<Column>? columns = null,
-        CellReference? topLeftUnpinnedCell = null,
-        bool showGridLines = true)
-    {
-        ShowGridLines = showGridLines;
-        Columns = columns;
-        TopLeftUnpinnedCell = topLeftUnpinnedCell;
-    }
-
-    public IReadOnlyCollection<Column>? Columns { get; }
-
-    public CellReference? TopLeftUnpinnedCell { get; }
-
-    public bool ShowGridLines { get; }
-}
+public readonly record struct SheetConfiguration(
+    IReadOnlyCollection<Column>? Columns = null,
+    uint? FrozenRows = null,
+    uint? FrozenColumns = null,
+    bool ShowGridLines = true);

@@ -56,18 +56,26 @@ internal sealed class SheetWriter
 
         Constants.Worksheet.View.Middle.WriteTo(buffer, ref span, ref written);
 
-        if (configuration.TopLeftUnpinnedCell.HasValue)
-            WriteTopLeftUnpinnedCell(configuration.TopLeftUnpinnedCell.Value, buffer, ref span, ref written);
+        if (configuration.FrozenColumns.HasValue || configuration.FrozenRows.HasValue)
+        {
+            WriteFreezePanes(
+                new CellReference(
+                    (configuration.FrozenColumns ?? 0) + 1,
+                    (configuration.FrozenRows ?? 0) + 1),
+                buffer, ref span, ref written);
+        }
 
         Constants.Worksheet.View.Postfix.WriteTo(buffer, ref span, ref written);
     }
 
-    private static void WriteTopLeftUnpinnedCell(
+    private static void WriteFreezePanes(
         CellReference cellReference,
         BuffersChain buffer,
         ref Span<byte> span,
         ref int written)
     {
+        Constants.Worksheet.View.Pane.Prefix.WriteTo(buffer, ref span, ref written);
+
         Constants.Worksheet.View.Pane.TopLeftCell.Prefix.WriteTo(buffer, ref span, ref written);
         cellReference.WriteTo(buffer, ref span, ref written);
         Constants.Worksheet.View.Pane.TopLeftCell.Postfix.WriteTo(buffer, ref span, ref written);
@@ -79,6 +87,8 @@ internal sealed class SheetWriter
         Constants.Worksheet.View.Pane.XSplit.Prefix.WriteTo(buffer, ref span, ref written);
         (cellReference.Column - 1).WriteTo(buffer, ref span, ref written);
         Constants.Worksheet.View.Pane.XSplit.Postfix.WriteTo(buffer, ref span, ref written);
+
+        Constants.Worksheet.View.Pane.Postfix.WriteTo(buffer, ref span, ref written);
     }
 
     private static void WriteShowGridLines(

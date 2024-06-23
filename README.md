@@ -20,18 +20,29 @@ await using var file = new FileStream("myExcelReport.xlsx", FileMode.Create);
 
 await using var writer = new ExcelWriter(file, token: cancellationToken);
 
-await writer.StartSheet("First sheet");
+// optional sheet configuration
+var sheetConfig = new SheetConfiguration(
+    Columns: [new Column(Width: 10m), new Column(Width: 13m)], // column width
+    FrozenColumns: 1, // freeze pane: colums count
+    FrozenRows: 3, // freeze pane: rows count
+    ShowGridLines: true);
+
+await writer.StartSheet("First sheet", sheetConfig);
+
+writer.AddEmptyRows(3); // three empty rows
 
 await foreach(var record in store.GetRecordsAsync(cancellationToken))
 {
     await writer.StartRow();
 
     writer.AddEmptyCell(); // empty
+    writer.AddEmptyCells(5); // five empty cells
     writer.AddCell(record.IntValue); // int
     writer.AddCell(DateTime.Now.Ticks); // long
     writer.AddCell(DateTime.Now); // DateTime
     writer.AddCell(123.765M); // decimal
     writer.AddCell("string"); // string
+    writer.AddCell('#'); // char
     writer.AddUtf8Cell("string"u8); // utf8 string
     writer.AddCellWithSharedString("shard"); // shared string
     // hyperlink
@@ -54,7 +65,7 @@ for (var row = 0; row < 100; row++)
    ... //write rows
 }
 
-await writer.Complete();
+await writer.Complete(); // DisposeAsync method also will call Complete
 ```
 More [working samples](https://github.com/gooseberrysoft/excel-streaming/blob/main/tests/Gooseberry.ExcelStreaming.Tests/ExcelFilesGenerator.cs)
 

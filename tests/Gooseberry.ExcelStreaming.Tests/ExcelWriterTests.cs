@@ -58,6 +58,118 @@ public sealed class ExcelWriterTests
     }
 
     [Fact]
+    public async Task ExcelWriter_WritesEmptyCells()
+    {
+        var outputStream = new MemoryStream();
+
+        var now = DateTime.Now;
+
+        await using (var writer = new ExcelWriter(outputStream))
+        {
+            await writer.StartSheet("test sheet");
+
+            await writer.StartRow();
+            writer.AddEmptyCells(1);
+            writer.AddCell("Id");
+            writer.AddCell("Name");
+            writer.AddCell("Date");
+
+            await writer.StartRow();
+            writer.AddCell(1);
+            writer.AddEmptyCells(3);
+            writer.AddCell("name");
+            writer.AddCell(now);
+
+            await writer.Complete();
+        }
+
+        outputStream.Seek(0, SeekOrigin.Begin);
+
+        var sheets = ExcelReader.ReadSheets(outputStream);
+
+        var expectedSheet = new Excel.Sheet(
+            "test sheet",
+            new[]
+            {
+                new Row(new[]
+                {
+                    new Cell("", CellValueType.String),
+                    new Cell("Id", CellValueType.String),
+                    new Cell("Name", CellValueType.String),
+                    new Cell("Date", CellValueType.String)
+                }),
+                new Row(new[]
+                {
+                    new Cell("1", CellValueType.Number, Constants.DefaultNumberStyle),
+                    new Cell("", CellValueType.String),
+                    new Cell("", CellValueType.String),
+                    new Cell("", CellValueType.String),
+                    new Cell("name", CellValueType.String),
+                    new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), Style: Constants.DefaultDateTimeStyle)
+                })
+            });
+
+        sheets.ShouldBeEquivalentTo(expectedSheet);
+    }
+
+    [Fact]
+    public async Task ExcelWriter_WritesEmptyRows()
+    {
+        var outputStream = new MemoryStream();
+
+        var now = DateTime.Now;
+
+        await using (var writer = new ExcelWriter(outputStream))
+        {
+            await writer.StartSheet("test sheet");
+
+            writer.AddEmptyRows(1);
+
+            await writer.StartRow();
+            writer.AddCell("Id");
+            writer.AddCell("Name");
+            writer.AddCell("Date");
+
+            writer.AddEmptyRows(3);
+
+            await writer.StartRow();
+            writer.AddCell(1);
+            writer.AddCell("name");
+            writer.AddCell(now);
+
+            await writer.Complete();
+        }
+
+        outputStream.Seek(0, SeekOrigin.Begin);
+
+        var sheets = ExcelReader.ReadSheets(outputStream);
+
+        var expectedSheet = new Excel.Sheet(
+            "test sheet",
+            new[]
+            {
+                new Row([]),
+                new Row(new[]
+                {
+                    new Cell("Id", CellValueType.String),
+                    new Cell("Name", CellValueType.String),
+                    new Cell("Date", CellValueType.String)
+                }),
+                new Row([]),
+                new Row([]),
+                new Row([]),
+                new Row(new[]
+                {
+                    new Cell("1", CellValueType.Number, Constants.DefaultNumberStyle),
+                    new Cell("name", CellValueType.String),
+                    new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), Style: Constants.DefaultDateTimeStyle)
+                })
+            });
+
+        sheets.ShouldBeEquivalentTo(expectedSheet);
+    }
+
+    [Fact]
     public async Task ExcelWriterTwoSheets_WritesCorrectData()
     {
         using var outputStream = new MemoryStream();
@@ -398,8 +510,8 @@ public sealed class ExcelWriterTests
                 new SheetConfiguration(
                     new[]
                     {
-                        new Column(width: 10m),
-                        new Column(width: 15m)
+                        new Column(Width: 10m),
+                        new Column(Width: 15m)
                     }));
 
             await writer.Complete();

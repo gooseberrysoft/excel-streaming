@@ -122,8 +122,8 @@ public static class ExcelReader
         AnchorCell GetAnchorCell(MarkerType marker)
         {
             return new AnchorCell(
-                Row: int.Parse(marker.RowId?.Text ?? ""),
-                Column: int.Parse(marker.ColumnId?.Text ?? ""),
+                Row: uint.Parse(marker.RowId?.Text ?? ""),
+                Column: uint.Parse(marker.ColumnId?.Text ?? ""),
                 Offset: new Point(
                     x: int.Parse(marker.ColumnOffset?.Text ?? ""),
                     y: int.Parse(marker.RowOffset?.Text ?? "")));
