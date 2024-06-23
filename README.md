@@ -20,12 +20,12 @@ await using var file = new FileStream("myExcelReport.xlsx", FileMode.Create);
 
 await using var writer = new ExcelWriter(file, token: cancellationToken);
 
-// optional sheet config
+// optional sheet configuration
 var sheetConfig = new SheetConfiguration(
-Columns: [new Column(Width: 10m), new Column(Width: 13m)], // column width
-FrozenColumns: 1, // freeze pane: colums count
-FrozenRows: 3, // freeze pane: rows count
-ShowGridLines: true);
+    Columns: [new Column(Width: 10m), new Column(Width: 13m)], // column width
+    FrozenColumns: 1, // freeze pane: colums count
+    FrozenRows: 3, // freeze pane: rows count
+    ShowGridLines: true);
 
 await writer.StartSheet("First sheet", sheetConf);
 
