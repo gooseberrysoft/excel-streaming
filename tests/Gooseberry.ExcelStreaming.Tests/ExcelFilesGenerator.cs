@@ -65,7 +65,7 @@ public sealed class ExcelFilesGenerator
             for (var i = 0; i < 10; i++)
                 await writer.StartRow();
 
-            writer.AddPicture(Picture, PictureFormat.Jpeg, new AnchorCell(3, 1), new Size(100, 130));
+            writer.AddPicture(Picture, PictureFormat.Jpeg, new AnchorCell(0, 0), new Size(100, 130));
             writer.AddPicture(Picture, PictureFormat.Jpeg, new AnchorCell(10, 1), new AnchorCell(15, 10));
 
 
@@ -90,6 +90,11 @@ public sealed class ExcelFilesGenerator
                     writer.AddCell(new Hyperlink("https://github.com/gooseberrysoft/excel-streaming", "Excel Streaming"));
                     writer.AddCell(sharedStringRef1);
                     writer.AddCell(sharedStringRef2);
+                }
+
+                if (row == 0)
+                {
+                    writer.AddCellPicture(Picture, PictureFormat.Jpeg, new Size(100, 100));
                 }
             }
         }
@@ -135,7 +140,7 @@ public sealed class ExcelFilesGenerator
         await writer.Complete();
     }
 
-    [Fact(Skip = null)]
+    [Fact(Skip = Skip)]
     public async Task IncreaseColumns()
     {
         await using var outputStream = new FileStream(BasePath + "IncreaseColumns.xlsx", FileMode.Create);
@@ -153,6 +158,27 @@ public sealed class ExcelFilesGenerator
                 writer.AddCell(column + row);
             }
         }
+
+        await writer.Complete();
+    }
+
+    [Fact(Skip = Skip)]
+    public async Task Pictures()
+    {
+        await using var outputStream = new FileStream(BasePath + "Picture.xlsx", FileMode.Create);
+
+        await using var writer = new ExcelWriter(outputStream);
+
+        await writer.StartSheet($"test#1");
+
+        await writer.StartRow();
+        writer.AddCellPicture(Picture, PictureFormat.Jpeg, new Size(100, 100));
+
+        writer.AddEmptyRows(5);
+
+        await writer.StartRow();
+        writer.AddEmptyCells(3);
+        writer.AddCellPicture(Picture, PictureFormat.Jpeg, new Size(100, 100));
 
         await writer.Complete();
     }

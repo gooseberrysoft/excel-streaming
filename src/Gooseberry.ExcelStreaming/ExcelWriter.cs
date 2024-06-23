@@ -106,6 +106,7 @@ public sealed class ExcelWriter : IAsyncDisposable
 
     public void AddEmptyRows(uint count)
     {
+        //TODO: Optimize with r (rowIndex)
         EnsureNotCompleted();
 
         if (_sheetWriter == null)
@@ -140,9 +141,9 @@ public sealed class ExcelWriter : IAsyncDisposable
     public void AddCellPicture(Stream picture, PictureFormat format, Size size, uint rightMerge = 0, uint downMerge = 0)
     {
         CheckWriteCell();
-        
+
         _sheetDrawings.AddPicture(_sheets[^1].Id, picture, format,
-            new OneCellAnchorPicturePlacementWriter(new AnchorCell(_columnCount, _rowCount), size));
+            new OneCellAnchorPicturePlacementWriter(new AnchorCell(_columnCount, _rowCount - 1), size));
 
         _columnCount += 1;
         AddMerge(rightMerge, downMerge);
@@ -152,8 +153,8 @@ public sealed class ExcelWriter : IAsyncDisposable
     {
         CheckWriteCell();
 
-        _sheetDrawings.AddPicture(_sheets[^1].Id, picture, format, 
-            new OneCellAnchorPicturePlacementWriter(new AnchorCell(_columnCount, _rowCount), size));
+        _sheetDrawings.AddPicture(_sheets[^1].Id, picture, format,
+            new OneCellAnchorPicturePlacementWriter(new AnchorCell(_columnCount, _rowCount - 1), size));
 
         _columnCount += 1;
         AddMerge(rightMerge, downMerge);
@@ -310,6 +311,7 @@ public sealed class ExcelWriter : IAsyncDisposable
 
     public void AddEmptyCells(uint count, StyleReference? style = null)
     {
+        //TODO: Optimize with r (cellIndex)
         CheckWriteCell();
 
         if (count == 0)
