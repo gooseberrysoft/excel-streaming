@@ -67,7 +67,7 @@ for (var row = 0; row < 100; row++)
 
 await writer.Complete(); // DisposeAsync method also will call Complete
 ```
-More [working samples](https://github.com/gooseberrysoft/excel-streaming/blob/main/tests/Gooseberry.ExcelStreaming.Tests/ExcelFilesGenerator.cs)
+More [examples](https://github.com/gooseberrysoft/excel-streaming/blob/main/tests/Gooseberry.ExcelStreaming.Tests/ExcelFilesGenerator.cs)
 
 
 ### Write Excel file to Http response ###
