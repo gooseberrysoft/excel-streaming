@@ -44,7 +44,7 @@ await foreach(var record in store.GetRecordsAsync(cancellationToken))
     writer.AddCell("string"); // string
     writer.AddCell('#'); // char
     writer.AddUtf8Cell("string"u8); // utf8 string
-    writer.AddCellWithSharedString("shard"); // shared string
+    writer.AddCellWithSharedString("shared"); // shared string
     // hyperlink
     writer.AddCell(new Hyperlink("https://[address]", "Label text")); 
 }
