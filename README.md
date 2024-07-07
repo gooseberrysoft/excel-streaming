@@ -47,6 +47,8 @@ await foreach(var record in store.GetRecordsAsync(cancellationToken))
     writer.AddCellWithSharedString("shared"); // shared string
     // hyperlink
     writer.AddCell(new Hyperlink("https://[address]", "Label text")); 
+    // cell with picture
+    writer.AddCellPicture(someStreamOrByteArray, PictureFormat.Jpeg, new Size(100, 130));
 }
 
 // Adding picture from stream to "First sheet" placed to
