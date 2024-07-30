@@ -37,7 +37,7 @@ await foreach(var record in store.GetRecordsAsync(cancellationToken))
 
     writer.AddEmptyCell(); // empty
     writer.AddEmptyCells(5); // five empty cells
-    writer.AddCell(record.IntValue); // int
+    writer.AddCell(42); // int
     writer.AddCell(DateTime.Now.Ticks); // long
     writer.AddCell(DateTime.Now); // DateTime
     writer.AddCell(123.765M); // decimal
