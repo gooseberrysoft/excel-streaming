@@ -160,7 +160,6 @@ public sealed class ExcelWriter : IAsyncDisposable
         AddMerge(rightMerge, downMerge);
     }
 
-
     public void AddCell(string data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
         => AddCell(data.AsSpan(), style, rightMerge, downMerge);
 
@@ -208,6 +207,23 @@ public sealed class ExcelWriter : IAsyncDisposable
     }
 
     public void AddCell(decimal? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+    {
+        if (data.HasValue)
+            AddCell(data.Value, style, rightMerge, downMerge);
+        else
+            AddEmptyCell(style, rightMerge, downMerge);
+    }
+
+    public void AddCell(double data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+    {
+        CheckWriteCell();
+        DataWriters.DoubleCellWriter.Write(data, _buffer, style ?? _styles.GeneralStyle);
+
+        _columnCount += 1;
+        AddMerge(rightMerge, downMerge);
+    }
+
+    public void AddCell(double? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
         if (data.HasValue)
             AddCell(data.Value, style, rightMerge, downMerge);

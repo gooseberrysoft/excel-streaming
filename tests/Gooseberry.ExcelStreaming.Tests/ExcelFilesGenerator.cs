@@ -131,6 +131,8 @@ public sealed class ExcelFilesGenerator
                     writer.AddEmptyCells(2);
                     writer.AddCell('&');
                     writer.AddCell('!');
+                    writer.AddCell(12345678907877.8787878787878787d);
+                    writer.AddCell(double.MinValue);
                 }
             }
 

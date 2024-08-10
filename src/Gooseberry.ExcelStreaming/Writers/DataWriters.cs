@@ -23,6 +23,9 @@ internal static class DataWriters
     public static readonly NumberCellWriter<decimal, DecimalFormatter> DecimalCellWriter =
         new(Constants.Worksheet.SheetData.Row.Cell.NumberDataType);
 
+    public static readonly NumberCellWriter<double, DoubleFormatter> DoubleCellWriter =
+        new(Constants.Worksheet.SheetData.Row.Cell.NumberDataType);
+
     public static readonly NumberCellWriter<DateTime, DateTimeFormatter> DateTimeCellWriter =
         new(Constants.Worksheet.SheetData.Row.Cell.DateTimeDataType);
 
