@@ -9,69 +9,6 @@ namespace Gooseberry.ExcelStreaming.Tests;
 public sealed class ExcelWriterTests
 {
     [Fact]
-    public async Task ExcelWriter_WritesCorrectData_WithCollapse()
-    {
-        var outputStream = new MemoryStream();
-
-        var now = DateTime.Now;
-
-        await using (var writer = new ExcelWriter(outputStream))
-        {
-            await writer.StartSheet("test sheet");
-
-            await writer.StartRow(isHidden: true, outlineLevel: 1, isCollapsed: true);
-            writer.AddCell(1);
-            writer.AddCell("name1");
-            writer.AddCell(now);
-
-            await writer.StartRow(isHidden: true, outlineLevel: 1);
-            writer.AddCell(2);
-            writer.AddCell("name2");
-            writer.AddCell(now);
-
-            await writer.StartRow(isHidden: true, outlineLevel: 1);
-            writer.AddCell(3);
-            writer.AddCell("name3");
-            writer.AddCell(now);
-
-            await writer.Complete();
-        }
-
-        outputStream.Seek(0, SeekOrigin.Begin);
-
-        // todo test
-
-        // await using (var fileStream = new FileStream(@"d:\work\temp\report.xlsx", FileMode.Create, FileAccess.Write))
-        // {
-        //     await outputStream.CopyToAsync(fileStream);
-        // }
-        //
-        // outputStream.Seek(0, SeekOrigin.Begin);
-        //
-        // var sheets = ExcelReader.ReadSheets(outputStream);
-        //
-        // var expectedSheet = new Excel.Sheet(
-        //     "test sheet",
-        //     new[]
-        //     {
-        //         new Row(new[]
-        //         {
-        //             new Cell("Id", CellValueType.String),
-        //             new Cell("Name", CellValueType.String),
-        //             new Cell("Date", CellValueType.String)
-        //         }),
-        //         new Row(new[]
-        //         {
-        //             new Cell("1", CellValueType.Number, Constants.DefaultNumberStyle),
-        //             new Cell("name", CellValueType.String),
-        //             new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), Style: Constants.DefaultDateTimeStyle)
-        //         })
-        //     });
-        //
-        // sheets.ShouldBeEquivalentTo(expectedSheet);
-    }
-
-    [Fact]
     public async Task ExcelWriter_WritesCorrectData()
     {
         var outputStream = new MemoryStream();
@@ -612,6 +549,137 @@ public sealed class ExcelWriterTests
         var expectedSheet = new Excel.Sheet(
             "test sheet",
             new[] { new Row(Array.Empty<Cell>(), height: 10.8m) });
+
+        sheets.ShouldBeEquivalentTo(expectedSheet);
+    }
+
+    [Fact]
+    public async Task ExcelWriter_Attributes_Hidden_OutLineLevel_Collapsed()
+    {
+        var outputStream = new MemoryStream();
+
+        var now = DateTime.Now;
+
+        await using (var writer = new ExcelWriter(outputStream))
+        {
+            await writer.StartSheet("test sheet");
+
+            await writer.StartRow();
+            writer.AddCell("Id");
+            writer.AddCell("Name");
+            writer.AddCell("Date");
+
+            await writer.StartRow(isHidden: true, outlineLevel: 1, isCollapsed: true);
+            writer.AddCell(1);
+            writer.AddCell("name1");
+            writer.AddCell(now);
+
+            await writer.StartRow(isHidden: true, outlineLevel: 1);
+            writer.AddCell(2);
+            writer.AddCell("name2");
+            writer.AddCell(now);
+
+            await writer.StartRow(isHidden: true, outlineLevel: 1);
+            writer.AddCell(3);
+            writer.AddCell("name3");
+            writer.AddCell(now);
+
+            await writer.Complete();
+        }
+
+        outputStream.Seek(0, SeekOrigin.Begin);
+
+        var sheets = ExcelReader.ReadSheets(outputStream);
+
+        var expectedSheet = new Excel.Sheet(
+            "test sheet",
+            new[]
+            {
+                new Row(new[]
+                {
+                    new Cell("Id", CellValueType.String),
+                    new Cell("Name", CellValueType.String),
+                    new Cell("Date", CellValueType.String)
+                }),
+                new Row(new[]
+                {
+                    new Cell("1", CellValueType.Number, Constants.DefaultNumberStyle),
+                    new Cell("name1", CellValueType.String),
+                    new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), Style: Constants.DefaultDateTimeStyle)
+                }, isHidden: true, outlineLevel: 1, isCollapsed: true),
+                new Row(new[]
+                {
+                    new Cell("2", CellValueType.Number, Constants.DefaultNumberStyle),
+                    new Cell("name2", CellValueType.String),
+                    new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), Style: Constants.DefaultDateTimeStyle)
+                }, isHidden: true, outlineLevel: 1),
+                new Row(new[]
+                {
+                    new Cell("3", CellValueType.Number, Constants.DefaultNumberStyle),
+                    new Cell("name3", CellValueType.String),
+                    new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), Style: Constants.DefaultDateTimeStyle)
+                }, isHidden: true, outlineLevel: 1)
+            });
+
+        sheets.ShouldBeEquivalentTo(expectedSheet);
+    }
+
+    [Fact]
+    public async Task ExcelWriter_Attributes_NotHidden_NotCollapsed()
+    {
+        var outputStream = new MemoryStream();
+
+        var now = DateTime.Now;
+
+        await using (var writer = new ExcelWriter(outputStream))
+        {
+            await writer.StartSheet("test sheet");
+
+            await writer.StartRow();
+            writer.AddCell("Id");
+            writer.AddCell("Name");
+            writer.AddCell("Date");
+
+            await writer.StartRow(isHidden: false, isCollapsed: false);
+            writer.AddCell(1);
+            writer.AddCell("name1");
+            writer.AddCell(now);
+
+            await writer.StartRow();
+            writer.AddCell(2);
+            writer.AddCell("name2");
+            writer.AddCell(now);
+
+            await writer.Complete();
+        }
+
+        outputStream.Seek(0, SeekOrigin.Begin);
+
+        var sheets = ExcelReader.ReadSheets(outputStream);
+
+        var expectedSheet = new Excel.Sheet(
+            "test sheet",
+            new[]
+            {
+                new Row(new[]
+                {
+                    new Cell("Id", CellValueType.String),
+                    new Cell("Name", CellValueType.String),
+                    new Cell("Date", CellValueType.String)
+                }),
+                new Row(new[]
+                {
+                    new Cell("1", CellValueType.Number, Constants.DefaultNumberStyle),
+                    new Cell("name1", CellValueType.String),
+                    new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), Style: Constants.DefaultDateTimeStyle)
+                }),
+                new Row(new[]
+                {
+                    new Cell("2", CellValueType.Number, Constants.DefaultNumberStyle),
+                    new Cell("name2", CellValueType.String),
+                    new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), Style: Constants.DefaultDateTimeStyle)
+                })
+            });
 
         sheets.ShouldBeEquivalentTo(expectedSheet);
     }

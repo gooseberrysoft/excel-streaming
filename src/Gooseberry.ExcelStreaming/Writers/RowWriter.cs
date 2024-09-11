@@ -29,7 +29,7 @@ internal sealed class RowWriter
 
         if (rowAttributes.HasValue)
             AddAttributes(buffer, ref span, ref written, rowAttributes.Value);
-        
+
         SheetDataRow.Open.Postfix.WriteTo(buffer, ref span, ref written);
         buffer.Advance(written);
     }
@@ -66,7 +66,7 @@ internal sealed class RowWriter
 
         if (rowAttributes.IsHidden.HasValue && rowAttributes.IsHidden.Value)
             SheetDataRow.Open.Hidden.WriteTo(buffer, ref span, ref written);
-        
+
         if (rowAttributes.IsCollapsed.HasValue && rowAttributes.IsCollapsed.Value)
             SheetDataRow.Open.Collapsed.WriteTo(buffer, ref span, ref written);
     }

@@ -117,7 +117,6 @@ public sealed class ExcelWriter : IAsyncDisposable
             : ValueTask.CompletedTask;
     }
 
-
     public void AddEmptyRows(uint count)
     {
         //TODO: Optimize with r (rowIndex)
