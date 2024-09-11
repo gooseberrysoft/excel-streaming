@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Gooseberry.ExcelStreaming.Attributes;
 using Gooseberry.ExcelStreaming.Pictures;
 using Gooseberry.ExcelStreaming.SharedStrings;
 using Gooseberry.ExcelStreaming.Styles;
@@ -97,7 +98,15 @@ public sealed class ExcelWriter : IAsyncDisposable
         if (_sheetWriter == null)
             throw new InvalidOperationException("Cannot start row before start sheet.");
 
-        DataWriters.RowWriter.WriteStartRow(_buffer, _rowStarted, height, isCollapsed, outlineLevel, isHidden);
+        RowAttributes? rowAttributes = null;
+        if (RowHasAttributes(height, outlineLevel, isHidden, isHidden))
+            rowAttributes = new RowAttributes(
+                Height: height,
+                OutlineLevel: outlineLevel,
+                IsHidden: isHidden,
+                IsCollapsed: isCollapsed);
+
+        DataWriters.RowWriter.WriteStartRow(_buffer, _rowStarted, rowAttributes);
 
         _rowStarted = true;
         _rowCount += 1;
@@ -491,5 +500,14 @@ public sealed class ExcelWriter : IAsyncDisposable
 
         if (!_rowStarted)
             throw new InvalidOperationException("Row is not started yet.");
+    }
+
+    private static bool RowHasAttributes(
+        decimal? height = null,
+        uint? outlineLevel = null,
+        bool isHidden = false,
+        bool isCollapsed = false)
+    {
+        return height.HasValue || isCollapsed || outlineLevel.HasValue || isHidden;
     }
 }
