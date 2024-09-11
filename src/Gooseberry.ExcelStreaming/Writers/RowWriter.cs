@@ -64,10 +64,10 @@ internal sealed class RowWriter
             SheetDataRow.Open.OutlineLevel.Postfix.WriteTo(buffer, ref span, ref written);
         }
 
-        if (rowAttributes.IsHidden)
+        if (rowAttributes.IsHidden.HasValue && rowAttributes.IsHidden.Value)
             SheetDataRow.Open.Hidden.WriteTo(buffer, ref span, ref written);
-
-        if (rowAttributes.IsCollapsed)
+        
+        if (rowAttributes.IsCollapsed.HasValue && rowAttributes.IsCollapsed.Value)
             SheetDataRow.Open.Collapsed.WriteTo(buffer, ref span, ref written);
     }
 

@@ -87,8 +87,8 @@ public sealed class ExcelWriter : IAsyncDisposable
     public ValueTask StartRow(
         decimal? height = null,
         byte? outlineLevel = null,
-        bool isHidden = false,
-        bool isCollapsed = false)
+        bool? isHidden = null,
+        bool? isCollapsed = null)
     {
         EnsureNotCompleted();
 
@@ -99,7 +99,7 @@ public sealed class ExcelWriter : IAsyncDisposable
             throw new InvalidOperationException("Cannot start row before start sheet.");
 
         RowAttributes? rowAttributes = null;
-        if (RowHasAttributes(height, outlineLevel, isHidden, isHidden))
+        if (RowHasAttributes(height, outlineLevel, isHidden, isCollapsed))
             rowAttributes = new RowAttributes(
                 Height: height,
                 OutlineLevel: outlineLevel,
@@ -503,11 +503,14 @@ public sealed class ExcelWriter : IAsyncDisposable
     }
 
     private static bool RowHasAttributes(
-        decimal? height = null,
-        uint? outlineLevel = null,
-        bool isHidden = false,
-        bool isCollapsed = false)
+        decimal? height,
+        uint? outlineLevel,
+        bool? isHidden,
+        bool? isCollapsed)
     {
-        return height.HasValue || isCollapsed || outlineLevel.HasValue || isHidden;
+        return height.HasValue ||
+               outlineLevel.HasValue ||
+               (isHidden.HasValue && isHidden.Value) ||
+               (isCollapsed.HasValue && isCollapsed.Value);
     }
 }

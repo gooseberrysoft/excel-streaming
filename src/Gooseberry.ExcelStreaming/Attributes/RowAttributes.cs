@@ -6,5 +6,5 @@ namespace Gooseberry.ExcelStreaming.Attributes;
 public readonly record struct RowAttributes(
     decimal? Height = null,
     byte? OutlineLevel = null,
-    bool IsHidden = false,
-    bool IsCollapsed = false);
+    bool? IsHidden = false,
+    bool? IsCollapsed = false);
