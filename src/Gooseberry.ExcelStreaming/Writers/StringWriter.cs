@@ -181,7 +181,7 @@ internal static class StringWriter
                 destination = buffer.GetSpan(Buffer.MinSize);
                 written = 0;
             }
-            
+
             encoder.Convert(
                 data,
                 destination,

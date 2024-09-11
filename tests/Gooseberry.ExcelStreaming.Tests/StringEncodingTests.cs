@@ -79,7 +79,7 @@ public sealed class StringEncodingTests
         destination.Length.Should().Be(availableBytes);
 
         int written = 0;
-        ReadOnlySpan<byte> str = _encoding.GetBytes(new []{symbol});
+        ReadOnlySpan<byte> str = _encoding.GetBytes(new[] { symbol });
 
         str.WriteEscapedUtf8To(buffer, ref destination, ref written);
     }

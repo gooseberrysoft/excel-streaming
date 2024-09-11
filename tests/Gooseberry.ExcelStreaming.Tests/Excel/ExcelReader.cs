@@ -48,7 +48,7 @@ public static class ExcelReader
         { CellValues.Date, CellValueType.DateTime },
         { CellValues.SharedString, CellValueType.SharedString }
     };
-    
+
     public static IReadOnlyCollection<Sheet> ReadSheets(Stream stream)
     {
         using var spreadsheet = SpreadsheetDocument.Open(stream, isEditable: false);

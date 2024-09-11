@@ -181,7 +181,7 @@ internal static partial class Constants
 
                         public static ReadOnlySpan<byte> Postfix => "\""u8;
                     }
-                    
+
                     public static ReadOnlySpan<byte> Collapsed => " collapsed=\"1\""u8;
 
                     public static ReadOnlySpan<byte> Hidden => " hidden=\"true\""u8;

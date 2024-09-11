@@ -12,9 +12,9 @@ public sealed class SharpCompressZipArchive(Stream output) : IZipArchive
         LeaveStreamOpen = true
     });
 
-    public void Dispose() 
+    public void Dispose()
         => _archive.Dispose();
 
-    public Stream CreateEntry(string entryPath) 
+    public Stream CreateEntry(string entryPath)
         => _archive.WriteToStream(entryPath, new ZipWriterEntryOptions());
 }

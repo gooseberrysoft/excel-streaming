@@ -45,9 +45,9 @@ public sealed class ExcelWriterTests
         }
 
         outputStream.Seek(0, SeekOrigin.Begin);
-        
+
         var sheets = ExcelReader.ReadSheets(outputStream);
-        
+
         var expectedSheet = new Excel.Sheet(
             "test sheet",
             new[]
@@ -65,7 +65,7 @@ public sealed class ExcelWriterTests
                     new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), Style: Constants.DefaultDateTimeStyle)
                 })
             });
-        
+
         sheets.ShouldBeEquivalentTo(expectedSheet);
     }
 
