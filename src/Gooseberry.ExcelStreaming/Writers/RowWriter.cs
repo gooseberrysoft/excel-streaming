@@ -29,9 +29,8 @@ internal sealed class RowWriter
 
         if (rowAttributes.HasValue)
             AddAttributes(buffer, ref span, ref written, rowAttributes.Value);
-        else
-            SheetDataRow.Open.Postfix.WriteTo(buffer, ref span, ref written);
-
+        
+        SheetDataRow.Open.Postfix.WriteTo(buffer, ref span, ref written);
         buffer.Advance(written);
     }
 
@@ -70,8 +69,6 @@ internal sealed class RowWriter
 
         if (rowAttributes.IsCollapsed)
             SheetDataRow.Open.Collapsed.WriteTo(buffer, ref span, ref written);
-
-        SheetDataRow.Open.Postfix.WriteTo(buffer, ref span, ref written);
     }
 
     private static void StartNewRow(
