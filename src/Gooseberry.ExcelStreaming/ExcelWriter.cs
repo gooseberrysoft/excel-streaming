@@ -86,7 +86,7 @@ public sealed class ExcelWriter : IAsyncDisposable
 
     public ValueTask StartRow(
         decimal? height = null,
-        uint? outlineLevel = null,
+        byte? outlineLevel = null,
         bool isHidden = false,
         bool isCollapsed = false)
     {
