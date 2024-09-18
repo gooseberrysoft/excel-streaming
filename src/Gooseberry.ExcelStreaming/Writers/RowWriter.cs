@@ -1,4 +1,3 @@
-using Gooseberry.ExcelStreaming.Attributes;
 using Gooseberry.ExcelStreaming.Extensions;
 
 namespace Gooseberry.ExcelStreaming.Writers;
@@ -12,12 +11,12 @@ internal sealed class RowWriter
     private static readonly byte[] RowCloseAndStartWithoutAttributes = SheetDataRow.Postfix
             .Combine(SheetDataRow.Open.Prefix, SheetDataRow.Open.Postfix);
 
-    public void WriteStartRow(BuffersChain buffer, bool rowStarted, RowAttributes? rowAttributes = null)
+    public void WriteStartRow(BuffersChain buffer, bool rowStarted, RowAttributes rowAttributes)
     {
         var span = buffer.GetSpan();
         var written = 0;
 
-        if (rowStarted && !rowAttributes.HasValue)
+        if (rowStarted && rowAttributes.IsEmpty())
         {
             RowCloseAndStartWithoutAttributes.WriteTo(buffer, ref span, ref written);
             buffer.Advance(written);
@@ -27,8 +26,8 @@ internal sealed class RowWriter
 
         StartNewRow(buffer, ref span, ref written, rowStarted);
 
-        if (rowAttributes.HasValue)
-            AddAttributes(buffer, ref span, ref written, rowAttributes.Value);
+        if (!rowAttributes.IsEmpty())
+            AddAttributes(buffer, ref span, ref written, rowAttributes);
 
         SheetDataRow.Open.Postfix.WriteTo(buffer, ref span, ref written);
         buffer.Advance(written);

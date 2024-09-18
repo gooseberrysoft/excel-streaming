@@ -1,7 +1,6 @@
 using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Gooseberry.ExcelStreaming.Attributes;
 using Gooseberry.ExcelStreaming.Pictures;
 using Gooseberry.ExcelStreaming.SharedStrings;
 using Gooseberry.ExcelStreaming.Styles;
@@ -84,27 +83,23 @@ public sealed class ExcelWriter : IAsyncDisposable
         DataWriters.SheetWriter.WriteStartSheet(_buffer, configuration);
     }
 
-    public ValueTask StartRow(
-        decimal? height = null,
-        byte? outlineLevel = null,
-        bool? isHidden = null,
-        bool? isCollapsed = null)
+    public ValueTask StartRow(decimal? height = null)
+    {
+        var rowAttributes = new RowAttributes(Height: height);
+
+        return StartRow(rowAttributes);
+    }
+    
+    public ValueTask StartRow(RowAttributes rowAttributes)
     {
         EnsureNotCompleted();
 
+        var height = rowAttributes.Height;
         if (height is <= 0)
             throw new ArgumentOutOfRangeException(nameof(height), "Height of row cannot be less or equal than 0.");
 
         if (_sheetWriter == null)
             throw new InvalidOperationException("Cannot start row before start sheet.");
-
-        RowAttributes? rowAttributes = null;
-        if (RowHasAttributes(height, outlineLevel, isHidden, isCollapsed))
-            rowAttributes = new RowAttributes(
-                Height: height,
-                OutlineLevel: outlineLevel,
-                IsHidden: isHidden,
-                IsCollapsed: isCollapsed);
 
         DataWriters.RowWriter.WriteStartRow(_buffer, _rowStarted, rowAttributes);
 
@@ -119,6 +114,11 @@ public sealed class ExcelWriter : IAsyncDisposable
 
     public void AddEmptyRows(uint count)
     {
+        AddEmptyRows(count, RowAttributes.Empty);
+    }
+    
+    public void AddEmptyRows(uint count, RowAttributes rowAttributes)
+    {
         //TODO: Optimize with r (rowIndex)
         EnsureNotCompleted();
 
@@ -130,7 +130,7 @@ public sealed class ExcelWriter : IAsyncDisposable
 
         for (int i = 0; i < count; i++)
         {
-            DataWriters.RowWriter.WriteStartRow(_buffer, _rowStarted);
+            DataWriters.RowWriter.WriteStartRow(_buffer, _rowStarted, rowAttributes);
             _rowStarted = true;
         }
 
@@ -499,17 +499,5 @@ public sealed class ExcelWriter : IAsyncDisposable
 
         if (!_rowStarted)
             throw new InvalidOperationException("Row is not started yet.");
-    }
-
-    private static bool RowHasAttributes(
-        decimal? height,
-        uint? outlineLevel,
-        bool? isHidden,
-        bool? isCollapsed)
-    {
-        return height.HasValue ||
-               outlineLevel.HasValue ||
-               (isHidden.HasValue && isHidden.Value) ||
-               (isCollapsed.HasValue && isCollapsed.Value);
     }
 }
