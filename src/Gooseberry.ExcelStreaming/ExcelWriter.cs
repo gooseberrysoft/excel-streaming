@@ -84,16 +84,20 @@ public sealed class ExcelWriter : IAsyncDisposable
     }
 
     public ValueTask StartRow(decimal? height = null)
+        => StartRow(new RowAttributes(Height: height));
+    
+    public ValueTask StartRow(in RowAttributes rowAttributes)
     {
         EnsureNotCompleted();
 
+        var height = rowAttributes.Height;
         if (height is <= 0)
             throw new ArgumentOutOfRangeException(nameof(height), "Height of row cannot be less or equal than 0.");
 
         if (_sheetWriter == null)
             throw new InvalidOperationException("Cannot start row before start sheet.");
 
-        DataWriters.RowWriter.WriteStartRow(_buffer, _rowStarted, height);
+        RowWriter.WriteStartRow(_buffer, _rowStarted, rowAttributes);
 
         _rowStarted = true;
         _rowCount += 1;
@@ -105,6 +109,9 @@ public sealed class ExcelWriter : IAsyncDisposable
     }
 
     public void AddEmptyRows(uint count)
+        => AddEmptyRows(count, RowAttributes.Empty);
+    
+    public void AddEmptyRows(uint count, in RowAttributes rowAttributes)
     {
         //TODO: Optimize with r (rowIndex)
         EnsureNotCompleted();
@@ -117,7 +124,7 @@ public sealed class ExcelWriter : IAsyncDisposable
 
         for (int i = 0; i < count; i++)
         {
-            DataWriters.RowWriter.WriteStartRow(_buffer, _rowStarted);
+            RowWriter.WriteStartRow(_buffer, _rowStarted, rowAttributes);
             _rowStarted = true;
         }
 
@@ -365,7 +372,7 @@ public sealed class ExcelWriter : IAsyncDisposable
     private ValueTask EndRow()
     {
         _rowStarted = false;
-        DataWriters.RowWriter.WriteEndRow(_buffer);
+        RowWriter.WriteEndRow(_buffer);
 
         return _buffer.FlushCompleted(_sheetWriter!);
     }

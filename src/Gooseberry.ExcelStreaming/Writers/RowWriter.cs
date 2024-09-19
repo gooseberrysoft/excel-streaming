@@ -2,61 +2,73 @@ using Gooseberry.ExcelStreaming.Extensions;
 
 namespace Gooseberry.ExcelStreaming.Writers;
 
-internal sealed class RowWriter
+using SheetDataRow = Constants.Worksheet.SheetData.Row;
+
+internal static class RowWriter
 {
-    private readonly NumberWriter<decimal, DecimalFormatter> _rowHeightWriter = new();
+    private static readonly byte[] RowCloseAndStartWithoutAttributes = SheetDataRow.Postfix
+            .Combine(SheetDataRow.Open.Prefix, SheetDataRow.Open.Postfix);
 
-    private static readonly byte[] RowCloseAndStart =
-        Constants.Worksheet.SheetData.Row.Postfix
-            .Combine(Constants.Worksheet.SheetData.Row.Open.Prefix, 
-                Constants.Worksheet.SheetData.Row.Open.Postfix);
-
-    private static readonly byte[] RowStart =
-        Constants.Worksheet.SheetData.Row.Open.Prefix
-            .Combine(Constants.Worksheet.SheetData.Row.Open.Postfix);
-
-    private static readonly byte[] RowHeightPrefix =
-        Constants.Worksheet.SheetData.Row.Open.Prefix
-            .Combine(Constants.Worksheet.SheetData.Row.Open.Height.Prefix);
-
-    private static readonly byte[] RowHeightPostfix =
-        Constants.Worksheet.SheetData.Row.Open.Height.Postfix
-            .Combine(Constants.Worksheet.SheetData.Row.Open.Postfix);
-
-    public void WriteStartRow(BuffersChain buffer, bool rowStarted, decimal? height = null)
+    public static void WriteStartRow(BuffersChain buffer, bool rowStarted, in RowAttributes rowAttributes)
     {
         var span = buffer.GetSpan();
         var written = 0;
-
-        if (rowStarted && !height.HasValue)
+        var attributeIsEmpty = rowAttributes.IsEmpty();
+        
+        if (rowStarted && attributeIsEmpty)
         {
-            RowCloseAndStart.WriteTo(buffer, ref span, ref written);
+            RowCloseAndStartWithoutAttributes.WriteTo(buffer, ref span, ref written);
             buffer.Advance(written);
+
             return;
         }
 
         if (rowStarted)
-            Constants.Worksheet.SheetData.Row.Postfix.WriteTo(buffer, ref span, ref written);
+            SheetDataRow.Postfix.WriteTo(buffer, ref span, ref written);
 
-        if (height.HasValue)
-        {
-            RowHeightPrefix.WriteTo(buffer, ref span, ref written);
-            _rowHeightWriter.WriteValue(height.Value, buffer, ref span, ref written);
-            RowHeightPostfix.WriteTo(buffer, ref span, ref written);
-        }
-        else
-            RowStart.WriteTo(buffer, ref span, ref written);
+        SheetDataRow.Open.Prefix.WriteTo(buffer, ref span, ref written);
 
+        if (!attributeIsEmpty)
+            AddAttributes(buffer, ref span, ref written, rowAttributes);
+
+        SheetDataRow.Open.Postfix.WriteTo(buffer, ref span, ref written);
         buffer.Advance(written);
     }
 
-    public void WriteEndRow(BuffersChain buffer)
+    public static void WriteEndRow(BuffersChain buffer)
     {
         var span = buffer.GetSpan();
         var written = 0;
 
-        Constants.Worksheet.SheetData.Row.Postfix.WriteTo(buffer, ref span, ref written);
+        SheetDataRow.Postfix.WriteTo(buffer, ref span, ref written);
 
         buffer.Advance(written);
+    }
+
+    private static void AddAttributes(
+        BuffersChain buffer,
+        ref Span<byte> span,
+        ref int written,
+        in RowAttributes rowAttributes)
+    {
+        if (rowAttributes.Height.HasValue)
+        {
+            SheetDataRow.Open.Height.Prefix.WriteTo(buffer, ref span, ref written);
+            rowAttributes.Height.Value.WriteTo(buffer, ref span, ref written);
+            SheetDataRow.Open.Height.Postfix.WriteTo(buffer, ref span, ref written);
+        }
+
+        if (rowAttributes.OutlineLevel.HasValue)
+        {
+            SheetDataRow.Open.OutlineLevel.Prefix.WriteTo(buffer, ref span, ref written);
+            NumberWriterExtensions.WriteTo(rowAttributes.OutlineLevel.Value, buffer, ref span, ref written);
+            SheetDataRow.Open.OutlineLevel.Postfix.WriteTo(buffer, ref span, ref written);
+        }
+
+        if (rowAttributes.IsHidden.HasValue && rowAttributes.IsHidden.Value)
+            SheetDataRow.Open.Hidden.WriteTo(buffer, ref span, ref written);
+
+        if (rowAttributes.IsCollapsed.HasValue && rowAttributes.IsCollapsed.Value)
+            SheetDataRow.Open.Collapsed.WriteTo(buffer, ref span, ref written);
     }
 }

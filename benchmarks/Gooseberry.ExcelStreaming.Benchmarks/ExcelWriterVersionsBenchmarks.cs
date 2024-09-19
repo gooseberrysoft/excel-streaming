@@ -71,7 +71,7 @@ public class ExcelWriterVersionsBenchmarks
         await writer.Complete();
     }
 
-    
+
     private sealed class Config : ManualConfig
     {
         public Config()
