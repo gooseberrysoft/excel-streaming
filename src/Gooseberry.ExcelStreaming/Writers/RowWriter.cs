@@ -6,8 +6,6 @@ using SheetDataRow = Constants.Worksheet.SheetData.Row;
 
 internal sealed class RowWriter
 {
-    private readonly NumberWriter<decimal, DecimalFormatter> _rowNumberWriter = new();
-
     private static readonly byte[] RowCloseAndStartWithoutAttributes = SheetDataRow.Postfix
             .Combine(SheetDataRow.Open.Prefix, SheetDataRow.Open.Postfix);
 
@@ -56,14 +54,14 @@ internal sealed class RowWriter
         if (rowAttributes.Height.HasValue)
         {
             SheetDataRow.Open.Height.Prefix.WriteTo(buffer, ref span, ref written);
-            _rowNumberWriter.WriteValue(rowAttributes.Height.Value, buffer, ref span, ref written);
+            rowAttributes.Height.Value.WriteTo(buffer, ref span, ref written);
             SheetDataRow.Open.Height.Postfix.WriteTo(buffer, ref span, ref written);
         }
 
         if (rowAttributes.OutlineLevel.HasValue)
         {
             SheetDataRow.Open.OutlineLevel.Prefix.WriteTo(buffer, ref span, ref written);
-            _rowNumberWriter.WriteValue(rowAttributes.OutlineLevel.Value, buffer, ref span, ref written);
+            NumberWriterExtensions.WriteTo(rowAttributes.OutlineLevel.Value, buffer, ref span, ref written);
             SheetDataRow.Open.OutlineLevel.Postfix.WriteTo(buffer, ref span, ref written);
         }
 
