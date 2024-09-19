@@ -84,11 +84,7 @@ public sealed class ExcelWriter : IAsyncDisposable
     }
 
     public ValueTask StartRow(decimal? height = null)
-    {
-        var rowAttributes = new RowAttributes(Height: height);
-
-        return StartRow(rowAttributes);
-    }
+        => StartRow(new RowAttributes(Height: height));
     
     public ValueTask StartRow(RowAttributes rowAttributes)
     {
@@ -113,9 +109,7 @@ public sealed class ExcelWriter : IAsyncDisposable
     }
 
     public void AddEmptyRows(uint count)
-    {
-        AddEmptyRows(count, RowAttributes.Empty);
-    }
+        => AddEmptyRows(count, RowAttributes.Empty);
     
     public void AddEmptyRows(uint count, RowAttributes rowAttributes)
     {
