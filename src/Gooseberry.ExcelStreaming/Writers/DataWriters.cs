@@ -12,8 +12,6 @@ internal static class DataWriters
 
     public static readonly PictureWriter PictureWriter = new();
 
-    public static readonly RowWriter RowWriter = new();
-
     public static readonly NumberCellWriter<int, IntFormatter> IntCellWriter =
         new(Constants.Worksheet.SheetData.Row.Cell.NumberDataType);
 

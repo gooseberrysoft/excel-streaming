@@ -4,12 +4,12 @@ namespace Gooseberry.ExcelStreaming.Writers;
 
 using SheetDataRow = Constants.Worksheet.SheetData.Row;
 
-internal sealed class RowWriter
+internal static class RowWriter
 {
     private static readonly byte[] RowCloseAndStartWithoutAttributes = SheetDataRow.Postfix
             .Combine(SheetDataRow.Open.Prefix, SheetDataRow.Open.Postfix);
 
-    public void WriteStartRow(BuffersChain buffer, bool rowStarted, in RowAttributes rowAttributes)
+    public static void WriteStartRow(BuffersChain buffer, bool rowStarted, in RowAttributes rowAttributes)
     {
         var span = buffer.GetSpan();
         var written = 0;
@@ -35,7 +35,7 @@ internal sealed class RowWriter
         buffer.Advance(written);
     }
 
-    public void WriteEndRow(BuffersChain buffer)
+    public static void WriteEndRow(BuffersChain buffer)
     {
         var span = buffer.GetSpan();
         var written = 0;
@@ -45,7 +45,7 @@ internal sealed class RowWriter
         buffer.Advance(written);
     }
 
-    private void AddAttributes(
+    private static void AddAttributes(
         BuffersChain buffer,
         ref Span<byte> span,
         ref int written,
