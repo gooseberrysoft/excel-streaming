@@ -11,7 +11,7 @@ internal sealed class RowWriter
     private static readonly byte[] RowCloseAndStartWithoutAttributes = SheetDataRow.Postfix
             .Combine(SheetDataRow.Open.Prefix, SheetDataRow.Open.Postfix);
 
-    public void WriteStartRow(BuffersChain buffer, bool rowStarted, ref RowAttributes rowAttributes)
+    public void WriteStartRow(BuffersChain buffer, bool rowStarted, in RowAttributes rowAttributes)
     {
         var span = buffer.GetSpan();
         var written = 0;
@@ -31,7 +31,7 @@ internal sealed class RowWriter
         SheetDataRow.Open.Prefix.WriteTo(buffer, ref span, ref written);
 
         if (!attributeIsEmpty)
-            AddAttributes(buffer, ref span, ref written, ref rowAttributes);
+            AddAttributes(buffer, ref span, ref written, in rowAttributes);
 
         SheetDataRow.Open.Postfix.WriteTo(buffer, ref span, ref written);
         buffer.Advance(written);
@@ -51,7 +51,7 @@ internal sealed class RowWriter
         BuffersChain buffer,
         ref Span<byte> span,
         ref int written,
-        ref RowAttributes rowAttributes)
+        in RowAttributes rowAttributes)
     {
         if (rowAttributes.Height.HasValue)
         {
