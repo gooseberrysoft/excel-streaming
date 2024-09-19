@@ -1,4 +1,4 @@
-﻿namespace Gooseberry.ExcelStreaming.Writers;
+﻿namespace Gooseberry.ExcelStreaming;
 
 public readonly record struct RowAttributes(
     decimal? Height = null,

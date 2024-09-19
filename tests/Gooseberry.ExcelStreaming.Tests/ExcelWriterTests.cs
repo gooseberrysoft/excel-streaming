@@ -2,7 +2,6 @@ using System.Globalization;
 using System.Text;
 using Gooseberry.ExcelStreaming.Tests.Excel;
 using FluentAssertions;
-using Gooseberry.ExcelStreaming.Writers;
 using Xunit;
 
 namespace Gooseberry.ExcelStreaming.Tests;
