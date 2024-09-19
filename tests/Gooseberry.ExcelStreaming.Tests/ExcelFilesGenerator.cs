@@ -257,7 +257,7 @@ public sealed class ExcelFilesGenerator
 
         for (var row = 0; row < 10_000; row++)
         {
-            await writer.StartRow();
+            await writer.StartRow(row % 10 == 0 ? new RowAttributes { OutlineLevel = 1 } : default);
 
             writer.AddCell(row, style1);
             writer.AddCell(DateTime.Now.Ticks);

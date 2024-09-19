@@ -1,7 +1,6 @@
 <Project>
   <PropertyGroup>
-    <VersionPrefix>1.5.4</VersionPrefix>
-    <Version>1.5.4</Version>
+    <Version>1.5.5</Version>
     <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
