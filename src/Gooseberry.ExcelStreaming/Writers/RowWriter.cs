@@ -11,12 +11,13 @@ internal sealed class RowWriter
     private static readonly byte[] RowCloseAndStartWithoutAttributes = SheetDataRow.Postfix
             .Combine(SheetDataRow.Open.Prefix, SheetDataRow.Open.Postfix);
 
-    public void WriteStartRow(BuffersChain buffer, bool rowStarted, RowAttributes rowAttributes)
+    public void WriteStartRow(BuffersChain buffer, bool rowStarted, ref RowAttributes rowAttributes)
     {
         var span = buffer.GetSpan();
         var written = 0;
-
-        if (rowStarted && rowAttributes.IsEmpty())
+        var attributeIsEmpty = rowAttributes.IsEmpty();
+        
+        if (rowStarted && attributeIsEmpty)
         {
             RowCloseAndStartWithoutAttributes.WriteTo(buffer, ref span, ref written);
             buffer.Advance(written);
@@ -24,10 +25,13 @@ internal sealed class RowWriter
             return;
         }
 
-        StartNewRow(buffer, ref span, ref written, rowStarted);
+        if (rowStarted)
+            SheetDataRow.Postfix.WriteTo(buffer, ref span, ref written);
 
-        if (!rowAttributes.IsEmpty())
-            AddAttributes(buffer, ref span, ref written, rowAttributes);
+        SheetDataRow.Open.Prefix.WriteTo(buffer, ref span, ref written);
+
+        if (!attributeIsEmpty)
+            AddAttributes(buffer, ref span, ref written, ref rowAttributes);
 
         SheetDataRow.Open.Postfix.WriteTo(buffer, ref span, ref written);
         buffer.Advance(written);
@@ -47,7 +51,7 @@ internal sealed class RowWriter
         BuffersChain buffer,
         ref Span<byte> span,
         ref int written,
-        RowAttributes rowAttributes)
+        ref RowAttributes rowAttributes)
     {
         if (rowAttributes.Height.HasValue)
         {
@@ -68,17 +72,5 @@ internal sealed class RowWriter
 
         if (rowAttributes.IsCollapsed.HasValue && rowAttributes.IsCollapsed.Value)
             SheetDataRow.Open.Collapsed.WriteTo(buffer, ref span, ref written);
-    }
-
-    private static void StartNewRow(
-        BuffersChain buffer,
-        ref Span<byte> span,
-        ref int written,
-        bool rowStarted)
-    {
-        if (rowStarted)
-            SheetDataRow.Postfix.WriteTo(buffer, ref span, ref written);
-
-        SheetDataRow.Open.Prefix.WriteTo(buffer, ref span, ref written);
     }
 }
