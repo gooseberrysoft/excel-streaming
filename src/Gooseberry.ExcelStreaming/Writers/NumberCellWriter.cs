@@ -49,3 +49,40 @@ internal sealed class NumberCellWriter<T, TFormatter>
         buffer.Advance(written);
     }
 }
+
+internal static class Utf8NumberCellWriter
+{
+    private static readonly byte[] _stylelessPrefix = Constants.Worksheet.SheetData.Row.Cell.Prefix
+        .Combine(Constants.Worksheet.SheetData.Row.Cell.NumberDataType, Constants.Worksheet.SheetData.Row.Cell.Middle);
+
+    private static readonly byte[] _stylePrefix = Constants.Worksheet.SheetData.Row.Cell.Prefix
+        .Combine(Constants.Worksheet.SheetData.Row.Cell.NumberDataType, Constants.Worksheet.SheetData.Row.Cell.Style.Prefix);
+
+    private static readonly byte[] _stylePostfix = Constants.Worksheet.SheetData.Row.Cell.Style.Postfix
+        .Combine(Constants.Worksheet.SheetData.Row.Cell.Middle);
+
+    public static void Write<T>(in T value, BuffersChain buffer, StyleReference? style = null)
+        where T : IUtf8SpanFormattable
+    {
+        var span = buffer.GetSpan();
+        var written = 0;
+
+        if (style.HasValue)
+        {
+            _stylePrefix.WriteTo(buffer, ref span, ref written);
+            Utf8SpanFormattableWriter.WriteValue(style.Value.Value, buffer, ref span, ref written);
+            _stylePostfix.WriteTo(buffer, ref span, ref written);
+            _valueWriter.WriteValue(value, buffer, ref span, ref written);
+            Constants.Worksheet.SheetData.Row.Cell.Postfix.WriteTo(buffer, ref span, ref written);
+
+            buffer.Advance(written);
+            return;
+        }
+
+        _stylelessPrefix.WriteTo(buffer, ref span, ref written);
+        _valueWriter.WriteValue(value, buffer, ref span, ref written);
+        Constants.Worksheet.SheetData.Row.Cell.Postfix.WriteTo(buffer, ref span, ref written);
+
+        buffer.Advance(written);
+    }
+}

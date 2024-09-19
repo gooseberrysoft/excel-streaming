@@ -41,10 +41,11 @@ await foreach(var record in store.GetRecordsAsync(cancellationToken))
     writer.AddCell(DateTime.Now.Ticks); // long
     writer.AddCell(DateTime.Now); // DateTime
     writer.AddCell(123.765M); // decimal
+    writer.AddCell(Math.PI); //double
     writer.AddCell("string"); // string
     writer.AddCell('#'); // char
-    writer.AddUtf8Cell("string"u8); // utf8 string
-    writer.AddCellWithSharedString("shared"); // shared string
+    writer.AddCellUtf8String("string"u8); // utf8 string
+    writer.AddCellSharedString("shared"); // shared string
     // hyperlink
     writer.AddCell(new Hyperlink("https://[address]", "Label text")); 
     // cell with picture
@@ -148,8 +149,8 @@ writer.AddCell(staticSharedStringRef1);
 writer.AddCell(staticSharedStringRef2);  
 
 // using local dictionary automatically maintained in the ExcelWriter instance
-writer.AddCellWithSharedString("Some string from exteranal store");
-writer.AddCellWithSharedString("Some string from exteranal store");
+writer.AddCellSharedString("Some string from exteranal store");
+writer.AddCellSharedString("Some string from exteranal store");
 
 await writer.Complete();
 ```

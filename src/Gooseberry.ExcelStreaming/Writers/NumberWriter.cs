@@ -35,7 +35,7 @@ internal readonly struct NumberWriter<T, TFormatter>
         while (!_formatter.TryFormat(value, destination, out encodedBytes))
         {
             if (attempt > 10)
-                throw new InvalidOperationException($"Can't format {typeof(T)}. Not enough memory");
+                throw new InvalidOperationException($"Can't format {typeof(T)}.");
 
             attempt++;
             destination = bufferWriter.GetSpan(_formatter.MaximumChars * attempt);

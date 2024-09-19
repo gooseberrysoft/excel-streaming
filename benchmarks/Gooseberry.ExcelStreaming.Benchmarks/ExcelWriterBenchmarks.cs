@@ -36,8 +36,8 @@ public class ExcelWriterBenchmarks
                 writer.AddCell(row);
                 writer.AddCell(DateTime.Now.Ticks);
                 writer.AddCell(DateTime.Now);
-                writer.AddUtf8Cell("some text"u8);
-                writer.AddUtf8Cell("some text with <tag> & \"quote\"'s"u8);
+                writer.AddCellUtf8String("some text"u8);
+                writer.AddCellUtf8String("some text with <tag> & \"quote\"'s"u8);
                 writer.AddCell(102456.7655M);
             }
         }

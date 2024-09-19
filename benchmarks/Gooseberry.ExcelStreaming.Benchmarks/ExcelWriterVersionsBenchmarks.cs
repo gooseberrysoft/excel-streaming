@@ -36,7 +36,7 @@ public class ExcelWriterVersionsBenchmarks
                 writer.AddCell(1234567.9876M);
                 writer.AddCell("Tags such as <img> and <input> directly introduce content into the page.");
                 writer.AddCell("The cat (Felis catus), commonly referred to as the domestic cat");
-                writer.AddCellWithSharedString(
+                writer.AddCellSharedString(
                     "The dog (Canis familiaris or Canis lupus familiaris) is a domesticated descendant of the wolf");
             }
         }
@@ -61,9 +61,9 @@ public class ExcelWriterVersionsBenchmarks
                 writer.AddCell(DateTime.Now.Ticks);
                 writer.AddCell(DateTime.Now);
                 writer.AddCell(1234567.9876M);
-                writer.AddUtf8Cell("Tags such as <img> and <input> directly introduce content into the page."u8);
-                writer.AddUtf8Cell("The cat (Felis catus), commonly referred to as the domestic cat"u8);
-                writer.AddCellWithSharedString(
+                writer.AddCellUtf8String("Tags such as <img> and <input> directly introduce content into the page."u8);
+                writer.AddCellUtf8String("The cat (Felis catus), commonly referred to as the domestic cat"u8);
+                writer.AddCellSharedString(
                     "The dog (Canis familiaris or Canis lupus familiaris) is a domesticated descendant of the wolf");
             }
         }

@@ -267,7 +267,7 @@ public sealed class ExcelWriter : IAsyncDisposable
         AddMerge(rightMerge, downMerge);
     }
 
-    public void AddUtf8Cell(ReadOnlySpan<byte> data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+    public void AddCellUtf8String(ReadOnlySpan<byte> data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
         CheckWriteCell();
         DataWriters.StringCellWriter.WriteUtf8(data, _buffer, style);
@@ -276,7 +276,42 @@ public sealed class ExcelWriter : IAsyncDisposable
         AddMerge(rightMerge, downMerge);
     }
 
-    public void AddCellWithSharedString(string data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+#if NET8_0_OR_GREATER
+    public void AddCellUtf8String<T>(
+        T data, 
+        ReadOnlySpan<char> format = default,
+        IFormatProvider? formatProvider = default,
+        StyleReference? style = null, 
+        uint rightMerge = 0, 
+        uint downMerge = 0)
+        where T : IUtf8SpanFormattable
+    {
+        
+        CheckWriteCell();
+        DataWriters.StringCellWriter.WriteUtf8(data, _buffer, style);
+
+        _columnCount += 1;
+        AddMerge(rightMerge, downMerge);
+    }
+
+    public void AddCellUtf8Number<T>(
+        T data,
+        ReadOnlySpan<char> format = default,
+        IFormatProvider? formatProvider = default,
+        StyleReference? style = null, 
+        uint rightMerge = 0, 
+        uint downMerge = 0)
+        where T : IUtf8SpanFormattable
+    {
+        CheckWriteCell();
+        DataWriters.StringCellWriter.WriteUtf8(data, _buffer, style);
+
+        _columnCount += 1;
+        AddMerge(rightMerge, downMerge);
+    }
+#endif
+
+    public void AddCellSharedString(string data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
         var reference = _sharedStringKeeper.GetOrAdd(data);
         AddStringReferenceCell(reference, style, rightMerge, downMerge);

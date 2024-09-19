@@ -392,9 +392,9 @@ public sealed class ExcelWriterTests
         var text2 = "<img> is image tag"u8;
         var text3 = "Exit >>>>>>>>>>>>>>>"u8;
 
-        writer.AddUtf8Cell(text);
-        writer.AddUtf8Cell(text2);
-        writer.AddUtf8Cell(text3);
+        writer.AddCellUtf8String(text);
+        writer.AddCellUtf8String(text2);
+        writer.AddCellUtf8String(text3);
     }
 
     [Theory]
