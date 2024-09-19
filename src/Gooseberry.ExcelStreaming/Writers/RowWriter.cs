@@ -31,7 +31,7 @@ internal sealed class RowWriter
         SheetDataRow.Open.Prefix.WriteTo(buffer, ref span, ref written);
 
         if (!attributeIsEmpty)
-            AddAttributes(buffer, ref span, ref written, in rowAttributes);
+            AddAttributes(buffer, ref span, ref written, rowAttributes);
 
         SheetDataRow.Open.Postfix.WriteTo(buffer, ref span, ref written);
         buffer.Advance(written);

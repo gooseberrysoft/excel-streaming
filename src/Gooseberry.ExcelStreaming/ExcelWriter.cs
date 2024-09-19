@@ -97,7 +97,7 @@ public sealed class ExcelWriter : IAsyncDisposable
         if (_sheetWriter == null)
             throw new InvalidOperationException("Cannot start row before start sheet.");
 
-        DataWriters.RowWriter.WriteStartRow(_buffer, _rowStarted, in rowAttributes);
+        DataWriters.RowWriter.WriteStartRow(_buffer, _rowStarted, rowAttributes);
 
         _rowStarted = true;
         _rowCount += 1;
@@ -124,7 +124,7 @@ public sealed class ExcelWriter : IAsyncDisposable
 
         for (int i = 0; i < count; i++)
         {
-            DataWriters.RowWriter.WriteStartRow(_buffer, _rowStarted, in rowAttributes);
+            DataWriters.RowWriter.WriteStartRow(_buffer, _rowStarted, rowAttributes);
             _rowStarted = true;
         }
 
