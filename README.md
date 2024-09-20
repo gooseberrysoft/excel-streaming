@@ -89,6 +89,20 @@ writer.AddCell(123);
 await writer.Complete();
 ```
 
+### Row Attributes ###
+```csharp
+
+//add row with specified height
+await writer.StartRow(height: 15);
+
+//or specify optional row attributes
+await writer.StartRow(new RowAttributes(
+    Height: 25, 
+    OutlineLevel: 1,
+    IsCollapsed: true,
+    IsHidden: true)); 
+```
+
 ### Using styles ###
 ```csharp
 // 1. Define styles
