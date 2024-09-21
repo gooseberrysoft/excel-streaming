@@ -27,13 +27,13 @@ public readonly struct Underline : IEquatable<Underline>
         return hashCode.ToHashCode();
     }
 
-    public static Underline Single => new ("single"u8.ToArray());
+    public static Underline Single => new("single"u8.ToArray());
 
-    public static Underline Double => new ("double"u8.ToArray());
+    public static Underline Double => new("double"u8.ToArray());
 
-    public static Underline SingleAccounting => new ("singleAccounting"u8.ToArray());
+    public static Underline SingleAccounting => new("singleAccounting"u8.ToArray());
 
-    public static Underline DoubleAccounting => new ("doubleAccounting"u8.ToArray());
+    public static Underline DoubleAccounting => new("doubleAccounting"u8.ToArray());
 
-    public static Underline None => new ("none"u8.ToArray());
+    public static Underline None => new("none"u8.ToArray());
 }

@@ -174,6 +174,17 @@ internal static partial class Constants
 
                         public static ReadOnlySpan<byte> Postfix => "\" customHeight=\"1\""u8;
                     }
+
+                    public static class OutlineLevel
+                    {
+                        public static ReadOnlySpan<byte> Prefix => " outlineLevel=\""u8;
+
+                        public static ReadOnlySpan<byte> Postfix => "\""u8;
+                    }
+
+                    public static ReadOnlySpan<byte> Collapsed => " collapsed=\"1\""u8;
+
+                    public static ReadOnlySpan<byte> Hidden => " hidden=\"true\""u8;
                 }
 
                 public static ReadOnlySpan<byte> Postfix => "</row>"u8;
@@ -204,6 +215,7 @@ internal static partial class Constants
                     public static ReadOnlySpan<byte> Empty => "<c t=\"str\"><v></v></c>"u8;
                 }
             }
+
         }
     }
 

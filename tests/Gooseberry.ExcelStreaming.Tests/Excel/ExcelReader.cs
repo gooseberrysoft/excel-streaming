@@ -48,7 +48,7 @@ public static class ExcelReader
         { CellValues.Date, CellValueType.DateTime },
         { CellValues.SharedString, CellValueType.SharedString }
     };
-    
+
     public static IReadOnlyCollection<Sheet> ReadSheets(Stream stream)
     {
         using var spreadsheet = SpreadsheetDocument.Open(stream, isEditable: false);
@@ -140,7 +140,12 @@ public static class ExcelReader
         IReadOnlyCollection<Row> GetRows(WorksheetPart sheetPart)
         {
             return sheetPart.Worksheet.Descendants<DocumentFormat.OpenXml.Spreadsheet.Row>()
-                .Select(data => new Excel.Row(GetCells(data), (decimal?)data.Height?.Value))
+                .Select(data => new Excel.Row(
+                    GetCells(data),
+                    (decimal?)data.Height?.Value,
+                    data.OutlineLevel?.Value,
+                    data.Hidden?.Value,
+                    data.Collapsed?.Value))
                 .ToArray();
         }
 

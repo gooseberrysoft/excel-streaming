@@ -27,6 +27,9 @@ internal static class VerificationExtensions
             foreach (var (actualRow, expectedRow) in actual.Rows.Zip(expected.Rows))
             {
                 actualRow.Height.Should().Be(expectedRow.Height);
+                actualRow.OutlineLevel.Should().Be(expectedRow.OutlineLevel);
+                actualRow.IsCollapsed.Should().Be(expectedRow.IsCollapsed);
+                actualRow.IsHidden.Should().Be(expectedRow.IsHidden);
                 actualRow.Cells.Should().BeEquivalentTo(expectedRow.Cells);
             }
 
