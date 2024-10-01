@@ -85,7 +85,7 @@ public sealed class ExcelWriter : IAsyncDisposable
 
     public ValueTask StartRow(decimal? height = null)
         => StartRow(new RowAttributes(Height: height));
-    
+
     public ValueTask StartRow(in RowAttributes rowAttributes)
     {
         EnsureNotCompleted();
@@ -110,7 +110,7 @@ public sealed class ExcelWriter : IAsyncDisposable
 
     public void AddEmptyRows(uint count)
         => AddEmptyRows(count, RowAttributes.Empty);
-    
+
     public void AddEmptyRows(uint count, in RowAttributes rowAttributes)
     {
         //TODO: Optimize with r (rowIndex)
@@ -285,17 +285,16 @@ public sealed class ExcelWriter : IAsyncDisposable
 
 #if NET8_0_OR_GREATER
     public void AddCellUtf8String<T>(
-        T data, 
+        T data,
         ReadOnlySpan<char> format = default,
         IFormatProvider? formatProvider = default,
-        StyleReference? style = null, 
-        uint rightMerge = 0, 
+        StyleReference? style = null,
+        uint rightMerge = 0,
         uint downMerge = 0)
         where T : IUtf8SpanFormattable
     {
-        
         CheckWriteCell();
-        DataWriters.StringCellWriter.WriteUtf8(data, _buffer, style);
+        Utf8StringCellWriter.Write(data, format, formatProvider, _buffer, style);
 
         _columnCount += 1;
         AddMerge(rightMerge, downMerge);
@@ -305,13 +304,13 @@ public sealed class ExcelWriter : IAsyncDisposable
         T data,
         ReadOnlySpan<char> format = default,
         IFormatProvider? formatProvider = default,
-        StyleReference? style = null, 
-        uint rightMerge = 0, 
+        StyleReference? style = null,
+        uint rightMerge = 0,
         uint downMerge = 0)
         where T : IUtf8SpanFormattable
     {
         CheckWriteCell();
-        DataWriters.StringCellWriter.WriteUtf8(data, _buffer, style);
+        Utf8NumberCellWriter.Write(data, format, formatProvider, _buffer, style);
 
         _columnCount += 1;
         AddMerge(rightMerge, downMerge);
