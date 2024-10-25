@@ -43,7 +43,7 @@ internal static class Utf8SpanFormattableWriter
         ref int written) where T : IUtf8SpanFormattable
     {
         bufferWriter.Advance(written);
-        destination = bufferWriter.GetSpan(destination.Length * 2);
+        destination = bufferWriter.GetSpan(Math.Max(destination.Length * 2, Buffer.MinSize));
         written = 0;
 
         var bytesWritten = 0;

@@ -284,7 +284,7 @@ public sealed class ExcelWriter : IAsyncDisposable
     }
 
 #if NET8_0_OR_GREATER
-    public void AddCellUtf8String<T>(
+    public void AddCellString<T>(
         T data,
         ReadOnlySpan<char> format = default,
         IFormatProvider? formatProvider = default,
@@ -300,7 +300,7 @@ public sealed class ExcelWriter : IAsyncDisposable
         AddMerge(rightMerge, downMerge);
     }
 
-    public void AddCellUtf8Number<T>(
+    public void AddCellNumber<T>(
         T data,
         ReadOnlySpan<char> format = default,
         IFormatProvider? formatProvider = default,
