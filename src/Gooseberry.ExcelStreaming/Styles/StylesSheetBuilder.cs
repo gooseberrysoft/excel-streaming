@@ -14,7 +14,6 @@ public sealed class StylesSheetBuilder
     private readonly List<Borders> _borders = new();
     private readonly List<StyleRecord> _styles = new();
 
-    private readonly StyleReference _generalStyle;
     private readonly StyleReference _defaultDateStyle;
     private readonly StyleReference _defaultHyperlinkStyle;
 
@@ -27,7 +26,7 @@ public sealed class StylesSheetBuilder
         _fills.Add(new Fill(FillPattern.None));
         _fills.Add(new Fill(FillPattern.Gray125));
 
-        _generalStyle = GetOrAdd(new Style(
+        GetOrAdd(new Style(
             Format: GeneralFormat,
             Font: new Font(Size: 11, Name: null, Color: Color.Black, Bold: false)));
 
@@ -65,7 +64,7 @@ public sealed class StylesSheetBuilder
 
         var stylesData = writer.GetWrittenData();
 
-        return new StylesSheet(stylesData, _generalStyle, _defaultDateStyle, _defaultHyperlinkStyle);
+        return new StylesSheet(stylesData, _defaultDateStyle, _defaultHyperlinkStyle);
     }
 
     private int GetOrAddFormatId(string format)

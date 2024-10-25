@@ -3,9 +3,9 @@ using Gooseberry.ExcelStreaming.Pictures;
 
 namespace Gooseberry.ExcelStreaming.Writers;
 
-internal sealed class DrawingWriter
+internal static class DrawingWriter
 {
-    public void Write(Drawing drawing, BuffersChain buffer, Encoder encoder)
+    public static void Write(Drawing drawing, BuffersChain buffer, Encoder encoder)
     {
         var span = buffer.GetSpan();
         var written = 0;

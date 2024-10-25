@@ -1,17 +1,16 @@
 using Gooseberry.ExcelStreaming.Extensions;
 using Gooseberry.ExcelStreaming.Styles;
+using Gooseberry.ExcelStreaming.Writers.Formatters;
 
 namespace Gooseberry.ExcelStreaming.Writers;
 
-internal sealed class EmptyCellWriter
+internal static class EmptyCellWriter
 {
-    private readonly byte[] _stateless;
-    private readonly byte[] _stylePrefix;
-    private readonly byte[] _stylePostfix;
-
-    private readonly NumberWriter<int, IntFormatter> _styleWriter = new();
-
-    public EmptyCellWriter()
+    private static readonly byte[] _stateless;
+    private static readonly byte[] _stylePrefix;
+    private static readonly byte[] _stylePostfix;
+    
+    static EmptyCellWriter()
     {
         _stateless = Constants.Worksheet.SheetData.Row.Cell.Prefix
             .Combine(Constants.Worksheet.SheetData.Row.Cell.StringDataType,
@@ -26,7 +25,7 @@ internal sealed class EmptyCellWriter
             .Combine(Constants.Worksheet.SheetData.Row.Cell.Middle);
     }
 
-    public void Write(BuffersChain buffer, StyleReference? style = null)
+    public static void Write(BuffersChain buffer, StyleReference? style = null)
     {
         var span = buffer.GetSpan();
         var written = 0;
@@ -34,7 +33,7 @@ internal sealed class EmptyCellWriter
         if (style.HasValue)
         {
             _stylePrefix.WriteTo(buffer, ref span, ref written);
-            _styleWriter.WriteValue(style.Value.Value, buffer, ref span, ref written);
+            NumberWriter<int, IntFormatter>.WriteValue(style.Value.Value, buffer, ref span, ref written);
             _stylePostfix.WriteTo(buffer, ref span, ref written);
             Constants.Worksheet.SheetData.Row.Cell.Postfix.WriteTo(buffer, ref span, ref written);
 

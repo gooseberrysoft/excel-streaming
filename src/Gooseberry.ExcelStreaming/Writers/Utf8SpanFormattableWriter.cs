@@ -1,4 +1,5 @@
 #if NET8_0_OR_GREATER
+using System.Globalization;
 using System.Runtime.CompilerServices;
 
 namespace Gooseberry.ExcelStreaming.Writers;
@@ -14,7 +15,7 @@ internal static class Utf8SpanFormattableWriter
         ref Span<byte> destination,
         ref int written) where T : IUtf8SpanFormattable
     {
-        if (value.TryFormat(destination, out var bytesWritten, format, provider))
+        if (value.TryFormat(destination, out var bytesWritten, format, provider ?? CultureInfo.InvariantCulture))
         {
             destination = destination.Slice(bytesWritten);
             written += bytesWritten;
@@ -49,7 +50,7 @@ internal static class Utf8SpanFormattableWriter
         var bytesWritten = 0;
         var attempt = 1;
 
-        while (!value.TryFormat(destination, out bytesWritten, format, provider))
+        while (!value.TryFormat(destination, out bytesWritten, format, provider ?? CultureInfo.InvariantCulture))
         {
             if (attempt > 10)
                 throw new InvalidOperationException($"Can't format {typeof(T)}.");

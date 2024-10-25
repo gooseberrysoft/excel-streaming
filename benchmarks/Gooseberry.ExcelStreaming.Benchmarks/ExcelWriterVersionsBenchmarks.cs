@@ -12,7 +12,7 @@ namespace Gooseberry.ExcelStreaming.Benchmarks;
 [Config(typeof(Config))]
 public class ExcelWriterVersionsBenchmarks
 {
-    [Params(100, 1000, 10_000, 100_000, 500_000, 1_000_000)]
+    [Params(100, 1000, 10_000, 100_000, 500_000)]
     public int RowsCount { get; set; }
 
     private const int ColumnBatchesCount = 10;

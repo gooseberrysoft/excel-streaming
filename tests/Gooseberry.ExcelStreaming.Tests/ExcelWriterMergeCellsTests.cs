@@ -96,7 +96,7 @@ public sealed class ExcelWriterMergeCellsTests
                 }),
                 new Row(new[]
                 {
-                    new Cell("1", CellValueType.Number, Constants.DefaultNumberStyle),
+                    new Cell("1", CellValueType.Number),
                     new Cell("", CellValueType.String),
                     new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), Style: Constants.DefaultDateTimeStyle),
                     new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), Style: Constants.DefaultDateTimeStyle)

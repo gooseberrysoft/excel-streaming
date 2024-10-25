@@ -2,18 +2,13 @@ using System.Runtime.CompilerServices;
 
 namespace Gooseberry.ExcelStreaming.Writers;
 
-internal readonly struct NumberWriter<T, TFormatter>
-    where TFormatter : INumberFormatter<T>, new()
+internal static class NumberWriter<T, TFormatter>
+    where TFormatter : INumberFormatter<T>
 {
-    private readonly TFormatter _formatter;
-
-    public NumberWriter()
-        => _formatter = new();
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void WriteValue(in T value, BuffersChain bufferWriter, ref Span<byte> destination, ref int written)
+    public static void WriteValue(in T value, BuffersChain bufferWriter, ref Span<byte> destination, ref int written)
     {
-        if (_formatter.TryFormat(value, destination, out var encodedBytes))
+        if (TFormatter.TryFormat(value, destination, out var encodedBytes))
         {
             destination = destination.Slice(encodedBytes);
             written += encodedBytes;
@@ -23,22 +18,22 @@ internal readonly struct NumberWriter<T, TFormatter>
         WriteAdvance(value, bufferWriter, ref destination, ref written);
     }
 
-    private void WriteAdvance(in T value, BuffersChain bufferWriter, ref Span<byte> destination, ref int written)
+    private static void WriteAdvance(in T value, BuffersChain bufferWriter, ref Span<byte> destination, ref int written)
     {
         bufferWriter.Advance(written);
-        destination = bufferWriter.GetSpan(_formatter.MaximumChars);
+        destination = bufferWriter.GetSpan(TFormatter.MaximumChars);
         written = 0;
 
         var encodedBytes = 0;
         var attempt = 1;
 
-        while (!_formatter.TryFormat(value, destination, out encodedBytes))
+        while (!TFormatter.TryFormat(value, destination, out encodedBytes))
         {
             if (attempt > 10)
                 throw new InvalidOperationException($"Can't format {typeof(T)}.");
 
             attempt++;
-            destination = bufferWriter.GetSpan(_formatter.MaximumChars * attempt);
+            destination = bufferWriter.GetSpan(TFormatter.MaximumChars * attempt);
         }
 
         destination = destination.Slice(encodedBytes);

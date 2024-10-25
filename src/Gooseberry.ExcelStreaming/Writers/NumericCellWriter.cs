@@ -6,10 +6,8 @@ namespace Gooseberry.ExcelStreaming.Writers;
 using RowCellConstants = Constants.Worksheet.SheetData.Row.Cell;
 
 internal sealed class NumberCellWriter<T, TFormatter>
-    where TFormatter : INumberFormatter<T>, new()
+    where TFormatter : INumberFormatter<T>
 {
-    private readonly NumberWriter<T, TFormatter> _valueWriter = new();
-
     private readonly byte[] _stylelessPrefix;
     private readonly byte[] _stylePrefix;
     private readonly byte[] _stylePostfix;
@@ -33,7 +31,7 @@ internal sealed class NumberCellWriter<T, TFormatter>
             _stylePrefix.WriteTo(buffer, ref span, ref written);
             style.Value.Value.WriteTo(buffer, ref span, ref written);
             _stylePostfix.WriteTo(buffer, ref span, ref written);
-            _valueWriter.WriteValue(value, buffer, ref span, ref written);
+            NumberWriter<T, TFormatter>.WriteValue(value, buffer, ref span, ref written);
             RowCellConstants.Postfix.WriteTo(buffer, ref span, ref written);
 
             buffer.Advance(written);
@@ -41,7 +39,7 @@ internal sealed class NumberCellWriter<T, TFormatter>
         }
 
         _stylelessPrefix.WriteTo(buffer, ref span, ref written);
-        _valueWriter.WriteValue(value, buffer, ref span, ref written);
+        NumberWriter<T, TFormatter>.WriteValue(value, buffer, ref span, ref written);
         RowCellConstants.Postfix.WriteTo(buffer, ref span, ref written);
 
         buffer.Advance(written);

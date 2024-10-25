@@ -6,18 +6,18 @@ namespace Gooseberry.ExcelStreaming.Writers;
 
 using RowCellConstants = Constants.Worksheet.SheetData.Row.Cell;
 
-internal sealed class StringCellWriter
+internal static class StringCellWriter
 {
     // https://support.microsoft.com/en-us/office/excel-specifications-and-limits-1672b34d-7043-467e-8e27-269d656771c3?ui=en-us&rs=en-us&ad=us#ID0EBABAAA=Excel_2016-2013
     private const int MaxCharacters = 32_767;
     private const int MaxBytes = MaxCharacters * 3;
 
-    private readonly byte[] _stylelessPrefix;
-    private readonly byte[] _stylePrefix;
-    private readonly byte[] _stylePostfix;
+    private static readonly byte[] _stylelessPrefix;
+    private static readonly byte[] _stylePrefix;
+    private static readonly byte[] _stylePostfix;
 
 
-    public StringCellWriter()
+    static StringCellWriter()
     {
         _stylelessPrefix = RowCellConstants.Prefix
             .Combine(RowCellConstants.StringDataType,
@@ -31,7 +31,7 @@ internal sealed class StringCellWriter
             .Combine(RowCellConstants.Middle);
     }
 
-    public void Write(ReadOnlySpan<char> value, BuffersChain buffer, Encoder encoder, StyleReference? style = null)
+    public static void Write(ReadOnlySpan<char> value, BuffersChain buffer, Encoder encoder, StyleReference? style = null)
     {
         if (value.Length > MaxCharacters)
             throw new ArgumentException("Data length more than total number of characters that a cell can contain.");
@@ -58,7 +58,7 @@ internal sealed class StringCellWriter
         buffer.Advance(written);
     }
 
-    public void WriteUtf8(ReadOnlySpan<byte> value, BuffersChain buffer, StyleReference? style = null)
+    public static void WriteUtf8(ReadOnlySpan<byte> value, BuffersChain buffer, StyleReference? style = null)
     {
         if (value.Length > MaxBytes)
             throw new ArgumentException("Data length more than total number of characters that a cell can contain.");

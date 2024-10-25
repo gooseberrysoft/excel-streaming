@@ -1,4 +1,5 @@
 using System.Buffers;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Encodings.Web;
@@ -118,7 +119,7 @@ internal static class StringWriter
         var attempt = 1;
         var bytesWritten = 0;
 
-        while (!data.TryFormat(destination, out bytesWritten, format, provider))
+        while (!data.TryFormat(destination, out bytesWritten, format, provider ?? CultureInfo.InvariantCulture))
         {
             if (attempt > 10)
                 throw new InvalidOperationException($"Can't format {typeof(T)}.");
