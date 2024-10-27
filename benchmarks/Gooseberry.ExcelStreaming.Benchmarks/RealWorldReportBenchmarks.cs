@@ -11,7 +11,7 @@ public class RealWorldReportBenchmarks
     public int RowsCount { get; set; }
 
     [Benchmark]
-    public async Task ExcelWriter_RealWorldReport()
+    public async Task RealWorldReport()
     {
         await using var writer = new ExcelWriter(Stream.Null);
 
