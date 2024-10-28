@@ -72,7 +72,7 @@ await writer.Complete(); // DisposeAsync method also will call Complete
 ```
 More [examples](https://github.com/gooseberrysoft/excel-streaming/blob/main/tests/Gooseberry.ExcelStreaming.Tests/ExcelFilesGenerator.cs)
 
-### [IUtf8SpanFormattable](https://learn.microsoft.com/en-us/dotnet/api/system.iutf8spanformattable) support (.net8+)###
+### [IUtf8SpanFormattable](https://learn.microsoft.com/en-us/dotnet/api/system.iutf8spanformattable) support (.net8+) ###
 Effective way to write standard and custom types to cell without string allocation.  
 ```csharp
 //write any IUtf8SpanFormattable value as string cell or numeric cell
