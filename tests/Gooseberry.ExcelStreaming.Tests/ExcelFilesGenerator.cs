@@ -1,9 +1,12 @@
 ﻿using System.Drawing;
+using System.Net;
+using System.Numerics;
 using System.Reflection;
 using System.Text;
 using Gooseberry.ExcelStreaming.Styles;
 using Gooseberry.ExcelStreaming.Tests.ExternalZip;
 using Xunit;
+using Fill = Gooseberry.ExcelStreaming.Styles.Fill;
 
 namespace Gooseberry.ExcelStreaming.Tests;
 
@@ -142,6 +145,68 @@ public sealed class ExcelFilesGenerator
 
         await writer.Complete();
     }
+
+#if NET8_0_OR_GREATER
+    [Fact(Skip = Skip)]
+    public async Task Utf8SpanFormattable()
+    {
+        await using var outputStream = new FileStream(BasePath + "Utf8SpanFormattable.xlsx", FileMode.Create);
+
+        await using var writer = new ExcelWriter(outputStream);
+
+        for (var sheetIndex = 0; sheetIndex < 3; sheetIndex++)
+        {
+            await writer.StartSheet($"test#{sheetIndex}");
+
+            writer.AddEmptyRows(3);
+
+            for (var row = 0; row < 10_000; row++)
+            {
+                await writer.StartRow();
+
+                for (var columnBatch = 0; columnBatch < 2; columnBatch++)
+                {
+                    writer.AddEmptyCells(2);
+                    writer.AddCellNumber(row);
+                    writer.AddCellNumber(new BigInteger(12335478));
+                    writer.AddCellString(Guid.NewGuid());
+                    writer.AddCellString(Guid.NewGuid(), "B".AsSpan());
+                    writer.AddCellString(DateTimeOffset.Now);
+                    writer.AddCellString(TimeSpan.FromMinutes(1024));
+                    writer.AddCellString(12345678907877.8787878787878787d);
+                    writer.AddCellString(IPAddress.IPv6Loopback);
+                    writer.AddCellString(new Rune('&'));
+                    writer.AddCellString(new Rune('"'));
+                    writer.AddCellString(new Rune('<'));
+                    writer.AddCellString(new CustomFormattable());
+                }
+            }
+
+            writer.AddEmptyRows(3);
+        }
+
+        await writer.Complete();
+    }
+
+    private readonly struct CustomFormattable : IUtf8SpanFormattable
+    {
+        public bool TryFormat(Span<byte> utf8Destination, out int bytesWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
+        {
+            var value = "‰Tags such as <img> & <input> directly into the page."u8;
+
+            if (utf8Destination.Length < value.Length)
+            {
+                bytesWritten = 0;
+                return false;
+            }
+
+            value.CopyTo(utf8Destination);
+            bytesWritten = value.Length;
+
+            return true;
+        }
+    }
+#endif
 
     [Fact(Skip = Skip)]
     public async Task IncreaseColumns()
