@@ -15,9 +15,7 @@ internal sealed class NumberCellWriter<T, TFormatter>
     public NumberCellWriter(ReadOnlySpan<byte> dataType)
     {
         _stylelessPrefix = RowCellConstants.Prefix.Combine(dataType, RowCellConstants.Middle);
-
         _stylePrefix = RowCellConstants.Prefix.Combine(dataType, RowCellConstants.Style.Prefix);
-
         _stylePostfix = RowCellConstants.Style.Postfix.Combine(RowCellConstants.Middle);
     }
 
