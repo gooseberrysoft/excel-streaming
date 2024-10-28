@@ -83,9 +83,9 @@ public sealed class ExcelFilesGenerator
                     writer.AddCell("Tags such as ‰<img> and <input>‰ directly introduce content into the page.");
                     writer.AddCell("The cat (Felis catus), commonly referred to as the domestic cat");
                     writer.AddEmptyCell();
-                    writer.AddCellWithSharedString(
+                    writer.AddCellSharedString(
                         "The dog (Canis familiaris or Canis lupus familiaris) is a domesticated descendant of the wolf");
-                    writer.AddUtf8Cell("Utf8 string with <tags>"u8);
+                    writer.AddCellUtf8String("Utf8 string with <tags>"u8);
                     writer.AddCell("String as chars".AsSpan());
                     writer.AddCell(new Hyperlink("https://github.com/gooseberrysoft/excel-streaming", "Excel Streaming"));
                     writer.AddCell(sharedStringRef1);
@@ -126,11 +126,14 @@ public sealed class ExcelFilesGenerator
                     writer.AddCell(DateTime.Now);
                     writer.AddCell(1234567.9876M);
                     writer.AddCell("‰Tags such as <img> and <input> directly introduce content into the page.");
-                    writer.AddUtf8Cell("Utf8 string with <tags>‰"u8);
+                    writer.AddCellUtf8String("Utf8 string with <tags>‰"u8);
                     writer.AddCell("String as chars".AsSpan());
                     writer.AddEmptyCells(2);
                     writer.AddCell('&');
                     writer.AddCell('!');
+                    writer.AddCell(12345678907877.8787878787878787d);
+                    writer.AddCell(double.MinValue);
+                    writer.AddCell(Math.PI);
                 }
             }
 
@@ -218,7 +221,7 @@ public sealed class ExcelFilesGenerator
             symbolBytes.CopyTo(span.Slice(i * symbolBytes.Length));
         }
 
-        writer.AddUtf8Cell(span);
+        writer.AddCellUtf8String(span);
     }
 
 
@@ -265,9 +268,9 @@ public sealed class ExcelFilesGenerator
             writer.AddCell(1234567.9876M);
             writer.AddCell("Tags such as <img> and <input> directly introduce content into the page.", style2);
             writer.AddCell("The cat (Felis catus), commonly referred to as the domestic cat");
-            writer.AddCellWithSharedString(
+            writer.AddCellSharedString(
                 "The dog (Canis familiaris or Canis lupus familiaris) is a domesticated descendant of the wolf");
-            writer.AddUtf8Cell("Utf8 string with <tags>"u8);
+            writer.AddCellUtf8String("Utf8 string with <tags>"u8);
             writer.AddCell("String as chars".AsSpan());
             writer.AddCell(new Hyperlink("https://github.com/gooseberrysoft/excel-streaming", "Excel Streaming"), style1);
         }

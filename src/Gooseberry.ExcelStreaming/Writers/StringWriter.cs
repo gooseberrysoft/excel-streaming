@@ -1,4 +1,5 @@
 using System.Buffers;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Encodings.Web;
@@ -105,6 +106,52 @@ internal static class StringWriter
                 ArrayPool<byte>.Shared.Return(utf8BytesPooled);
         }
     }
+
+#if NET8_0_OR_GREATER
+    internal static void WriteEscapedUtf8To<T>(
+        in T data,
+        ReadOnlySpan<char> format,
+        IFormatProvider? provider,
+        BuffersChain buffer,
+        ref Span<byte> destination,
+        ref int written) where T : IUtf8SpanFormattable
+    {
+        var attempt = 1;
+        var bytesWritten = 0;
+
+        while (!data.TryFormat(destination, out bytesWritten, format, provider ?? CultureInfo.InvariantCulture))
+        {
+            if (attempt > 10)
+                throw new InvalidOperationException($"Can't format {typeof(T)}.");
+
+            if (written > 0)
+            {
+                buffer.Advance(written);
+                written = 0;
+            }
+
+            attempt++;
+            destination = buffer.GetSpan(Math.Max(destination.Length * 2, Buffer.MinSize));
+        }
+
+        var indexToEncode = HtmlEncoder.Default.FindFirstCharacterToEncodeUtf8(destination[..bytesWritten]);
+
+        if (indexToEncode == -1)
+        {
+            written += bytesWritten;
+            destination = destination[bytesWritten..];
+        }
+        else
+        {
+            var bytesUtf8ToEncode = destination[indexToEncode..bytesWritten];
+
+            written += indexToEncode;
+            destination = destination[indexToEncode..];
+
+            EscapeUtf8(bytesUtf8ToEncode, buffer, ref destination, ref written);
+        }
+    }
+#endif
 
     internal static void WriteEscapedUtf8To(
         this scoped ReadOnlySpan<byte> utf8Data,

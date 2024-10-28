@@ -31,7 +31,7 @@ internal sealed class SharedStringKeeper : IDisposable
 
         reference = new SharedStringReference(_references.Count + _externalAddedStrings);
 
-        DataWriters.SharedStringWriter.Write(value, GetBuffer(), _encoder);
+        SharedStringWriter.Write(value, GetBuffer(), _encoder);
         _references[value] = reference;
 
         return reference;
@@ -42,7 +42,7 @@ internal sealed class SharedStringKeeper : IDisposable
         if (_buffer == null)
             return archive.WriteEntry(entryPath, Constants.SharedStringTable.EmptyTable);
 
-        DataWriters.SharedStringWriter.WritePostfix(_buffer);
+        SharedStringWriter.WritePostfix(_buffer);
         return _buffer.FlushAll(archive.CreateEntry(entryPath));
     }
 
@@ -54,7 +54,7 @@ internal sealed class SharedStringKeeper : IDisposable
         if (_buffer == null)
         {
             _buffer = new BuffersChain(initialBufferSize: 8 * 1024);
-            DataWriters.SharedStringWriter.WritePrefix(_buffer);
+            SharedStringWriter.WritePrefix(_buffer);
         }
 
         return _buffer;

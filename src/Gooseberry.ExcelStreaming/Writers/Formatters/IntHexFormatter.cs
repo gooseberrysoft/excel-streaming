@@ -2,13 +2,13 @@ using System.Buffers;
 using System.Buffers.Text;
 using System.Runtime.CompilerServices;
 
-namespace Gooseberry.ExcelStreaming.Writers;
+namespace Gooseberry.ExcelStreaming.Writers.Formatters;
 
-internal readonly struct IntHex8Formatter : INumberFormatter<int>
+internal class IntHex8Formatter : INumberFormatter<int>
 {
-    public int MaximumChars => 8;
+    public static int MaximumChars => 8;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool TryFormat(in int value, Span<byte> destination, out int encodedBytes)
+    public static bool TryFormat(in int value, Span<byte> destination, out int encodedBytes)
         => Utf8Formatter.TryFormat(value, destination, out encodedBytes, new StandardFormat('x', 8));
 }

@@ -28,7 +28,7 @@ public sealed class SharedStringTableBuilder
 
         var encoder = Encoding.UTF8.GetEncoder();
         foreach (var value in _strings)
-            DataWriters.SharedStringWriter.Write(value, buffer, encoder);
+            SharedStringWriter.Write(value, buffer, encoder);
 
         var preparedData = new byte[buffer.Written];
         buffer.FlushAll(preparedData);

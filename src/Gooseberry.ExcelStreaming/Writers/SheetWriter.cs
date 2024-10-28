@@ -3,9 +3,9 @@ using Gooseberry.ExcelStreaming.Pictures;
 
 namespace Gooseberry.ExcelStreaming.Writers;
 
-internal sealed class SheetWriter
+internal static class SheetWriter
 {
-    public void WriteStartSheet(BuffersChain buffer, in SheetConfiguration? configuration)
+    public static void WriteStartSheet(BuffersChain buffer, in SheetConfiguration? configuration)
     {
         var span = buffer.GetSpan();
         var written = 0;
@@ -23,7 +23,7 @@ internal sealed class SheetWriter
         buffer.Advance(written);
     }
 
-    public void WriteEndSheet(
+    public static void WriteEndSheet(
         BuffersChain buffer,
         Encoder encoder,
         Drawing drawing,
@@ -158,7 +158,7 @@ internal sealed class SheetWriter
         Constants.Worksheet.Merges.Postfix.WriteTo(buffer, ref span, ref written);
     }
 
-    private void WriteDrawing(
+    private static void WriteDrawing(
         Drawing drawing,
         BuffersChain buffer,
         Encoder encoder,

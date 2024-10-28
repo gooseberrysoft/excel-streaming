@@ -1,52 +1,41 @@
-using System.Runtime.CompilerServices;
+using Gooseberry.ExcelStreaming.Writers.Formatters;
 
 namespace Gooseberry.ExcelStreaming.Writers;
 
 internal static class NumberWriterExtensions
 {
-    private static readonly NumberWriter<int, IntFormatter> IntWriter = new();
-    private static readonly NumberWriter<uint, UIntFormatter> UIntWriter = new();
-    private static readonly NumberWriter<int, IntHex8Formatter> IntHex8Writer = new();
-    private static readonly NumberWriter<long, LongFormatter> LongWriter = new();
-    private static readonly NumberWriter<decimal, DecimalFormatter> DecimalWriter = new();
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void WriteTo(
         this int value,
         BuffersChain buffer,
         ref Span<byte> destination,
         ref int written)
-        => IntWriter.WriteValue(value, buffer, ref destination, ref written);
+        => NumberWriter<int, IntFormatter>.WriteValue(value, buffer, ref destination, ref written);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void WriteHex8To(
         this int value,
         BuffersChain buffer,
         ref Span<byte> destination,
         ref int written)
-        => IntHex8Writer.WriteValue(value, buffer, ref destination, ref written);
+        => NumberWriter<int, IntHex8Formatter>.WriteValue(value, buffer, ref destination, ref written);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void WriteTo(
         this long value,
         BuffersChain buffer,
         ref Span<byte> destination,
         ref int written)
-        => LongWriter.WriteValue(value, buffer, ref destination, ref written);
+        => NumberWriter<long, LongFormatter>.WriteValue(value, buffer, ref destination, ref written);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void WriteTo(
         this uint value,
         BuffersChain buffer,
         ref Span<byte> destination,
         ref int written)
-        => UIntWriter.WriteValue(value, buffer, ref destination, ref written);
+        => NumberWriter<uint, UIntFormatter>.WriteValue(value, buffer, ref destination, ref written);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void WriteTo(
         this decimal value,
         BuffersChain buffer,
         ref Span<byte> destination,
         ref int written)
-        => DecimalWriter.WriteValue(value, buffer, ref destination, ref written);
+        => NumberWriter<decimal, DecimalFormatter>.WriteValue(value, buffer, ref destination, ref written);
 }

@@ -2,12 +2,12 @@ using System.Text;
 
 namespace Gooseberry.ExcelStreaming.Writers;
 
-internal readonly struct SharedStringWriter
+internal static class SharedStringWriter
 {
-    public void WritePrefix(BuffersChain buffer)
+    public static void WritePrefix(BuffersChain buffer)
         => Constants.SharedStringTable.Prefix.WriteTo(buffer);
 
-    public void Write(string value, BuffersChain buffer, Encoder encoder)
+    public static void Write(string value, BuffersChain buffer, Encoder encoder)
     {
         var span = buffer.GetSpan();
         var written = 0;
@@ -19,6 +19,6 @@ internal readonly struct SharedStringWriter
         buffer.Advance(written);
     }
 
-    public void WritePostfix(BuffersChain buffer)
+    public static void WritePostfix(BuffersChain buffer)
         => Constants.SharedStringTable.Postfix.WriteTo(buffer);
 }

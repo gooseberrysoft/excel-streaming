@@ -1,8 +1,8 @@
 namespace Gooseberry.ExcelStreaming.Writers;
 
-internal readonly struct RelationshipsWriter
+internal static class RelationshipsWriter
 {
-    public void Write(BuffersChain buffer)
+    public static void Write(BuffersChain buffer)
     {
         var span = buffer.GetSpan();
         var written = 0;

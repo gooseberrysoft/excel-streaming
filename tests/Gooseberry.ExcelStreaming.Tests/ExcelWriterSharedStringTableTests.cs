@@ -63,8 +63,8 @@ public sealed class ExcelWriterSharedStringTableTests
 
         writer.AddCell(stringReference);
         writer.AddCell(otherStringReference);
-        writer.AddCellWithSharedString("third string");
-        writer.AddCellWithSharedString("one more string");
+        writer.AddCellSharedString("third string");
+        writer.AddCellSharedString("one more string");
 
         await writer.Complete();
 

@@ -21,7 +21,7 @@ internal sealed class OneCellAnchorPicturePlacementWriter(AnchorCell from, Size 
         Constants.Drawing.OneCellAnchor.GetPrefix().WriteTo(buffer, ref span, ref written);
 
         Constants.Drawing.AnchorFrom.GetPrefix().WriteTo(buffer, ref span, ref written);
-        DataWriters.AnchorCellWriter.Write(from, buffer, ref span, ref written);
+        AnchorCellWriter.Write(from, buffer, ref span, ref written);
         Constants.Drawing.AnchorFrom.GetPostfix().WriteTo(buffer, ref span, ref written);
 
         Constants.Drawing.OneCellAnchor.Size.GetPrefix().WriteTo(buffer, ref span, ref written);
@@ -36,7 +36,7 @@ internal sealed class OneCellAnchorPicturePlacementWriter(AnchorCell from, Size 
 
         Constants.Drawing.OneCellAnchor.Size.GetPostfix().WriteTo(buffer, ref span, ref written);
 
-        DataWriters.PictureWriter.Write(picture, buffer, encoder, ref span, ref written);
+        PictureWriter.Write(picture, buffer, encoder, ref span, ref written);
 
         Constants.Drawing.ClientData.GetBody().WriteTo(buffer, ref span, ref written);
 

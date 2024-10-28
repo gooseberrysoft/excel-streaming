@@ -11,7 +11,7 @@ public class RealWorldReportBenchmarks
     public int RowsCount { get; set; }
 
     [Benchmark]
-    public async Task ExcelWriter_RealWorldReport()
+    public async Task RealWorldReport()
     {
         await using var writer = new ExcelWriter(Stream.Null);
 
@@ -26,14 +26,14 @@ public class RealWorldReportBenchmarks
             {
                 writer.AddCell(row);
                 writer.AddCell(dateTime);
-                writer.AddUtf8Cell("\"Alice’s Adventures in Wonderland\" by Lewis Carroll"u8);
+                writer.AddCellUtf8String("\"Alice’s Adventures in Wonderland\" by Lewis Carroll"u8);
                 writer.AddCell(1789);
                 writer.AddCell(1234567.9876M);
                 writer.AddCell(-936.9M);
                 writer.AddCell(0.999M);
                 writer.AddCell(23.00M);
                 writer.AddCell(56688900.56M);
-                writer.AddUtf8Cell("7895-654-098-45"u8);
+                writer.AddCellUtf8String("7895-654-098-45"u8);
                 writer.AddCell(1789);
                 writer.AddCell(1234567.9876M);
                 writer.AddCell(-936.9M);

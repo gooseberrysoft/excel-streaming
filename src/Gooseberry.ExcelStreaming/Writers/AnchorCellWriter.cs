@@ -1,8 +1,8 @@
 namespace Gooseberry.ExcelStreaming.Writers;
 
-internal sealed class AnchorCellWriter
+internal static class AnchorCellWriter
 {
-    public void Write(in AnchorCell cell, BuffersChain buffer)
+    public static void Write(in AnchorCell cell, BuffersChain buffer)
     {
         var written = 0;
         var span = buffer.GetSpan();
@@ -11,7 +11,7 @@ internal sealed class AnchorCellWriter
         buffer.Advance(written);
     }
 
-    public void Write(in AnchorCell cell, BuffersChain buffer, ref Span<byte> span, ref int written)
+    public static void Write(in AnchorCell cell, BuffersChain buffer, ref Span<byte> span, ref int written)
     {
         Constants.Drawing.AnchorCell.Column.GetPrefix().WriteTo(buffer, ref span, ref written);
         cell.Column.WriteTo(buffer, ref span, ref written);

@@ -2,9 +2,9 @@ using System.Text;
 
 namespace Gooseberry.ExcelStreaming.Writers;
 
-internal readonly struct WorkbookRelationshipsWriter
+internal static class WorkbookRelationshipsWriter
 {
-    public void Write(IReadOnlyCollection<Sheet> sheets, BuffersChain buffer, Encoder encoder)
+    public static void Write(IReadOnlyCollection<Sheet> sheets, BuffersChain buffer, Encoder encoder)
     {
         var span = buffer.GetSpan();
         var written = 0;

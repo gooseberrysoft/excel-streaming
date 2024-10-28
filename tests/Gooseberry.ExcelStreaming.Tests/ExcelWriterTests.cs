@@ -48,7 +48,7 @@ public sealed class ExcelWriterTests
                 }),
                 new Row(new[]
                 {
-                    new Cell("1", CellValueType.Number, Constants.DefaultNumberStyle),
+                    new Cell("1", CellValueType.Number),
                     new Cell("name", CellValueType.String),
                     new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), Style: Constants.DefaultDateTimeStyle)
                 })
@@ -100,7 +100,7 @@ public sealed class ExcelWriterTests
                 }),
                 new Row(new[]
                 {
-                    new Cell("1", CellValueType.Number, Constants.DefaultNumberStyle),
+                    new Cell("1", CellValueType.Number),
                     new Cell("", CellValueType.String),
                     new Cell("", CellValueType.String),
                     new Cell("", CellValueType.String),
@@ -160,7 +160,7 @@ public sealed class ExcelWriterTests
                 new Row([]),
                 new Row(new[]
                 {
-                    new Cell("1", CellValueType.Number, Constants.DefaultNumberStyle),
+                    new Cell("1", CellValueType.Number),
                     new Cell("name", CellValueType.String),
                     new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), Style: Constants.DefaultDateTimeStyle)
                 })
@@ -216,7 +216,7 @@ public sealed class ExcelWriterTests
                     }),
                     new Row(new[]
                     {
-                        new Cell("1", CellValueType.Number, Constants.DefaultNumberStyle),
+                        new Cell("1", CellValueType.Number),
                         new Cell("name", CellValueType.String)
                     })
                 }
@@ -232,7 +232,7 @@ public sealed class ExcelWriterTests
                     }),
                     new Row(new[]
                     {
-                        new Cell("3", CellValueType.Number, Constants.DefaultNumberStyle),
+                        new Cell("3", CellValueType.Number),
                         new Cell("three", CellValueType.String)
                     })
                 }
@@ -392,9 +392,9 @@ public sealed class ExcelWriterTests
         var text2 = "<img> is image tag"u8;
         var text3 = "Exit >>>>>>>>>>>>>>>"u8;
 
-        writer.AddUtf8Cell(text);
-        writer.AddUtf8Cell(text2);
-        writer.AddUtf8Cell(text3);
+        writer.AddCellUtf8String(text);
+        writer.AddCellUtf8String(text2);
+        writer.AddCellUtf8String(text3);
     }
 
     [Theory]
@@ -605,19 +605,19 @@ public sealed class ExcelWriterTests
                 }),
                 new Row(new[]
                 {
-                    new Cell("1", CellValueType.Number, Constants.DefaultNumberStyle),
+                    new Cell("1", CellValueType.Number),
                     new Cell("name1", CellValueType.String),
                     new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), Style: Constants.DefaultDateTimeStyle)
                 }, isHidden: true, outlineLevel: 1, isCollapsed: true),
                 new Row(new[]
                 {
-                    new Cell("2", CellValueType.Number, Constants.DefaultNumberStyle),
+                    new Cell("2", CellValueType.Number),
                     new Cell("name2", CellValueType.String),
                     new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), Style: Constants.DefaultDateTimeStyle)
                 }, isHidden: true, outlineLevel: 1),
                 new Row(new[]
                 {
-                    new Cell("3", CellValueType.Number, Constants.DefaultNumberStyle),
+                    new Cell("3", CellValueType.Number),
                     new Cell("name3", CellValueType.String),
                     new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), Style: Constants.DefaultDateTimeStyle)
                 }, isHidden: true, outlineLevel: 1),
@@ -718,13 +718,13 @@ public sealed class ExcelWriterTests
                 }),
                 new Row(new[]
                 {
-                    new Cell("1", CellValueType.Number, Constants.DefaultNumberStyle),
+                    new Cell("1", CellValueType.Number),
                     new Cell("name1", CellValueType.String),
                     new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), Style: Constants.DefaultDateTimeStyle)
                 }),
                 new Row(new[]
                 {
-                    new Cell("2", CellValueType.Number, Constants.DefaultNumberStyle),
+                    new Cell("2", CellValueType.Number),
                     new Cell("name2", CellValueType.String),
                     new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), Style: Constants.DefaultDateTimeStyle)
                 })

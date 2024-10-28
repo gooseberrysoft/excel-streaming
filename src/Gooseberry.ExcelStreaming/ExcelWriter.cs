@@ -80,12 +80,12 @@ public sealed class ExcelWriter : IAsyncDisposable
         _sheets.Add(new(name, sheetId, relationshipId));
 
         _sheetWriter = _archiveWriter.CreateEntry($"xl/worksheets/{relationshipId}.xml");
-        DataWriters.SheetWriter.WriteStartSheet(_buffer, configuration);
+        SheetWriter.WriteStartSheet(_buffer, configuration);
     }
 
     public ValueTask StartRow(decimal? height = null)
         => StartRow(new RowAttributes(Height: height));
-    
+
     public ValueTask StartRow(in RowAttributes rowAttributes)
     {
         EnsureNotCompleted();
@@ -110,7 +110,7 @@ public sealed class ExcelWriter : IAsyncDisposable
 
     public void AddEmptyRows(uint count)
         => AddEmptyRows(count, RowAttributes.Empty);
-    
+
     public void AddEmptyRows(uint count, in RowAttributes rowAttributes)
     {
         //TODO: Optimize with r (rowIndex)
@@ -167,17 +167,20 @@ public sealed class ExcelWriter : IAsyncDisposable
         AddMerge(rightMerge, downMerge);
     }
 
-
     public void AddCell(string data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
         => AddCell(data.AsSpan(), style, rightMerge, downMerge);
 
     public void AddCell(int data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
+#if NET8_0_OR_GREATER
+        AddCellNumber(data, style: style, rightMerge: rightMerge, downMerge: downMerge);
+#else
         CheckWriteCell();
-        DataWriters.IntCellWriter.Write(data, _buffer, style ?? _styles.GeneralStyle);
+        DataWriters.IntCellWriter.Write(data, _buffer, style);
 
         _columnCount += 1;
         AddMerge(rightMerge, downMerge);
+#endif
     }
 
     public void AddCell(int? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
@@ -190,11 +193,15 @@ public sealed class ExcelWriter : IAsyncDisposable
 
     public void AddCell(long data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
+#if NET8_0_OR_GREATER
+        AddCellNumber(data, style: style, rightMerge: rightMerge, downMerge: downMerge);
+#else
         CheckWriteCell();
-        DataWriters.LongCellWriter.Write(data, _buffer, style ?? _styles.GeneralStyle);
+        DataWriters.LongCellWriter.Write(data, _buffer, style);
 
         _columnCount += 1;
         AddMerge(rightMerge, downMerge);
+#endif
     }
 
     public void AddCell(long? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
@@ -207,14 +214,39 @@ public sealed class ExcelWriter : IAsyncDisposable
 
     public void AddCell(decimal data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
+#if NET8_0_OR_GREATER
+        AddCellNumber(data, style: style, rightMerge: rightMerge, downMerge: downMerge);
+#else
         CheckWriteCell();
-        DataWriters.DecimalCellWriter.Write(data, _buffer, style ?? _styles.GeneralStyle);
+        DataWriters.DecimalCellWriter.Write(data, _buffer, style);
 
         _columnCount += 1;
         AddMerge(rightMerge, downMerge);
+#endif
     }
 
     public void AddCell(decimal? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+    {
+        if (data.HasValue)
+            AddCell(data.Value, style, rightMerge, downMerge);
+        else
+            AddEmptyCell(style, rightMerge, downMerge);
+    }
+
+    public void AddCell(double data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+    {
+#if NET8_0_OR_GREATER
+        AddCellNumber(data, style: style, rightMerge: rightMerge, downMerge: downMerge);
+#else
+        CheckWriteCell();
+        DataWriters.DoubleCellWriter.Write(data, _buffer, style);
+
+        _columnCount += 1;
+        AddMerge(rightMerge, downMerge);
+#endif
+    }
+
+    public void AddCell(double? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
         if (data.HasValue)
             AddCell(data.Value, style, rightMerge, downMerge);
@@ -242,9 +274,9 @@ public sealed class ExcelWriter : IAsyncDisposable
     public void AddCell(char data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
 #if NET8_0_OR_GREATER
-        var span = new Span<char>(ref data);
+        var span = new ReadOnlySpan<char>(ref data);
 #else
-        Span<char> span = stackalloc char[] { data };
+        ReadOnlySpan<char> span = stackalloc char[] { data };
 #endif
         AddCell(span, style, rightMerge, downMerge);
     }
@@ -252,22 +284,57 @@ public sealed class ExcelWriter : IAsyncDisposable
     public void AddCell(ReadOnlySpan<char> data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
         CheckWriteCell();
-        DataWriters.StringCellWriter.Write(data, _buffer, _encoder, style);
+        StringCellWriter.Write(data, _buffer, _encoder, style);
 
         _columnCount += 1;
         AddMerge(rightMerge, downMerge);
     }
 
-    public void AddUtf8Cell(ReadOnlySpan<byte> data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+    public void AddCellUtf8String(ReadOnlySpan<byte> data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
         CheckWriteCell();
-        DataWriters.StringCellWriter.WriteUtf8(data, _buffer, style);
+        StringCellWriter.WriteUtf8(data, _buffer, style);
 
         _columnCount += 1;
         AddMerge(rightMerge, downMerge);
     }
 
-    public void AddCellWithSharedString(string data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+#if NET8_0_OR_GREATER
+    public void AddCellString<T>(
+        T data,
+        ReadOnlySpan<char> format = default,
+        IFormatProvider? formatProvider = default,
+        StyleReference? style = null,
+        uint rightMerge = 0,
+        uint downMerge = 0)
+        where T : IUtf8SpanFormattable
+    {
+        CheckWriteCell();
+        Utf8StringCellWriter.Write(data, format, formatProvider, _buffer, style);
+
+        _columnCount += 1;
+        AddMerge(rightMerge, downMerge);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void AddCellNumber<T>(
+        T data,
+        ReadOnlySpan<char> format = default,
+        IFormatProvider? formatProvider = default,
+        StyleReference? style = null,
+        uint rightMerge = 0,
+        uint downMerge = 0)
+        where T : IUtf8SpanFormattable
+    {
+        CheckWriteCell();
+        Utf8NumberCellWriter.Write(data, format, formatProvider, _buffer, style);
+
+        _columnCount += 1;
+        AddMerge(rightMerge, downMerge);
+    }
+#endif
+
+    public void AddCellSharedString(string data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
         var reference = _sharedStringKeeper.GetOrAdd(data);
         AddStringReferenceCell(reference, style, rightMerge, downMerge);
@@ -290,7 +357,7 @@ public sealed class ExcelWriter : IAsyncDisposable
         uint downMerge = 0)
     {
         CheckWriteCell();
-        DataWriters.SharedStringCellWriter.Write(sharedString, _buffer, style);
+        SharedStringCellWriter.Write(sharedString, _buffer, style);
 
         _columnCount += 1;
         AddMerge(rightMerge, downMerge);
@@ -299,7 +366,7 @@ public sealed class ExcelWriter : IAsyncDisposable
     public void AddCell(in Hyperlink hyperlink, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
         CheckWriteCell();
-        DataWriters.StringCellWriter.Write(hyperlink.Text, _buffer, _encoder, style ?? _styles.DefaultHyperlinkStyle);
+        StringCellWriter.Write(hyperlink.Text, _buffer, _encoder, style ?? _styles.DefaultHyperlinkStyle);
 
         _columnCount += 1;
         AddMerge(rightMerge, downMerge);
@@ -310,7 +377,7 @@ public sealed class ExcelWriter : IAsyncDisposable
     {
         CheckWriteCell();
 
-        DataWriters.EmptyCellWriter.Write(_buffer, style);
+        EmptyCellWriter.Write(_buffer, style);
 
         _columnCount += 1;
         AddMerge(rightMerge, downMerge);
@@ -325,7 +392,7 @@ public sealed class ExcelWriter : IAsyncDisposable
             return;
 
         for (var i = 0; i < count; i++)
-            DataWriters.EmptyCellWriter.Write(_buffer, style);
+            EmptyCellWriter.Write(_buffer, style);
 
         _columnCount += count;
     }
@@ -382,7 +449,7 @@ public sealed class ExcelWriter : IAsyncDisposable
         var sheet = _sheets[^1];
         var drawing = _sheetDrawings.Get(sheet.Id);
 
-        DataWriters.SheetWriter.WriteEndSheet(_buffer, _encoder, drawing, _merges, _hyperlinks);
+        SheetWriter.WriteEndSheet(_buffer, _encoder, drawing, _merges, _hyperlinks);
 
         await _buffer.FlushAll(_sheetWriter!);
         _sheetWriter = null;
@@ -415,21 +482,21 @@ public sealed class ExcelWriter : IAsyncDisposable
 
     private ValueTask AddWorkbook()
     {
-        DataWriters.WorkbookWriter.Write(_sheets, _buffer, _encoder);
+        WorkbookWriter.Write(_sheets, _buffer, _encoder);
 
         return _buffer.FlushAll(_archiveWriter.CreateEntry("xl/workbook.xml"));
     }
 
     private ValueTask AddContentTypes()
     {
-        DataWriters.ContentTypesWriter.Write(_sheets, _sheetDrawings, _buffer, _encoder);
+        ContentTypesWriter.Write(_sheets, _sheetDrawings, _buffer, _encoder);
 
         return _buffer.FlushAll(_archiveWriter.CreateEntry("[Content_Types].xml"));
     }
 
     private ValueTask AddWorkbookRelationships()
     {
-        DataWriters.WorkbookRelationshipsWriter.Write(_sheets, _buffer, _encoder);
+        WorkbookRelationshipsWriter.Write(_sheets, _buffer, _encoder);
 
         return _buffer.FlushAll(_archiveWriter.CreateEntry("xl/_rels/workbook.xml.rels"));
     }
@@ -442,7 +509,7 @@ public sealed class ExcelWriter : IAsyncDisposable
 
     private ValueTask AddRelationships()
     {
-        DataWriters.RelationshipsWriter.Write(_buffer);
+        RelationshipsWriter.Write(_buffer);
 
         return _buffer.FlushAll(_archiveWriter.CreateEntry("_rels/.rels"));
     }
@@ -454,7 +521,7 @@ public sealed class ExcelWriter : IAsyncDisposable
         if (drawing.IsEmpty)
             return ValueTask.CompletedTask;
 
-        DataWriters.DrawingRelationshipsWriter.Write(drawing, _buffer, _encoder);
+        DrawingRelationshipsWriter.Write(drawing, _buffer, _encoder);
 
         return _buffer.FlushAll(_archiveWriter.CreateEntry(PathResolver.GetDrawingRelationshipsFullPath(drawing)));
     }
@@ -466,7 +533,7 @@ public sealed class ExcelWriter : IAsyncDisposable
         if (drawing.IsEmpty)
             return ValueTask.CompletedTask;
 
-        DataWriters.DrawingWriter.Write(drawing, _buffer, _encoder);
+        DrawingWriter.Write(drawing, _buffer, _encoder);
 
         return _buffer.FlushAll(_archiveWriter.CreateEntry(PathResolver.GetDrawingFullPath(drawing)));
     }
@@ -474,7 +541,7 @@ public sealed class ExcelWriter : IAsyncDisposable
     private ValueTask AddSheetRelationships(int sheetId)
     {
         var drawing = _sheetDrawings.Get(sheetId);
-        DataWriters.SheetRelationshipsWriter.Write(_hyperlinks.Keys, drawing, _buffer, _encoder);
+        SheetRelationshipsWriter.Write(_hyperlinks.Keys, drawing, _buffer, _encoder);
 
         return _buffer.FlushAll(_archiveWriter.CreateEntry(PathResolver.GetSheetRelationshipsFullPath(sheetId)));
     }
