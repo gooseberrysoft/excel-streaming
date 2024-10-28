@@ -1,4 +1,4 @@
-﻿# Gooseberry.ExcelStreaming #
+# Gooseberry.ExcelStreaming #
 
 [![NuGet](https://img.shields.io/nuget/v/Gooseberry.ExcelStreaming.svg)](https://www.nuget.org/packages/Gooseberry.ExcelStreaming)
 
@@ -75,15 +75,13 @@ More [examples](https://github.com/gooseberrysoft/excel-streaming/blob/main/test
 ### [IUtf8SpanFormattable](https://learn.microsoft.com/en-us/dotnet/api/system.iutf8spanformattable) support (.net8+)###
 Effective way to write standard and custom types to cell without string allocation.  
 ```csharp
-
 //write any IUtf8SpanFormattable value as string cell or numeric cell
 //format, format provider and styles are optional
 
 writer.AddCellString(Guid.NewGuid(), ['N']);  
 
 float value = 0.3f;
-writer.AddCellNumber(value); 
-
+writer.AddCellNumber(value);
 ```
 
 ### Write Excel file to Http response ###
