@@ -167,8 +167,13 @@ public sealed class ExcelWriter : IAsyncDisposable
         AddMerge(rightMerge, downMerge);
     }
 
-    public void AddCell(string data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
-        => AddCell(data.AsSpan(), style, rightMerge, downMerge);
+    public void AddCell(string? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+    {
+        if (data == null)
+            AddEmptyCell(style, rightMerge, downMerge);
+        else
+            AddCell(data.AsSpan(), style, rightMerge, downMerge);
+    }
 
     public void AddCell(int data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
@@ -334,10 +339,12 @@ public sealed class ExcelWriter : IAsyncDisposable
     }
 #endif
 
-    public void AddCellSharedString(string data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+    public void AddCellSharedString(string? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
-        var reference = _sharedStringKeeper.GetOrAdd(data);
-        AddStringReferenceCell(reference, style, rightMerge, downMerge);
+        if (data == null)
+            AddEmptyCell(style, rightMerge, downMerge);
+        else
+            AddStringReferenceCell(_sharedStringKeeper.GetOrAdd(data), style, rightMerge, downMerge);
     }
 
     public void AddCell(SharedStringReference sharedString, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
