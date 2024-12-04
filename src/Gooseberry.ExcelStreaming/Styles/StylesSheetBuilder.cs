@@ -37,7 +37,8 @@ public sealed class StylesSheetBuilder
 
     public StyleReference GetOrAdd(Style style)
     {
-        var formatId = !string.IsNullOrEmpty(style.Format) ? GetOrAddFormatId(style.Format!) : (int?)null;
+        var formatId = style.Format?.FormatId ??
+            (!string.IsNullOrEmpty(style.Format?.CustomFormat) ? GetOrAddFormatId(style.Format.Value.CustomFormat) : null);
         var fillId = style.Fill.HasValue ? GetOrAddFillId(style.Fill.Value) : (int?)null;
         var fontId = style.Font.HasValue ? GetOrAddFontId(style.Font.Value) : (int?)null;
         var bordersId = style.Borders.HasValue ? GetOrAddBordersId(style.Borders.Value) : (int?)null;
