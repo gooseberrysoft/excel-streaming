@@ -12,7 +12,7 @@ public static class Constants
         Fill: new Fill(Pattern: FillPattern.None, Color: null));
 
     public static Style DefaultDateTimeStyle = new(
-        Format: "dd.mm.yyyy",
+        Format: StandardFormat.DayMonthYear4WithSlashes,
         Borders: new Borders(),
         Font: new Font(Size: 11, Name: null, Color: Color.Black, Bold: false),
         Fill: new Fill(Pattern: FillPattern.None, Color: null));
