@@ -98,6 +98,7 @@ public sealed class ExcelWriterStylesTests
         var outputStream = new MemoryStream();
 
         var now = DateTime.Now;
+        var today = DateOnly.FromDateTime(now);
 
         var styles = new StylesSheetBuilder();
         var styleReference = styles.GetOrAdd(style);
@@ -112,6 +113,7 @@ public sealed class ExcelWriterStylesTests
             writer.AddCell(2L, styleReference);
             writer.AddCell(3.55m, styleReference);
             writer.AddCell(now, styleReference);
+            writer.AddCell(today, styleReference);
             writer.AddEmptyCell(styleReference);
 
             await writer.Complete();
@@ -132,6 +134,7 @@ public sealed class ExcelWriterStylesTests
                     new Cell("2", CellValueType.Number, style),
                     new Cell("3.55", CellValueType.Number, style),
                     new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), Style: style),
+                    new Cell(today.ToDateTime(default).ToOADate().ToString(CultureInfo.InvariantCulture), Style: style),
                     new Cell("", CellValueType.String, style)
                 })
             });

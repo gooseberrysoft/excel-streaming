@@ -20,5 +20,5 @@ internal static class DataWriters
         new(Constants.Worksheet.SheetData.Row.Cell.DateTimeDataType);
 
     public static readonly NumberCellWriter<DateOnly, DateOnlyFormatter> DateOnlyCellWriter =
-        new(Constants.Worksheet.SheetData.Row.Cell.NumberDataType);
+        new(Constants.Worksheet.SheetData.Row.Cell.DateTimeDataType);
 }
