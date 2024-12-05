@@ -6,7 +6,6 @@ namespace Gooseberry.ExcelStreaming.Styles;
 public sealed class StylesSheetBuilder
 {
     private const string GeneralFormat = "General";
-    private const string DefaultDateFormat = "dd.mm.yyyy";
 
     private readonly Dictionary<string, FormatRecord> _formats = new();
     private readonly List<Fill> _fills = new();
@@ -30,7 +29,7 @@ public sealed class StylesSheetBuilder
             Format: GeneralFormat,
             Font: new Font(Size: 11, Name: null, Color: Color.Black, Bold: false)));
 
-        _defaultDateStyle = GetOrAdd(new Style(Format: DefaultDateFormat));
+        _defaultDateStyle = GetOrAdd(new Style(Format: StandardFormat.DayMonthYear4WithSlashes));
 
         _defaultHyperlinkStyle = GetOrAdd(new Style(Font: new Font(Color: Color.Navy, Underline: Underline.Single)));
     }

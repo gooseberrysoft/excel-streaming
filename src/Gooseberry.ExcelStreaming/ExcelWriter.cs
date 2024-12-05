@@ -276,6 +276,23 @@ public sealed class ExcelWriter : IAsyncDisposable
             AddEmptyCell(style, rightMerge, downMerge);
     }
 
+    public void AddCell(DateOnly data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+    {
+        CheckWriteCell();
+        DataWriters.DateOnlyCellWriter.Write(data, _buffer, style ?? _styles.DefaultDateStyle);
+
+        _columnCount += 1;
+        AddMerge(rightMerge, downMerge);
+    }
+
+    public void AddCell(DateOnly? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+    {
+        if (data.HasValue)
+            AddCell(data.Value, style, rightMerge, downMerge);
+        else
+            AddEmptyCell(style, rightMerge, downMerge);
+    }
+
     public void AddCell(char data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
 #if NET8_0_OR_GREATER
