@@ -278,11 +278,7 @@ public sealed class ExcelWriter : IAsyncDisposable
 
     public void AddCell(DateOnly data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
-        CheckWriteCell();
-        DataWriters.DateOnlyCellWriter.Write(data, _buffer, style ?? _styles.DefaultDateStyle);
-
-        _columnCount += 1;
-        AddMerge(rightMerge, downMerge);
+        AddCell(data.ToDateTime(default), style, rightMerge, downMerge);
     }
 
     public void AddCell(DateOnly? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
