@@ -6,7 +6,6 @@ namespace Gooseberry.ExcelStreaming.Styles;
 public sealed class StylesSheetBuilder
 {
     private const string GeneralFormat = "General";
-    private const string DefaultDateFormat = "dd.mm.yyyy";
 
     private readonly Dictionary<string, FormatRecord> _formats = new();
     private readonly List<Fill> _fills = new();
@@ -30,14 +29,15 @@ public sealed class StylesSheetBuilder
             Format: GeneralFormat,
             Font: new Font(Size: 11, Name: null, Color: Color.Black, Bold: false)));
 
-        _defaultDateStyle = GetOrAdd(new Style(Format: DefaultDateFormat));
+        _defaultDateStyle = GetOrAdd(new Style(Format: StandardFormat.DayMonthYear4WithSlashes));
 
         _defaultHyperlinkStyle = GetOrAdd(new Style(Font: new Font(Color: Color.Navy, Underline: Underline.Single)));
     }
 
     public StyleReference GetOrAdd(Style style)
     {
-        var formatId = !string.IsNullOrEmpty(style.Format) ? GetOrAddFormatId(style.Format!) : (int?)null;
+        var formatId = style.Format?.FormatId ??
+            (!string.IsNullOrEmpty(style.Format?.CustomFormat) ? GetOrAddFormatId(style.Format.Value.CustomFormat) : null);
         var fillId = style.Fill.HasValue ? GetOrAddFillId(style.Fill.Value) : (int?)null;
         var fontId = style.Font.HasValue ? GetOrAddFontId(style.Font.Value) : (int?)null;
         var bordersId = style.Borders.HasValue ? GetOrAddBordersId(style.Borders.Value) : (int?)null;

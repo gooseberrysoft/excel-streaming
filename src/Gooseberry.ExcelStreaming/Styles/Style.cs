@@ -7,5 +7,5 @@ public readonly record struct Style(
     Font? Font = null,
     Fill? Fill = null,
     Borders? Borders = null,
-    string? Format = null,
+    Format? Format = null,
     Alignment? Alignment = null);

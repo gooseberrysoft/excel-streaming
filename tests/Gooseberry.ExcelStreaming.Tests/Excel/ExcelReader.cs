@@ -15,6 +15,7 @@ using Borders = Gooseberry.ExcelStreaming.Styles.Borders;
 using Color = System.Drawing.Color;
 using Fill = Gooseberry.ExcelStreaming.Styles.Fill;
 using Font = Gooseberry.ExcelStreaming.Styles.Font;
+using Format = Gooseberry.ExcelStreaming.Styles.Format;
 using MarkerType = DocumentFormat.OpenXml.Drawing.Spreadsheet.MarkerType;
 using Point = System.Drawing.Point;
 using Underline = Gooseberry.ExcelStreaming.Styles.Underline;
@@ -202,7 +203,7 @@ public static class ExcelReader
             .Select(
                 s =>
                     new Style(
-                        Format: numberFormats[s.NumberFormatId!],
+                        Format: numberFormats.TryGetValue(s.NumberFormatId!, out var numberFormat) ? numberFormat : new Format((int)s.NumberFormatId!.Value),
                         Fill: s.FillId?.HasValue == true ? fills[(int)s.FillId.Value] : null,
                         Borders: s.BorderId?.HasValue == true ? borders[(int)s.BorderId.Value] : null,
                         Font: s.FontId?.HasValue == true ? fonts[(int)s.FontId.Value] : null,
