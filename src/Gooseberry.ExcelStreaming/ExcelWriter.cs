@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Gooseberry.ExcelStreaming.Buffers;
 using Gooseberry.ExcelStreaming.Pictures;
 using Gooseberry.ExcelStreaming.SharedStrings;
 using Gooseberry.ExcelStreaming.Styles;
@@ -12,7 +13,7 @@ public sealed class ExcelWriter : IAsyncDisposable
 {
     private const int DefaultBufferSize = 32 * 1024;
 
-    private readonly List<Sheet> _sheets = new();
+    private readonly List<Sheet> _sheets = new(1);
 
     private readonly StylesSheet _styles;
     private readonly SharedStringKeeper _sharedStringKeeper;
@@ -28,6 +29,8 @@ public sealed class ExcelWriter : IAsyncDisposable
     private readonly List<Merge> _merges = new();
     private readonly Dictionary<string, List<CellReference>> _hyperlinks = new();
     private readonly SheetDrawings _sheetDrawings = new();
+
+    private ArrayPoolBufferWriter? _interpolatedStringBuffer;
 
     public ExcelWriter(
         Stream outputStream,
@@ -61,6 +64,9 @@ public sealed class ExcelWriter : IAsyncDisposable
     /// </summary>
     public uint RowCount => _rowCount;
 
+    internal ArrayPoolBufferWriter GetInterpolatedStringBuffer(int initialSize)
+        => _interpolatedStringBuffer ??= new ArrayPoolBufferWriter(initialSize);
+
     public async ValueTask StartSheet(string name, SheetConfiguration? configuration = null)
     {
         EnsureNotCompleted();
@@ -88,8 +94,6 @@ public sealed class ExcelWriter : IAsyncDisposable
 
     public ValueTask StartRow(in RowAttributes rowAttributes)
     {
-        EnsureNotCompleted();
-
         var height = rowAttributes.Height;
         if (height is <= 0)
             throw new ArgumentOutOfRangeException(nameof(height), "Height of row cannot be less or equal than 0.");
@@ -114,7 +118,6 @@ public sealed class ExcelWriter : IAsyncDisposable
     public void AddEmptyRows(uint count, in RowAttributes rowAttributes)
     {
         //TODO: Optimize with r (rowIndex)
-        EnsureNotCompleted();
 
         if (_sheetWriter == null)
             throw new InvalidOperationException("Cannot start row before start sheet.");
@@ -166,6 +169,17 @@ public sealed class ExcelWriter : IAsyncDisposable
         _columnCount += 1;
         AddMerge(rightMerge, downMerge);
     }
+
+    public void AddCell(
+        [InterpolatedStringHandlerArgument("")]
+        Utf8InterpolatedStringHandler builder,
+        StyleReference? style = null,
+        uint rightMerge = 0,
+        uint downMerge = 0)
+    {
+        AddCellUtf8String(builder.GetBytes(), style, rightMerge, downMerge);
+    }
+
 
     public void AddCell(string? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
@@ -441,6 +455,7 @@ public sealed class ExcelWriter : IAsyncDisposable
 
         _sharedStringKeeper.Dispose();
         _buffer.Dispose();
+        _interpolatedStringBuffer?.Dispose();
     }
 
     private ValueTask EndRow()
@@ -563,8 +578,6 @@ public sealed class ExcelWriter : IAsyncDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void CheckWriteCell()
     {
-        EnsureNotCompleted();
-
         if (!_rowStarted)
             throw new InvalidOperationException("Row is not started yet.");
     }
