@@ -5,6 +5,8 @@ using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.IO;
+using SpreadCheetah;
+using Cell = DocumentFormat.OpenXml.Spreadsheet.Cell;
 
 namespace Gooseberry.ExcelStreaming.Benchmarks;
 
@@ -36,13 +38,42 @@ public class ExcelWriterBenchmarks
                 writer.AddCell(row);
                 writer.AddCell(DateTime.Now.Ticks);
                 writer.AddCell(DateTime.Now);
-                writer.AddCellUtf8String("some text"u8);
-                writer.AddCellUtf8String("some text with <tag> & \"quote\"'s"u8);
+                writer.AddCell("some text");
+                writer.AddCell("some text with <tag> & \"quote\"'s");
                 writer.AddCell(102456.7655M);
             }
         }
 
         await writer.Complete();
+    }
+
+    [Benchmark]
+    public async Task SpreadCheetah()
+    {
+        await using var outputStream = _streamManager.GetStream();
+
+        var options = new SpreadCheetahOptions { DefaultDateTimeFormat = null, CompressionLevel = SpreadCheetahCompressionLevel.Optimal};
+        await using var spreadsheet = await Spreadsheet.CreateNewAsync(outputStream, options);
+        await spreadsheet.StartWorksheetAsync("test");
+        var cells = new DataCell[ColumnBatchesCount * 6];
+
+        for (var row = 0; row < RowsCount; ++row)
+        {
+            int cellIndex = 0;
+            for (var columnBatch = 0; columnBatch < ColumnBatchesCount; columnBatch++)
+            {
+                cells[cellIndex++] = new DataCell(row);
+                cells[cellIndex++] = new DataCell(DateTime.Now.Ticks);
+                cells[cellIndex++] = new DataCell(DateTime.Now);
+                cells[cellIndex++] = new DataCell("some text");
+                cells[cellIndex++] = new DataCell("some text with <tag> & \"quote\"'s");
+                cells[cellIndex++] = new DataCell(102456.7655M);
+            }
+
+            await spreadsheet.AddRowAsync(cells);
+        }
+
+        await spreadsheet.FinishAsync();
     }
 
     [Benchmark]
