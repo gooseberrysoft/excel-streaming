@@ -20,6 +20,21 @@ public class ExcelWriterBenchmarks
     [Params(100, 1000, 10_000, 100_000)]
     public int RowsCount { get; set; }
 
+    private string[] _simpleStrings = null!;
+    private string[] _escapingStrings = null!;
+
+    [GlobalSetup]
+    public void GlobalSetup()
+    {
+        _simpleStrings = Enumerable.Range(0, RowsCount * ColumnBatchesCount)
+            .Select(i => $"row col {i} text")
+            .ToArray();
+
+        _escapingStrings = Enumerable.Range(0, RowsCount * ColumnBatchesCount)
+            .Select(i => $"row col {i} text with <tag> & \"quote\"'s")
+            .ToArray();
+    }
+
     [Benchmark]
     public async Task ExcelWriter()
     {
@@ -38,8 +53,8 @@ public class ExcelWriterBenchmarks
                 writer.AddCell(row);
                 writer.AddCell(DateTime.Now.Ticks);
                 writer.AddCell(DateTime.Now);
-                writer.AddCell("some text");
-                writer.AddCell("some text with <tag> & \"quote\"'s");
+                writer.AddCell(_simpleStrings[row * ColumnBatchesCount + columnBatch]);
+                writer.AddCell(_escapingStrings[row * ColumnBatchesCount + columnBatch]);
                 writer.AddCell(102456.7655M);
             }
         }
@@ -65,8 +80,8 @@ public class ExcelWriterBenchmarks
                 cells[cellIndex++] = new DataCell(row);
                 cells[cellIndex++] = new DataCell(DateTime.Now.Ticks);
                 cells[cellIndex++] = new DataCell(DateTime.Now);
-                cells[cellIndex++] = new DataCell("some text");
-                cells[cellIndex++] = new DataCell("some text with <tag> & \"quote\"'s");
+                cells[cellIndex++] = new DataCell(_simpleStrings[row * ColumnBatchesCount + columnBatch]);
+                cells[cellIndex++] = new DataCell(_escapingStrings[row * ColumnBatchesCount + columnBatch]);
                 cells[cellIndex++] = new DataCell(102456.7655M);
             }
 
@@ -148,12 +163,12 @@ public class ExcelWriterBenchmarks
                 writer.WriteEndElement();
 
                 writer.WriteStartElement(stringCell, stringCellAttributes);
-                stringCellValue.Text = "some text";
+                stringCellValue.Text = _simpleStrings[row * ColumnBatchesCount + columnBatch];
                 writer.WriteElement(stringCellValue);
                 writer.WriteEndElement();
 
                 writer.WriteStartElement(stringCell, stringCellAttributes);
-                stringCellValue.Text = "some text with <tag> & \"quote\"'s";
+                stringCellValue.Text = _escapingStrings[row * ColumnBatchesCount + columnBatch];
                 writer.WriteElement(stringCellValue);
                 writer.WriteEndElement();
 
@@ -165,13 +180,13 @@ public class ExcelWriterBenchmarks
 
             }
 
-            // this is for Row
+            // end Row
             writer.WriteEndElement();
         }
 
-        // this is for SheetData
+        // end SheetData
         writer.WriteEndElement();
-        // this is for Worksheet
+        // end Worksheet
         writer.WriteEndElement();
 
         writer.Close();
