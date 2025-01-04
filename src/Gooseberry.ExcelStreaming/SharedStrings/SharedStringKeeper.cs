@@ -37,7 +37,7 @@ internal sealed class SharedStringKeeper : IDisposable
         return reference;
     }
 
-    internal ValueTask WriteTo(IArchiveWriter archive, string entryPath)
+    public ValueTask WriteTo(IArchiveWriter archive, string entryPath)
     {
         if (_buffer == null)
             return archive.WriteEntry(entryPath, Constants.SharedStringTable.EmptyTable);

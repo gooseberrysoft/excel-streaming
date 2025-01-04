@@ -30,7 +30,7 @@ public sealed class ExcelWriter : IAsyncDisposable
     private readonly Dictionary<string, List<CellReference>> _hyperlinks = new();
     private readonly SheetDrawings _sheetDrawings = new();
 
-    private ArrayPoolBufferWriter? _interpolatedStringBuffer;
+    private ArrayPoolBuffer? _interpolatedStringBuffer;
 
     public ExcelWriter(
         Stream outputStream,
@@ -63,9 +63,6 @@ public sealed class ExcelWriter : IAsyncDisposable
     /// Returns row count for current sheet
     /// </summary>
     public uint RowCount => _rowCount;
-
-    internal ArrayPoolBufferWriter GetInterpolatedStringBuffer(int initialSize)
-        => _interpolatedStringBuffer ??= new ArrayPoolBufferWriter(initialSize);
 
     public async ValueTask StartSheet(string name, SheetConfiguration? configuration = null)
     {
@@ -170,16 +167,17 @@ public sealed class ExcelWriter : IAsyncDisposable
         AddMerge(rightMerge, downMerge);
     }
 
+#if NET8_0_OR_GREATER
     public void AddCell(
         [InterpolatedStringHandlerArgument("")]
-        Utf8InterpolatedStringHandler builder,
+        Utf8InterpolatedStringHandler handler,
         StyleReference? style = null,
         uint rightMerge = 0,
         uint downMerge = 0)
     {
-        AddCellUtf8String(builder.GetBytes(), style, rightMerge, downMerge);
+        AddCellUtf8String(handler.GetBytes(), style, rightMerge, downMerge);
     }
-
+#endif
 
     public void AddCell(string? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
@@ -470,6 +468,9 @@ public sealed class ExcelWriter : IAsyncDisposable
         _buffer.Dispose();
         _interpolatedStringBuffer?.Dispose();
     }
+
+    internal ArrayPoolBuffer GetInterpolatedStringBuffer(int initialSize)
+        => _interpolatedStringBuffer ??= new ArrayPoolBuffer(initialSize);
 
     private ValueTask EndRow()
     {

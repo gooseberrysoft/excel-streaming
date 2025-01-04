@@ -148,6 +148,33 @@ public sealed class ExcelFilesGenerator
 
 #if NET8_0_OR_GREATER
     [Fact(Skip = Skip)]
+    public async Task InterpolatedStrings()
+    {
+        await using var outputStream = new FileStream(BasePath + "Interpolated.xlsx", FileMode.Create);
+
+        await using var writer = new ExcelWriter(outputStream);
+
+        for (var sheetIndex = 0; sheetIndex < 3; sheetIndex++)
+        {
+            await writer.StartSheet($"test#{sheetIndex}");
+
+            for (var row = 0; row < 10_000; row++)
+            {
+                await writer.StartRow();
+
+                for (var columnBatch = 0; columnBatch < 24; columnBatch++)
+                {
+                    writer.AddCell($"<‰&-> Row: {row,5:0000}, Column: {columnBatch,3} <-&‰>");
+                    writer.AddCell($"Now: {DateTime.Now}, percent: {columnBatch / 23M:P}");
+                }
+            }
+        }
+
+        await writer.Complete();
+    }
+
+
+    [Fact(Skip = Skip)]
     public async Task Utf8SpanFormattable()
     {
         await using var outputStream = new FileStream(BasePath + "Utf8SpanFormattable.xlsx", FileMode.Create);

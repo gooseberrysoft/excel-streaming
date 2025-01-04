@@ -22,7 +22,7 @@ internal static class StringWriter
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void WriteEscapedTo(
-        this ReadOnlySpan<char> data,
+        this scoped ReadOnlySpan<char> data,
         BuffersChain buffer,
         Encoder encoder)
     {
@@ -30,6 +30,17 @@ internal static class StringWriter
         var written = 0;
 
         WriteEscapedTo(data, buffer, encoder, ref span, ref written);
+
+        buffer.Advance(written);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void WriteEscapedUtf8To(this scoped ReadOnlySpan<byte> data, BuffersChain buffer)
+    {
+        var span = buffer.GetSpan();
+        var written = 0;
+
+        WriteEscapedUtf8To(data, buffer, ref span, ref written);
 
         buffer.Advance(written);
     }
@@ -108,6 +119,21 @@ internal static class StringWriter
     }
 
 #if NET8_0_OR_GREATER
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void WriteEscapedUtf8To<T>(
+        in T data,
+        ReadOnlySpan<char> format,
+        IFormatProvider? provider,
+        BuffersChain buffer) where T : IUtf8SpanFormattable
+    {
+        var span = buffer.GetSpan();
+        var written = 0;
+
+        WriteEscapedUtf8To(data, format, provider, buffer, ref span, ref written);
+
+        buffer.Advance(written);
+    }
+
     internal static void WriteEscapedUtf8To<T>(
         in T data,
         ReadOnlySpan<char> format,
