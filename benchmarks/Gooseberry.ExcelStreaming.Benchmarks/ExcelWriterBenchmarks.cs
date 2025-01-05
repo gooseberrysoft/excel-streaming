@@ -22,6 +22,7 @@ public class ExcelWriterBenchmarks
 
     private string[] _simpleStrings = null!;
     private string[] _escapingStrings = null!;
+    private long LongValue = 999_999_999_999_999;
 
     [GlobalSetup]
     public void GlobalSetup()
@@ -51,7 +52,7 @@ public class ExcelWriterBenchmarks
             for (var columnBatch = 0; columnBatch < ColumnBatchesCount; columnBatch++)
             {
                 writer.AddCell(row);
-                writer.AddCell(DateTime.Now.Ticks);
+                writer.AddCell(LongValue);
                 writer.AddCell(DateTime.Now);
                 writer.AddCell(_simpleStrings[row * ColumnBatchesCount + columnBatch]);
                 writer.AddCell(_escapingStrings[row * ColumnBatchesCount + columnBatch]);
@@ -78,7 +79,7 @@ public class ExcelWriterBenchmarks
             for (var columnBatch = 0; columnBatch < ColumnBatchesCount; columnBatch++)
             {
                 cells[cellIndex++] = new DataCell(row);
-                cells[cellIndex++] = new DataCell(DateTime.Now.Ticks);
+                cells[cellIndex++] = new DataCell(LongValue);
                 cells[cellIndex++] = new DataCell(DateTime.Now);
                 cells[cellIndex++] = new DataCell(_simpleStrings[row * ColumnBatchesCount + columnBatch]);
                 cells[cellIndex++] = new DataCell(_escapingStrings[row * ColumnBatchesCount + columnBatch]);
@@ -140,6 +141,7 @@ public class ExcelWriterBenchmarks
         var stringCellValue = new CellValue();
 
         var rowValue = new Row();
+        
 
         for (var row = 1; row < RowsCount; row++)
         {
@@ -153,7 +155,7 @@ public class ExcelWriterBenchmarks
                 writer.WriteEndElement();
 
                 writer.WriteStartElement(longCell, numCellAttributes);
-                longCellValue.Text = DateTime.Now.Ticks.ToString();
+                longCellValue.Text = LongValue.ToString();
                 writer.WriteElement(longCellValue);
                 writer.WriteEndElement();
 

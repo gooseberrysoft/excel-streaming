@@ -7,7 +7,7 @@ Create Excel files with high performance and low memory allocations.
 ### Features ###
 * Extremely fast streaming write (100 columns * 100 000 rows in [0.65 second, 20Kb allocated memory](https://github.com/gooseberrysoft/excel-streaming/blob/main/benchmarks/results/Gooseberry.ExcelStreaming.Benchmarks.RealWorldReportBenchmarks-report-github.md))
 * Most basic excel column types are supported (incl. hyperlinks)
-* Shared strings and utf8 binary strings
+* Shared strings, utf8 binary and interpolated strings
 * Cell formatting, styling and merging
 * Basic pictures support
 * Asynchronous compression
@@ -38,7 +38,7 @@ await foreach(var record in store.GetRecordsAsync(cancellationToken))
     writer.AddEmptyCell(); // empty
     writer.AddEmptyCells(5); // five empty cells
     writer.AddCell(42); // int
-    writer.AddCell(DateTime.Now.Ticks); // long
+    writer.AddCell(999_999_999_999_999); // long 
     writer.AddCell(DateTime.Now); // DateTime
     writer.AddCell(123.765M); // decimal
     writer.AddCell(Math.PI); //double
@@ -82,6 +82,13 @@ writer.AddCellString(Guid.NewGuid(), ['N']);
 
 float value = 0.3f;
 writer.AddCellNumber(value);
+```
+
+### Interpolated strings (.net8+) ###
+Writing interpolated strings to cells without allocations ([benchmark](https://github.com/gooseberrysoft/excel-streaming/blob/main/benchmarks/Gooseberry.ExcelStreaming.Benchmarks/InterpolatedStringBenchmarks.cs)).  
+```csharp
+writer.AddCell($"{person.FirstName} {person.LastName}, age {person.Age}");
+writer.AddCell($"Now is {DateTime.Now}");  
 ```
 
 ### Write Excel file to Http response ###
@@ -206,4 +213,3 @@ Benchmarks [results](https://github.com/gooseberrysoft/excel-streaming/tree/main
 | OpenXml     | 10000     |   330.799 ms |  9000.0000 | 3000.0000 | 3000.0000 |  136777.02 KB |
 | ExcelWriter | 100000    | 1,119.574 ms |          - |         - |         - |     142.23 KB |
 | OpenXml     | 100000    | 3,310.667 ms | 68000.0000 | 6000.0000 | 6000.0000 | 1171460.91 KB |
-
