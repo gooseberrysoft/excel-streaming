@@ -595,6 +595,8 @@ public sealed class ExcelWriter : IAsyncDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void CheckWriteCell()
     {
+        EnsureNotCompleted();
+
         if (!_rowStarted)
             throw new InvalidOperationException("Row is not started yet.");
     }

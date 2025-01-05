@@ -67,7 +67,7 @@ public sealed class ExcelWriterErrorTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task AnyActionAfterComplete_ThrowsException()
+    public async Task AfterComplete_ThrowsException()
     {
         await _excelWriter.Complete();
 
