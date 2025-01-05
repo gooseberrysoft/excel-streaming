@@ -35,7 +35,6 @@ public ref struct Utf8InterpolatedStringHandler
     public bool AppendLiteral(string value)
         => _handler.AppendLiteral(value);
 
-
     /// <summary>Writes the specified value to the handler.</summary>
     /// <param name="value">The value to write.</param>
     /// <typeparam name="T">The type of the value to write.</typeparam>
