@@ -91,6 +91,8 @@ public sealed class ExcelWriter : IAsyncDisposable
 
     public ValueTask StartRow(in RowAttributes rowAttributes)
     {
+        EnsureNotCompleted();
+
         var height = rowAttributes.Height;
         if (height is <= 0)
             throw new ArgumentOutOfRangeException(nameof(height), "Height of row cannot be less or equal than 0.");
@@ -114,6 +116,7 @@ public sealed class ExcelWriter : IAsyncDisposable
 
     public void AddEmptyRows(uint count, in RowAttributes rowAttributes)
     {
+        EnsureNotCompleted();
         //TODO: Optimize with r (rowIndex)
 
         if (_sheetWriter == null)
@@ -469,8 +472,8 @@ public sealed class ExcelWriter : IAsyncDisposable
         _interpolatedStringBuffer?.Dispose();
     }
 
-    internal ArrayPoolBuffer GetInterpolatedStringBuffer(int initialSize)
-        => _interpolatedStringBuffer ??= new ArrayPoolBuffer(initialSize);
+    internal ArrayPoolBuffer GetInterpolatedStringBuffer(int capacity)
+        => _interpolatedStringBuffer ??= new ArrayPoolBuffer(capacity);
 
     private ValueTask EndRow()
     {
