@@ -20,20 +20,6 @@ internal static class StringWriter
         ref int written)
         => WriteEscapedTo(data.AsSpan(), buffer, encoder, ref destination, ref written);
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static void WriteEscapedTo(
-        this ReadOnlySpan<char> data,
-        BuffersChain buffer,
-        Encoder encoder)
-    {
-        var span = buffer.GetSpan();
-        var written = 0;
-
-        WriteEscapedTo(data, buffer, encoder, ref span, ref written);
-
-        buffer.Advance(written);
-    }
-
     internal static void WriteEscapedTo(
         this scoped ReadOnlySpan<char> data,
         BuffersChain buffer,

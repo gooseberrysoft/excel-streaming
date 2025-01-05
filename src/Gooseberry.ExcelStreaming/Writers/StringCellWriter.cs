@@ -10,7 +10,7 @@ internal static class StringCellWriter
 {
     // https://support.microsoft.com/en-us/office/excel-specifications-and-limits-1672b34d-7043-467e-8e27-269d656771c3?ui=en-us&rs=en-us&ad=us#ID0EBABAAA=Excel_2016-2013
     private const int MaxCharacters = 32_767;
-    private const int MaxBytes = MaxCharacters * 3;
+    internal const int MaxBytes = MaxCharacters * 3;
 
     private static readonly byte[] _stylelessPrefix;
     private static readonly byte[] _stylePrefix;
@@ -34,7 +34,7 @@ internal static class StringCellWriter
     public static void Write(ReadOnlySpan<char> value, BuffersChain buffer, Encoder encoder, StyleReference? style = null)
     {
         if (value.Length > MaxCharacters)
-            throw new ArgumentException("Data length more than total number of characters that a cell can contain.");
+            ThrowCharsLimitExceeded();
 
         var span = buffer.GetSpan();
         var written = 0;
@@ -61,7 +61,7 @@ internal static class StringCellWriter
     public static void WriteUtf8(ReadOnlySpan<byte> value, BuffersChain buffer, StyleReference? style = null)
     {
         if (value.Length > MaxBytes)
-            throw new ArgumentException("Data length more than total number of characters that a cell can contain.");
+            ThrowCharsLimitExceeded();
 
         var span = buffer.GetSpan();
         var written = 0;
@@ -84,4 +84,7 @@ internal static class StringCellWriter
 
         buffer.Advance(written);
     }
+
+    public static void ThrowCharsLimitExceeded()
+        => throw new ArgumentException($"Cell value exceed Excel {MaxCharacters} chars limit.");
 }

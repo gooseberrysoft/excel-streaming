@@ -9,6 +9,42 @@ namespace Gooseberry.ExcelStreaming.Tests;
 public sealed class ExcelWriterTests
 {
     [Fact]
+    public async Task ExcelWriter_WritesInterpolatedStrings()
+    {
+        var outputStream = new MemoryStream();
+        var now = DateTime.Now;
+        var today = DateOnly.FromDateTime(now);
+        int random = Random.Shared.Next();
+        var guid = Guid.NewGuid();
+
+        await using (var writer = new ExcelWriter(outputStream))
+        {
+            await writer.StartSheet("test sheet");
+
+            await writer.StartRow();
+            writer.AddCell($"<Now {now}, today {today}, random {random}!>");
+            writer.AddCell($"Generated {guid} guid value.");
+
+            await writer.Complete();
+        }
+
+        outputStream.Seek(0, SeekOrigin.Begin);
+
+        var sheets = ExcelReader.ReadSheets(outputStream);
+
+        var expectedSheet = new Excel.Sheet(
+            "test sheet",
+            [
+                new Row([
+                    new Cell($"<Now {now}, today {today}, random {random}!>", CellValueType.String),
+                    new Cell($"Generated {guid} guid value.", CellValueType.String)
+                ])
+            ]);
+
+        sheets.ShouldBeEquivalentTo(expectedSheet);
+    }
+
+    [Fact]
     public async Task ExcelWriter_WritesCorrectData()
     {
         var outputStream = new MemoryStream();

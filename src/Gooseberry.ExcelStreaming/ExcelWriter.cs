@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Gooseberry.ExcelStreaming.Buffers;
 using Gooseberry.ExcelStreaming.Pictures;
 using Gooseberry.ExcelStreaming.SharedStrings;
 using Gooseberry.ExcelStreaming.Styles;
@@ -12,7 +13,7 @@ public sealed class ExcelWriter : IAsyncDisposable
 {
     private const int DefaultBufferSize = 32 * 1024;
 
-    private readonly List<Sheet> _sheets = new();
+    private readonly List<Sheet> _sheets = new(1);
 
     private readonly StylesSheet _styles;
     private readonly SharedStringKeeper _sharedStringKeeper;
@@ -28,6 +29,8 @@ public sealed class ExcelWriter : IAsyncDisposable
     private readonly List<Merge> _merges = new();
     private readonly Dictionary<string, List<CellReference>> _hyperlinks = new();
     private readonly SheetDrawings _sheetDrawings = new();
+
+    private ArrayPoolBuffer? _interpolatedStringBuffer;
 
     public ExcelWriter(
         Stream outputStream,
@@ -113,8 +116,8 @@ public sealed class ExcelWriter : IAsyncDisposable
 
     public void AddEmptyRows(uint count, in RowAttributes rowAttributes)
     {
-        //TODO: Optimize with r (rowIndex)
         EnsureNotCompleted();
+        //TODO: Optimize with r (rowIndex)
 
         if (_sheetWriter == null)
             throw new InvalidOperationException("Cannot start row before start sheet.");
@@ -166,6 +169,18 @@ public sealed class ExcelWriter : IAsyncDisposable
         _columnCount += 1;
         AddMerge(rightMerge, downMerge);
     }
+
+#if NET8_0_OR_GREATER
+    public void AddCell(
+        [InterpolatedStringHandlerArgument("")]
+        Utf8InterpolatedStringHandler handler,
+        StyleReference? style = null,
+        uint rightMerge = 0,
+        uint downMerge = 0)
+    {
+        AddCellUtf8String(handler.GetBytes(), style, rightMerge, downMerge);
+    }
+#endif
 
     public void AddCell(string? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
@@ -454,7 +469,11 @@ public sealed class ExcelWriter : IAsyncDisposable
 
         _sharedStringKeeper.Dispose();
         _buffer.Dispose();
+        _interpolatedStringBuffer?.Dispose();
     }
+
+    internal ArrayPoolBuffer GetInterpolatedStringBuffer(int capacity)
+        => _interpolatedStringBuffer ??= new ArrayPoolBuffer(capacity);
 
     private ValueTask EndRow()
     {
