@@ -8,9 +8,11 @@ internal sealed class Buffer : IDisposable
 {
     public const int MinSize = 32;
 
-    private Memory<byte> _buffer;
+    private int _bufferOffset;
     private int _bufferIndex;
-    private byte[] _underlyingArray = Array.Empty<byte>();
+    private byte[] _underlyingArray = [];
+
+    private int BufferLength => _underlyingArray.Length - _bufferOffset;
 
     public Buffer(int size)
     {
@@ -20,22 +22,22 @@ internal sealed class Buffer : IDisposable
         RentNew(size);
     }
 
-    public bool IsEmpty => _buffer.Length == 0;
+    public bool IsEmpty => BufferLength == 0;
 
-    public int RemainingCapacity => _buffer.Length - _bufferIndex;
+    public int RemainingCapacity => BufferLength - _bufferIndex;
 
     public int Written => _bufferIndex;
 
     public int UnderlyingLength => _underlyingArray.Length;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Span<byte> GetSpan() => _buffer.Span.Slice(_bufferIndex);
+    public Span<byte> GetSpan() => _underlyingArray.AsSpan(_bufferOffset + _bufferIndex);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Advance(int count)
     {
         if (count > RemainingCapacity)
-            throw new InvalidOperationException("Buffer haven't enough size to write data.");
+            ThrowInvalidAdvance();
 
         _bufferIndex += count;
     }
@@ -45,7 +47,7 @@ internal sealed class Buffer : IDisposable
         if (_bufferIndex == 0)
             return;
 
-        await output.Write(new MemoryOwner(_buffer.Slice(0, _bufferIndex), _underlyingArray));
+        await output.Write(new MemoryOwner(_underlyingArray.AsMemory(_bufferOffset, _bufferIndex), _underlyingArray));
 
         RentNew(newSize);
     }
@@ -55,16 +57,16 @@ internal sealed class Buffer : IDisposable
         if (_bufferIndex == 0)
             return;
 
-        if (_buffer.Length - _bufferIndex <= MinSize)
+        if (BufferLength - _bufferIndex <= MinSize)
         {
-            await output.Write(new MemoryOwner(_buffer.Slice(0, _bufferIndex), _underlyingArray));
+            await output.Write(new MemoryOwner(_underlyingArray.AsMemory(_bufferOffset, _bufferIndex), _underlyingArray));
 
             RentNew(newSize);
         }
         else
         {
-            await output.Write(_buffer.Slice(0, _bufferIndex));
-            _buffer = _buffer.Slice(_bufferIndex);
+            await output.Write(_underlyingArray.AsMemory(_bufferOffset, _bufferIndex));
+            _bufferOffset += _bufferIndex;
             _bufferIndex = 0;
         }
     }
@@ -74,12 +76,12 @@ internal sealed class Buffer : IDisposable
         if (_bufferIndex == 0)
             return;
 
-        _buffer.Span.Slice(0, _bufferIndex).CopyTo(output);
+        _underlyingArray.AsSpan(_bufferOffset, _bufferIndex).CopyTo(output);
 
-        _buffer = _buffer.Slice(_bufferIndex);
+        _bufferOffset += _bufferIndex;
         _bufferIndex = 0;
 
-        if (_buffer.Length < MinSize)
+        if (BufferLength < MinSize)
         {
             ArrayPool<byte>.Shared.Return(_underlyingArray);
             RentNew(0);
@@ -93,15 +95,16 @@ internal sealed class Buffer : IDisposable
 
         ArrayPool<byte>.Shared.Return(_underlyingArray);
 
-        _buffer = _underlyingArray = Array.Empty<byte>();
-        _bufferIndex = 0;
+        _underlyingArray = [];
+        _bufferOffset = _bufferIndex = 0;
     }
 
     private void RentNew(int size)
     {
-        _bufferIndex = 0;
-        _buffer = _underlyingArray = size == 0
-            ? Array.Empty<byte>()
-            : ArrayPool<byte>.Shared.Rent(size);
+        _bufferOffset = _bufferIndex = 0;
+        _underlyingArray = size == 0 ? [] : ArrayPool<byte>.Shared.Rent(size);
     }
+
+    private static void ThrowInvalidAdvance() 
+        => throw new InvalidOperationException("Buffer haven't enough size to write data.");
 }

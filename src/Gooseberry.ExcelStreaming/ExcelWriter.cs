@@ -22,6 +22,7 @@ public sealed class ExcelWriter : IAsyncDisposable
     private readonly BuffersChain _buffer;
     private readonly Encoder _encoder;
     private IEntryWriter? _sheetWriter;
+    private bool _initialFilesWritten;
     private bool _rowStarted = false;
     private bool _isCompleted = false;
     private uint _rowCount = 0;
@@ -68,6 +69,9 @@ public sealed class ExcelWriter : IAsyncDisposable
     {
         EnsureNotCompleted();
 
+        if (!_initialFilesWritten)
+            await WriteInitialWorkbookFiles();
+
         if (_rowStarted)
             await EndRow();
 
@@ -82,7 +86,7 @@ public sealed class ExcelWriter : IAsyncDisposable
         var relationshipId = $"sheet{sheetId}";
         _sheets.Add(new(name, sheetId, relationshipId));
 
-        _sheetWriter = _archiveWriter.CreateEntry($"xl/worksheets/{relationshipId}.xml");
+        _sheetWriter = _archiveWriter.CreateEntry(PathResolver.GetSheetFullPath(relationshipId));
         SheetWriter.WriteStartSheet(_buffer, configuration);
     }
 
@@ -156,7 +160,7 @@ public sealed class ExcelWriter : IAsyncDisposable
             new OneCellAnchorPicturePlacementWriter(new AnchorCell(_columnCount, _rowCount - 1), size));
 
         _columnCount += 1;
-        AddMerge(rightMerge, downMerge);
+        MergeCell(rightMerge, downMerge);
     }
 
     public void AddCellPicture(ReadOnlyMemory<byte> picture, PictureFormat format, Size size, uint rightMerge = 0, uint downMerge = 0)
@@ -167,7 +171,7 @@ public sealed class ExcelWriter : IAsyncDisposable
             new OneCellAnchorPicturePlacementWriter(new AnchorCell(_columnCount, _rowCount - 1), size));
 
         _columnCount += 1;
-        AddMerge(rightMerge, downMerge);
+        MergeCell(rightMerge, downMerge);
     }
 
 #if NET8_0_OR_GREATER
@@ -199,7 +203,7 @@ public sealed class ExcelWriter : IAsyncDisposable
         DataWriters.IntCellWriter.Write(data, _buffer, style);
 
         _columnCount += 1;
-        AddMerge(rightMerge, downMerge);
+        MergeCell(rightMerge, downMerge);
 #endif
     }
 
@@ -220,7 +224,7 @@ public sealed class ExcelWriter : IAsyncDisposable
         DataWriters.LongCellWriter.Write(data, _buffer, style);
 
         _columnCount += 1;
-        AddMerge(rightMerge, downMerge);
+        MergeCell(rightMerge, downMerge);
 #endif
     }
 
@@ -241,7 +245,7 @@ public sealed class ExcelWriter : IAsyncDisposable
         DataWriters.DecimalCellWriter.Write(data, _buffer, style);
 
         _columnCount += 1;
-        AddMerge(rightMerge, downMerge);
+        MergeCell(rightMerge, downMerge);
 #endif
     }
 
@@ -262,7 +266,7 @@ public sealed class ExcelWriter : IAsyncDisposable
         DataWriters.DoubleCellWriter.Write(data, _buffer, style);
 
         _columnCount += 1;
-        AddMerge(rightMerge, downMerge);
+        MergeCell(rightMerge, downMerge);
 #endif
     }
 
@@ -280,7 +284,7 @@ public sealed class ExcelWriter : IAsyncDisposable
         DataWriters.DateTimeCellWriter.Write(data, _buffer, style ?? _styles.DefaultDateStyle);
 
         _columnCount += 1;
-        AddMerge(rightMerge, downMerge);
+        MergeCell(rightMerge, downMerge);
     }
 
     public void AddCell(DateTime? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
@@ -320,7 +324,7 @@ public sealed class ExcelWriter : IAsyncDisposable
         StringCellWriter.Write(data, _buffer, _encoder, style);
 
         _columnCount += 1;
-        AddMerge(rightMerge, downMerge);
+        MergeCell(rightMerge, downMerge);
     }
 
     public void AddCellUtf8String(ReadOnlySpan<byte> data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
@@ -329,7 +333,7 @@ public sealed class ExcelWriter : IAsyncDisposable
         StringCellWriter.WriteUtf8(data, _buffer, style);
 
         _columnCount += 1;
-        AddMerge(rightMerge, downMerge);
+        MergeCell(rightMerge, downMerge);
     }
 
 #if NET8_0_OR_GREATER
@@ -346,7 +350,7 @@ public sealed class ExcelWriter : IAsyncDisposable
         Utf8StringCellWriter.Write(data, format, formatProvider, _buffer, style);
 
         _columnCount += 1;
-        AddMerge(rightMerge, downMerge);
+        MergeCell(rightMerge, downMerge);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -363,7 +367,7 @@ public sealed class ExcelWriter : IAsyncDisposable
         Utf8NumberCellWriter.Write(data, format, formatProvider, _buffer, style);
 
         _columnCount += 1;
-        AddMerge(rightMerge, downMerge);
+        MergeCell(rightMerge, downMerge);
     }
 #endif
 
@@ -395,7 +399,7 @@ public sealed class ExcelWriter : IAsyncDisposable
         SharedStringCellWriter.Write(sharedString, _buffer, style);
 
         _columnCount += 1;
-        AddMerge(rightMerge, downMerge);
+        MergeCell(rightMerge, downMerge);
     }
 
     public void AddCell(in Hyperlink hyperlink, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
@@ -404,7 +408,7 @@ public sealed class ExcelWriter : IAsyncDisposable
         StringCellWriter.Write(hyperlink.Text, _buffer, _encoder, style ?? _styles.DefaultHyperlinkStyle);
 
         _columnCount += 1;
-        AddMerge(rightMerge, downMerge);
+        MergeCell(rightMerge, downMerge);
         AddHyperlink(hyperlink);
     }
 
@@ -415,7 +419,7 @@ public sealed class ExcelWriter : IAsyncDisposable
         EmptyCellWriter.Write(_buffer, style);
 
         _columnCount += 1;
-        AddMerge(rightMerge, downMerge);
+        MergeCell(rightMerge, downMerge);
     }
 
     public void AddEmptyCells(uint count, StyleReference? style = null)
@@ -434,6 +438,7 @@ public sealed class ExcelWriter : IAsyncDisposable
 
     private async ValueTask AddPictures()
     {
+        //TODO: Write pictures early
         foreach (var picture in _sheetDrawings.Pictures)
             await picture.Data.WriteTo(_archiveWriter, PathResolver.GetPictureFullPath(picture));
     }
@@ -452,10 +457,8 @@ public sealed class ExcelWriter : IAsyncDisposable
         await AddWorkbook();
         await AddContentTypes();
         await AddWorkbookRelationships();
-        await AddStyles();
         await AddSharedStringTable();
-        await AddRelationships();
-
+        
         //writes data to stream
         await _archiveWriter.DisposeAsync();
 
@@ -501,12 +504,23 @@ public sealed class ExcelWriter : IAsyncDisposable
         _hyperlinks.Clear();
     }
 
+    private async Task WriteInitialWorkbookFiles()
+    {
+        await AddRelationships();
+        await AddStyles();
+        _initialFilesWritten = true;
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void AddMerge(uint rightMerge = 0, uint downMerge = 0)
+    private void MergeCell(uint rightMerge = 0, uint downMerge = 0)
     {
         if (rightMerge != 0 || downMerge != 0)
-            _merges.Add(new Merge(_rowCount, _columnCount, downMerge, rightMerge));
+            AddMerge(rightMerge, downMerge);
     }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private void AddMerge(uint rightMerge, uint downMerge) 
+        => _merges.Add(new Merge(_rowCount, _columnCount, downMerge, rightMerge));
 
     private void AddHyperlink(in Hyperlink hyperlink)
     {
@@ -518,7 +532,7 @@ public sealed class ExcelWriter : IAsyncDisposable
 
         references.Add(new CellReference(_columnCount, _rowCount));
     }
-
+    
     private ValueTask AddWorkbook()
     {
         WorkbookWriter.Write(_sheets, _buffer, _encoder);
@@ -543,15 +557,11 @@ public sealed class ExcelWriter : IAsyncDisposable
     private ValueTask AddStyles()
         => _styles.WriteTo(_archiveWriter, "xl/styles.xml");
 
+    private ValueTask AddRelationships() 
+        => _archiveWriter.WriteEntry("_rels/.rels", Constants.RelationshipsContent);
+
     private ValueTask AddSharedStringTable()
         => _sharedStringKeeper.WriteTo(_archiveWriter, "xl/sharedStrings.xml");
-
-    private ValueTask AddRelationships()
-    {
-        RelationshipsWriter.Write(_buffer);
-
-        return _buffer.FlushAll(_archiveWriter.CreateEntry("_rels/.rels"));
-    }
 
     private ValueTask AddDrawingRelationships(int sheetId)
     {
@@ -589,15 +599,22 @@ public sealed class ExcelWriter : IAsyncDisposable
     private void EnsureNotCompleted()
     {
         if (_isCompleted)
-            throw new InvalidOperationException("Excel writer is already completed.");
+            ThrowCompleted();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void CheckWriteCell()
     {
-        EnsureNotCompleted();
+        if (_isCompleted)
+            ThrowCompleted();
 
         if (!_rowStarted)
-            throw new InvalidOperationException("Row is not started yet.");
+            ThrowRowNotStarted();
     }
+
+    private static void ThrowRowNotStarted() 
+        => throw new InvalidOperationException("Row is not started yet.");
+
+    private static void ThrowCompleted() 
+        => throw new InvalidOperationException("Excel writer is already completed.");
 }

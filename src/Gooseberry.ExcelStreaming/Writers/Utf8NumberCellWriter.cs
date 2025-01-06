@@ -1,4 +1,6 @@
 #if NET8_0_OR_GREATER
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Gooseberry.ExcelStreaming.Extensions;
 using Gooseberry.ExcelStreaming.Styles;
 
@@ -27,22 +29,21 @@ internal static class Utf8NumberCellWriter
         var written = 0;
 
         if (style.HasValue)
-        {
-            StylePrefix.WriteTo(buffer, ref span, ref written);
-            Utf8SpanFormattableWriter.WriteValue(style.Value.Value, buffer, ref span, ref written);
-            StylePostfix.WriteTo(buffer, ref span, ref written);
-            Utf8SpanFormattableWriter.WriteValue(value, format, provider, buffer, ref span, ref written);
-            Constants.Worksheet.SheetData.Row.Cell.Postfix.WriteTo(buffer, ref span, ref written);
+            WriteStyle(buffer, style.Value, ref span, ref written);
+        else
+            StylelessPrefix.WriteTo(buffer, ref span, ref written);
 
-            buffer.Advance(written);
-            return;
-        }
-
-        StylelessPrefix.WriteTo(buffer, ref span, ref written);
         Utf8SpanFormattableWriter.WriteValue(value, format, provider, buffer, ref span, ref written);
         Constants.Worksheet.SheetData.Row.Cell.Postfix.WriteTo(buffer, ref span, ref written);
 
         buffer.Advance(written);
+    }
+
+    private static void WriteStyle(BuffersChain buffer, StyleReference style, ref Span<byte> span, ref int written)
+    {
+        StylePrefix.WriteTo(buffer, ref span, ref written);
+        Utf8SpanFormattableWriter.WriteValue(style.Value, buffer, ref span, ref written);
+        StylePostfix.WriteTo(buffer, ref span, ref written);
     }
 }
 #endif

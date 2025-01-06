@@ -17,7 +17,6 @@ internal sealed class BuffersChain : IDisposable
     public BuffersChain(int initialBufferSize)
     {
         _bufferSize = initialBufferSize;
-
         _currentBuffer = new Buffer(_bufferSize);
     }
 
@@ -28,13 +27,21 @@ internal sealed class BuffersChain : IDisposable
             var written = _currentBuffer.Written;
 
             if (_completedBuffers.Count > 0)
-            {
-                foreach (var buffer in _completedBuffers)
-                    written += buffer.Written;
-            }
+                written += GetCompletedBuffersWritten();
 
             return written;
         }
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private int GetCompletedBuffersWritten()
+    {
+        var written = 0;
+
+        foreach (var buffer in _completedBuffers)
+            written += buffer.Written;
+
+        return written;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -46,6 +53,7 @@ internal sealed class BuffersChain : IDisposable
         return _currentBuffer.GetSpan();
     }
 
+    [MethodImpl(MethodImplOptions.NoInlining)]
     private void Allocate(int minSize)
     {
         if (!_currentBuffer.IsEmpty)
