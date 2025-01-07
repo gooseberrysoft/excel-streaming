@@ -97,12 +97,8 @@ public sealed class ExcelWriter : IAsyncDisposable
     {
         EnsureNotCompleted();
 
-        var height = rowAttributes.Height;
-        if (height is <= 0)
-            throw new ArgumentOutOfRangeException(nameof(height), "Height of row cannot be less or equal than 0.");
-
         if (_sheetWriter == null)
-            throw new InvalidOperationException("Cannot start row before start sheet.");
+            ThrowSheetNotStarted();
 
         RowWriter.WriteStartRow(_buffer, _rowStarted, rowAttributes);
 
@@ -453,12 +449,15 @@ public sealed class ExcelWriter : IAsyncDisposable
         if (_sheetWriter != null)
             await EndSheet();
 
+        if (!_initialFilesWritten)
+            await WriteInitialWorkbookFiles();
+
         await AddPictures();
         await AddWorkbook();
         await AddContentTypes();
         await AddWorkbookRelationships();
         await AddSharedStringTable();
-        
+
         //writes data to stream
         await _archiveWriter.DisposeAsync();
 
@@ -519,7 +518,7 @@ public sealed class ExcelWriter : IAsyncDisposable
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private void AddMerge(uint rightMerge, uint downMerge) 
+    private void AddMerge(uint rightMerge, uint downMerge)
         => _merges.Add(new Merge(_rowCount, _columnCount, downMerge, rightMerge));
 
     private void AddHyperlink(in Hyperlink hyperlink)
@@ -532,7 +531,7 @@ public sealed class ExcelWriter : IAsyncDisposable
 
         references.Add(new CellReference(_columnCount, _rowCount));
     }
-    
+
     private ValueTask AddWorkbook()
     {
         WorkbookWriter.Write(_sheets, _buffer, _encoder);
@@ -557,7 +556,7 @@ public sealed class ExcelWriter : IAsyncDisposable
     private ValueTask AddStyles()
         => _styles.WriteTo(_archiveWriter, "xl/styles.xml");
 
-    private ValueTask AddRelationships() 
+    private ValueTask AddRelationships()
         => _archiveWriter.WriteEntry("_rels/.rels", Constants.RelationshipsContent);
 
     private ValueTask AddSharedStringTable()
@@ -612,9 +611,12 @@ public sealed class ExcelWriter : IAsyncDisposable
             ThrowRowNotStarted();
     }
 
-    private static void ThrowRowNotStarted() 
+    private static void ThrowRowNotStarted()
         => throw new InvalidOperationException("Row is not started yet.");
 
-    private static void ThrowCompleted() 
+    private static void ThrowCompleted()
         => throw new InvalidOperationException("Excel writer is already completed.");
+
+    private static void ThrowSheetNotStarted() 
+        => throw new InvalidOperationException("Sheet is not started.");
 }

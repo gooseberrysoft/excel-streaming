@@ -13,7 +13,7 @@ public sealed class BufferTests
 
         buffer.IsEmpty.Should().BeFalse();
         buffer.RemainingCapacity.Should().Be(size);
-        buffer.UnderlyingLength.Should().Be(size);
+        buffer.AllocatedSize.Should().Be(size);
         buffer.Written.Should().Be(0);
         buffer.GetSpan().Length.Should().Be(size);
     }
@@ -31,7 +31,7 @@ public sealed class BufferTests
 
         buffer.IsEmpty.Should().BeFalse();
         buffer.RemainingCapacity.Should().Be(size - written);
-        buffer.UnderlyingLength.Should().Be(size);
+        buffer.AllocatedSize.Should().Be(size);
         buffer.Written.Should().Be(written);
         buffer.GetSpan().Length.Should().Be(size - written);
         buffer.GetSpan().SequenceEqual(data.Slice(written)).Should().BeTrue();
@@ -56,7 +56,7 @@ public sealed class BufferTests
 
         buffer.IsEmpty.Should().BeFalse();
         buffer.RemainingCapacity.Should().Be(size - written);
-        buffer.UnderlyingLength.Should().Be(size);
+        buffer.AllocatedSize.Should().Be(size);
         buffer.Written.Should().Be(0);
         buffer.GetSpan().Length.Should().Be(size - written);
     }
@@ -78,7 +78,7 @@ public sealed class BufferTests
 
         buffer.IsEmpty.Should().BeFalse();
         buffer.RemainingCapacity.Should().Be(size - written - writtenMore);
-        buffer.UnderlyingLength.Should().Be(size);
+        buffer.AllocatedSize.Should().Be(size);
         buffer.Written.Should().Be(writtenMore);
         buffer.GetSpan().Length.Should().Be(size - written - writtenMore);
     }
@@ -97,7 +97,7 @@ public sealed class BufferTests
 
         buffer.IsEmpty.Should().BeTrue();
         buffer.RemainingCapacity.Should().Be(0);
-        buffer.UnderlyingLength.Should().Be(0);
+        buffer.AllocatedSize.Should().Be(64);
         buffer.Written.Should().Be(0);
         buffer.GetSpan().Length.Should().Be(0);
     }
@@ -124,7 +124,7 @@ public sealed class BufferTests
 
         buffer.IsEmpty.Should().BeTrue();
         buffer.RemainingCapacity.Should().Be(0);
-        buffer.UnderlyingLength.Should().Be(0);
+        buffer.AllocatedSize.Should().Be(64);
         buffer.Written.Should().Be(0);
         buffer.GetSpan().Length.Should().Be(0);
     }
@@ -151,7 +151,7 @@ public sealed class BufferTests
 
         buffer.IsEmpty.Should().BeFalse();
         buffer.RemainingCapacity.Should().Be(size - written);
-        buffer.UnderlyingLength.Should().Be(size);
+        buffer.AllocatedSize.Should().Be(size);
         buffer.Written.Should().Be(0);
         buffer.GetSpan().Length.Should().Be(size - written);
     }
@@ -185,7 +185,7 @@ public sealed class BufferTests
 
         buffer.IsEmpty.Should().BeFalse();
         buffer.RemainingCapacity.Should().Be(newSize);
-        buffer.UnderlyingLength.Should().Be(newSize);
+        buffer.AllocatedSize.Should().Be(newSize);
         buffer.Written.Should().Be(0);
         buffer.GetSpan().Length.Should().Be(newSize);
     }
@@ -217,7 +217,7 @@ public sealed class BufferTests
 
         buffer.IsEmpty.Should().BeFalse();
         buffer.RemainingCapacity.Should().Be(size - written - writtenMore);
-        buffer.UnderlyingLength.Should().Be(size);
+        buffer.AllocatedSize.Should().Be(size);
         buffer.Written.Should().Be(0);
         buffer.GetSpan().Length.Should().Be(size - written - writtenMore);
     }

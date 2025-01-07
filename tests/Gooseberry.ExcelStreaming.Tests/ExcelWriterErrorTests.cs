@@ -25,23 +25,10 @@ public sealed class ExcelWriterErrorTests : IAsyncLifetime
 
         await action.Should()
             .ThrowExactlyAsync<InvalidOperationException>()
-            .WithMessage("Cannot start row before start sheet.");
+            .WithMessage("Sheet is not started.");
     }
 
-    [Theory]
-    [InlineData(-10.0)]
-    [InlineData(-0.1)]
-    [InlineData(0)]
-    public async Task StartRowIncorrectHeight_ThrowsException(double height)
-    {
-        await _excelWriter.StartSheet("test");
-        Func<Task> action = () => _excelWriter.StartRow((decimal)height).AsTask();
-
-        await action.Should()
-            .ThrowExactlyAsync<ArgumentOutOfRangeException>()
-            .WithMessage("Height of row cannot be less or equal than 0. (Parameter 'height')");
-    }
-
+    
     [Fact]
     public async Task AddCellWithoutStartRow_ThrowsException()
     {

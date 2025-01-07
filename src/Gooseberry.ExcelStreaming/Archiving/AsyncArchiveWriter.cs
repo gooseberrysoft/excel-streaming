@@ -96,7 +96,7 @@ internal sealed class AsyncArchiveWriter : IArchiveWriter
         }
     }
 
-    private readonly struct Action : IDisposable
+    private sealed class Action : IDisposable
     {
         private readonly string? _entryPath;
         private readonly MemoryOwner? _memoryOwner;

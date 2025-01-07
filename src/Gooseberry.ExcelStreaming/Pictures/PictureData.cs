@@ -19,16 +19,19 @@ internal readonly struct PictureData
         _memory = memory;
     }
 
-    public async Task WriteTo(IArchiveWriter archive, string entryPath)
+    public  ValueTask WriteTo(IArchiveWriter archive, string entryPath)
     {
         if (_stream is not null)
         {
-            await archive.WriteEntry(entryPath, _stream);
+            return archive.WriteEntry(entryPath, _stream);
         }
-        else if (_memory is not null)
+        
+        if (_memory is not null)
         {
-            await archive.WriteEntry(entryPath, _memory.Value);
+            return archive.WriteEntry(entryPath, _memory.Value);
         }
+
+        return ValueTask.CompletedTask;
     }
 
     public static implicit operator PictureData(Stream stream)
