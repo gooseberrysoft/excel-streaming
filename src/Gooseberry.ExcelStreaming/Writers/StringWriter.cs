@@ -20,7 +20,7 @@ internal static class StringWriter
         ref int written)
         => WriteEscapedTo(data.AsSpan(), buffer, encoder, ref destination, ref written);
 
-    internal static void WriteEscapedTo(
+   internal static void WriteEscapedTo(
         this scoped ReadOnlySpan<char> data,
         BuffersChain buffer,
         Encoder encoder,

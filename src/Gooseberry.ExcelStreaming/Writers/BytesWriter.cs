@@ -1,3 +1,4 @@
+using System;
 using System.Runtime.CompilerServices;
 
 namespace Gooseberry.ExcelStreaming.Writers;
@@ -16,6 +17,32 @@ internal static class BytesWriter
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void WriteAdvanceTo(this ReadOnlySpan<byte> data, BuffersChain buffer, Span<byte> span, int written)
+    {
+        if (data.TryCopyTo(span))
+            buffer.Advance(written + data.Length);
+        else
+            GrowWrite(data, buffer, written);
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        static void GrowWrite(ReadOnlySpan<byte> readOnlySpan, BuffersChain buffersChain, int written)
+        {
+            buffersChain.Advance(written);
+            readOnlySpan.CopyTo(buffersChain.GetSpan(readOnlySpan.Length));
+            buffersChain.Advance(readOnlySpan.Length);
+        }
+    }
+    
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void CopyTo(this ReadOnlySpan<byte> data, ref Span<byte> span, ref int written)
+    {
+        data.CopyTo(span);
+        written += data.Length;
+        span = span.Slice(data.Length);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteTo(
         this byte[] data,
         BuffersChain buffer,
@@ -30,10 +57,8 @@ internal static class BytesWriter
         ref Span<byte> destination,
         ref int written)
     {
-        if (data.Length <= destination.Length)
+        if (data.TryCopyTo(destination))
         {
-            data.CopyTo(destination);
-
             written += data.Length;
             destination = destination.Slice(data.Length);
 

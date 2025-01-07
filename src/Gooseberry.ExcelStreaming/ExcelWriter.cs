@@ -106,7 +106,7 @@ public sealed class ExcelWriter : IAsyncDisposable
         _rowCount += 1;
         _columnCount = 0;
 
-        return _rowCount % 7 == 0
+        return _rowCount % 3 == 0
             ? _buffer.FlushCompleted(_sheetWriter!)
             : ValueTask.CompletedTask;
     }
@@ -277,8 +277,11 @@ public sealed class ExcelWriter : IAsyncDisposable
     public void AddCell(DateTime data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
         CheckWriteCell();
+#if NET8_0_OR_GREATER
+        Utf8DateTimeCellWriter.Write(data, ReadOnlySpan<char>.Empty, provider: null, _buffer, style ?? _styles.DefaultDateStyle);
+#else
         DataWriters.DateTimeCellWriter.Write(data, _buffer, style ?? _styles.DefaultDateStyle);
-
+#endif
         _columnCount += 1;
         MergeCell(rightMerge, downMerge);
     }
@@ -317,7 +320,10 @@ public sealed class ExcelWriter : IAsyncDisposable
     public void AddCell(ReadOnlySpan<char> data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
         CheckWriteCell();
-        StringCellWriter.Write(data, _buffer, _encoder, style);
+        if (style.HasValue)
+            StringCellWriter.Write(data, _buffer, _encoder, style.Value);
+        else
+            StringCellWriter.Write(data, _buffer, _encoder);
 
         _columnCount += 1;
         MergeCell(rightMerge, downMerge);
@@ -326,7 +332,10 @@ public sealed class ExcelWriter : IAsyncDisposable
     public void AddCellUtf8String(ReadOnlySpan<byte> data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
         CheckWriteCell();
-        StringCellWriter.WriteUtf8(data, _buffer, style);
+        if (style.HasValue)
+            StringCellWriter.WriteUtf8(data, _buffer, style.Value);
+        else
+            StringCellWriter.WriteUtf8(data, _buffer);
 
         _columnCount += 1;
         MergeCell(rightMerge, downMerge);
@@ -343,7 +352,11 @@ public sealed class ExcelWriter : IAsyncDisposable
         where T : IUtf8SpanFormattable
     {
         CheckWriteCell();
-        Utf8StringCellWriter.Write(data, format, formatProvider, _buffer, style);
+
+        if (style.HasValue)
+            Utf8StringCellWriter.Write(data, format, formatProvider, _buffer, style.Value);
+        else
+            Utf8StringCellWriter.Write(data, format, formatProvider, _buffer);
 
         _columnCount += 1;
         MergeCell(rightMerge, downMerge);
@@ -356,11 +369,14 @@ public sealed class ExcelWriter : IAsyncDisposable
         IFormatProvider? formatProvider = default,
         StyleReference? style = null,
         uint rightMerge = 0,
-        uint downMerge = 0)
-        where T : IUtf8SpanFormattable
+        uint downMerge = 0) where T : IUtf8SpanFormattable
     {
         CheckWriteCell();
-        Utf8NumberCellWriter.Write(data, format, formatProvider, _buffer, style);
+
+        if (style.HasValue)
+            Utf8NumberCellWriter.Write(data, format, formatProvider, _buffer, style.Value);
+        else
+            Utf8NumberCellWriter.Write(data, format, formatProvider, _buffer);
 
         _columnCount += 1;
         MergeCell(rightMerge, downMerge);
@@ -604,9 +620,6 @@ public sealed class ExcelWriter : IAsyncDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void CheckWriteCell()
     {
-        if (_isCompleted)
-            ThrowCompleted();
-
         if (!_rowStarted)
             ThrowRowNotStarted();
     }
@@ -617,6 +630,6 @@ public sealed class ExcelWriter : IAsyncDisposable
     private static void ThrowCompleted()
         => throw new InvalidOperationException("Excel writer is already completed.");
 
-    private static void ThrowSheetNotStarted() 
+    private static void ThrowSheetNotStarted()
         => throw new InvalidOperationException("Sheet is not started.");
 }

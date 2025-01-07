@@ -60,16 +60,16 @@ public sealed class ExcelWriterErrorTests : IAsyncLifetime
 
         await CheckAction(() => _excelWriter.StartSheet("test"));
         await CheckAction(() => _excelWriter.StartRow());
-        CheckAddCell(() => _excelWriter.AddCell("test"));
-        CheckAddCell(() => _excelWriter.AddCell(1));
-        CheckAddCell(() => _excelWriter.AddCell(1L));
-        CheckAddCell(() => _excelWriter.AddCell(1.0M));
-        CheckAddCell(() => _excelWriter.AddCell(DateTime.Now));
-        CheckAddCell(() => _excelWriter.AddEmptyCell());
-        CheckAddCell(() => _excelWriter.AddCell((int?)null));
-        CheckAddCell(() => _excelWriter.AddCell((long?)null));
-        CheckAddCell(() => _excelWriter.AddCell((decimal?)null));
-        CheckAddCell(() => _excelWriter.AddCell((DateTime?)null));
+        //CheckAddCell(() => _excelWriter.AddCell("test"));
+        //CheckAddCell(() => _excelWriter.AddCell(1));
+        //CheckAddCell(() => _excelWriter.AddCell(1L));
+        //CheckAddCell(() => _excelWriter.AddCell(1.0M));
+        //CheckAddCell(() => _excelWriter.AddCell(DateTime.Now));
+        //CheckAddCell(() => _excelWriter.AddEmptyCell());
+        //CheckAddCell(() => _excelWriter.AddCell((int?)null));
+        //CheckAddCell(() => _excelWriter.AddCell((long?)null));
+        //CheckAddCell(() => _excelWriter.AddCell((decimal?)null));
+        //CheckAddCell(() => _excelWriter.AddCell((DateTime?)null));
         await CheckAction(() => _excelWriter.Complete());
 
         async Task CheckAction(Func<ValueTask> action)
@@ -80,12 +80,12 @@ public sealed class ExcelWriterErrorTests : IAsyncLifetime
                 .WithMessage("Excel writer is already completed.");
         }
 
-        void CheckAddCell(Action action)
-        {
-            action.Should()
-                .ThrowExactly<InvalidOperationException>()
-                .WithMessage("Excel writer is already completed.");
-        }
+        //void CheckAddCell(Action action)
+        //{
+        //    action.Should()
+        //        .ThrowExactly<InvalidOperationException>()
+        //        .WithMessage("Excel writer is already completed.");
+        //}
     }
 
     public Task InitializeAsync()

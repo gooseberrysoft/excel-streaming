@@ -11,7 +11,7 @@ internal static class Utf8SpanFormattableWriter
         in T value,
         ReadOnlySpan<char> format,
         IFormatProvider? provider,
-        BuffersChain bufferWriter,
+        BuffersChain buffer,
         ref Span<byte> destination,
         ref int written) where T : IUtf8SpanFormattable
     {
@@ -22,17 +22,17 @@ internal static class Utf8SpanFormattableWriter
             return;
         }
 
-        WriteAdvance(value, format, provider, bufferWriter, ref destination, ref written);
+        WriteAdvance(value, format, provider, buffer, ref destination, ref written);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteValue<T>(
         in T value,
-        BuffersChain bufferWriter,
+        BuffersChain buffer,
         ref Span<byte> destination,
         ref int written) where T : IUtf8SpanFormattable
     {
-        WriteValue(value, format: ReadOnlySpan<char>.Empty, null, bufferWriter, ref destination, ref written);
+        WriteValue(value, format: ReadOnlySpan<char>.Empty, null, buffer, ref destination, ref written);
     }
 
     private static void WriteAdvance<T>(
