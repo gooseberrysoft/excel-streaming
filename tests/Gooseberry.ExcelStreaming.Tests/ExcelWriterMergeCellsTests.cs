@@ -1,5 +1,6 @@
 using System.Globalization;
 using Gooseberry.ExcelStreaming.Tests.Excel;
+using Gooseberry.ExcelStreaming.Writers;
 using Xunit;
 
 namespace Gooseberry.ExcelStreaming.Tests;
@@ -98,8 +99,8 @@ public sealed class ExcelWriterMergeCellsTests
                 {
                     new Cell("1", CellValueType.Number),
                     new Cell("", CellValueType.String),
-                    new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), Style: Constants.DefaultDateTimeStyle),
-                    new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), Style: Constants.DefaultDateTimeStyle)
+                    new Cell(now.ToInternalOADate(), Style: Constants.DefaultDateTimeStyle),
+                    new Cell(now.ToInternalOADate(), Style: Constants.DefaultDateTimeStyle)
                 })
             },
             Merges: new[] { "A1:B2", "C1:D1", "A3:B3" });

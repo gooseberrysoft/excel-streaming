@@ -1,5 +1,4 @@
 #if NET8_0_OR_GREATER
-using System.Buffers.Text;
 using Gooseberry.ExcelStreaming.Extensions;
 using Gooseberry.ExcelStreaming.Styles;
 using System.Runtime.CompilerServices;
@@ -9,7 +8,7 @@ namespace Gooseberry.ExcelStreaming.Writers;
 
 internal static class Utf8DateTimeCellWriter
 {
-    private static readonly int NumberSize = long.MinValue.ToString().Length + 5;
+    public static readonly int NumberSize = long.MinValue.ToString().Length + 5;
 
     private static ReadOnlySpan<byte> StylePrefix => "<c s=\""u8;
     private static ReadOnlySpan<byte> StylePostfix => "\"><v>"u8;
@@ -71,9 +70,8 @@ internal static class Utf8DateTimeCellWriter
         Postfix.WriteAdvanceTo(buffer, span, written);
     }
 
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void FormatOADate(DateTime value, Span<byte> span, out int written)
+    public static void FormatOADate(DateTime value, Span<byte> span, out int written)
     {
         written = 0;
 
@@ -119,7 +117,7 @@ internal static class Utf8DateTimeCellWriter
     /*** From DateTime source code ***/
 
     // Number of 100ns ticks per time unit
-    internal const int MicrosecondsPerMillisecond = 1000;
+    private const int MicrosecondsPerMillisecond = 1000;
     private const long TicksPerMicrosecond = 10;
     private const long TicksPerMillisecond = TicksPerMicrosecond * MicrosecondsPerMillisecond;
 
@@ -131,23 +129,7 @@ internal static class Utf8DateTimeCellWriter
 
     private const long GigaTicksPerDay = TicksPerDay / Giga; // 864	long
     private const long Giga = 1_000_000_000L;
-
-
-    // Number of days in a non-leap year
-    private const int DaysPerYear = 365;
-
-    // Number of days in 4 years
-    private const int DaysPer4Years = DaysPerYear * 4 + 1; // 1461
-
-    // Number of days in 100 years
-    private const int DaysPer100Years = DaysPer4Years * 25 - 1; // 36524
-
-    // Number of days in 400 years
-    private const int DaysPer400Years = DaysPer100Years * 4 + 1; // 146097
-
-    // Number of days from 1/1/0001 to 12/30/1899
-    private const int DaysTo1899 = DaysPer400Years * 4 + DaysPer100Years * 3 - 367;
-
-    private const long DoubleDateOffset = DaysTo1899 * TicksPerDay;
+    
+    private const long DoubleDateOffset = DateExtensions.DaysTo1899 * TicksPerDay;
 }
 #endif
