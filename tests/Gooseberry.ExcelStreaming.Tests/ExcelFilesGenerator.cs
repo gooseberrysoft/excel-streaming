@@ -7,6 +7,7 @@ using Gooseberry.ExcelStreaming.Styles;
 using Gooseberry.ExcelStreaming.Tests.ExternalZip;
 using Xunit;
 using Fill = Gooseberry.ExcelStreaming.Styles.Fill;
+using Font = Gooseberry.ExcelStreaming.Styles.Font;
 
 namespace Gooseberry.ExcelStreaming.Tests;
 
@@ -125,7 +126,7 @@ public sealed class ExcelFilesGenerator
                 {
                     writer.AddEmptyCells(2);
                     writer.AddCell(row);
-                    writer.AddCell(DateTime.Now.Ticks);
+                    writer.AddCell(DateTime.Now.Date);
                     writer.AddCell(DateTime.Now);
                     writer.AddCell(1234567.9876M);
                     writer.AddCell("‰Tags such as <img> and <input> directly introduce content into the page.");

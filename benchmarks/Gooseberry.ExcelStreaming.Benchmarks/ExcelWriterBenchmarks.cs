@@ -53,10 +53,11 @@ public class ExcelWriterBenchmarks
             {
                 writer.AddCell(row);
                 writer.AddCell(LongValue);
-                writer.AddCell(DateTime.Now);
+                writer.AddCell(DateOnly.FromDateTime(DateTime.Now));
                 writer.AddCell(_simpleStrings[row * ColumnBatchesCount + columnBatch]);
                 writer.AddCell(_escapingStrings[row * ColumnBatchesCount + columnBatch]);
                 writer.AddCell(102456.7655M);
+                writer.AddCell(DateTime.Now);
             }
         }
 
@@ -71,7 +72,7 @@ public class ExcelWriterBenchmarks
         var options = new SpreadCheetahOptions { DefaultDateTimeFormat = null, CompressionLevel = SpreadCheetahCompressionLevel.Optimal};
         await using var spreadsheet = await Spreadsheet.CreateNewAsync(outputStream, options);
         await spreadsheet.StartWorksheetAsync("test");
-        var cells = new DataCell[ColumnBatchesCount * 6];
+        var cells = new DataCell[ColumnBatchesCount * 7];
 
         for (var row = 0; row < RowsCount; ++row)
         {
@@ -80,10 +81,11 @@ public class ExcelWriterBenchmarks
             {
                 cells[cellIndex++] = new DataCell(row);
                 cells[cellIndex++] = new DataCell(LongValue);
-                cells[cellIndex++] = new DataCell(DateTime.Now);
+                cells[cellIndex++] = new DataCell(DateTime.Now.Date);
                 cells[cellIndex++] = new DataCell(_simpleStrings[row * ColumnBatchesCount + columnBatch]);
                 cells[cellIndex++] = new DataCell(_escapingStrings[row * ColumnBatchesCount + columnBatch]);
                 cells[cellIndex++] = new DataCell(102456.7655M);
+                cells[cellIndex++] = new DataCell(DateTime.Now);
             }
 
             await spreadsheet.AddRowAsync(cells);
@@ -160,7 +162,7 @@ public class ExcelWriterBenchmarks
                 writer.WriteEndElement();
 
                 writer.WriteStartElement(dateTimeCell, dateTimeCellAttributes);
-                dateTimeCellValue.Text = DateTime.Now.ToOADate().ToString();
+                dateTimeCellValue.Text = DateTime.Now.Date.ToOADate().ToString();
                 writer.WriteElement(dateTimeCellValue);
                 writer.WriteEndElement();
 
@@ -179,7 +181,10 @@ public class ExcelWriterBenchmarks
                 writer.WriteElement(numberCellValue);
                 writer.WriteEndElement();
 
-
+                writer.WriteStartElement(dateTimeCell, dateTimeCellAttributes);
+                dateTimeCellValue.Text = DateTime.Now.ToOADate().ToString();
+                writer.WriteElement(dateTimeCellValue);
+                writer.WriteEndElement();
             }
 
             // end Row

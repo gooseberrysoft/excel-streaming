@@ -278,7 +278,7 @@ public sealed class ExcelWriter : IAsyncDisposable
     {
         CheckWriteCell();
 #if NET8_0_OR_GREATER
-        Utf8DateTimeCellWriter.Write(data, ReadOnlySpan<char>.Empty, provider: null, _buffer, style ?? _styles.DefaultDateStyle);
+        Utf8DateTimeCellWriter.Write(data, _buffer, style ?? _styles.DefaultDateStyle);
 #else
         DataWriters.DateTimeCellWriter.Write(data, _buffer, style ?? _styles.DefaultDateStyle);
 #endif
@@ -296,7 +296,15 @@ public sealed class ExcelWriter : IAsyncDisposable
 
     public void AddCell(DateOnly data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
+#if NET8_0_OR_GREATER
+        CheckWriteCell();
+        Utf8DateTimeCellWriter.Write(data, _buffer, style ?? _styles.DefaultDateStyle);
+
+        _columnCount += 1;
+        MergeCell(rightMerge, downMerge);
+#else
         AddCell(data.ToDateTime(default), style, rightMerge, downMerge);
+#endif
     }
 
     public void AddCell(DateOnly? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)

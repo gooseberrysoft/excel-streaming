@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <Version>1.6.0</Version>
+    <Version>1.7.0</Version>
     <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
@@ -15,11 +15,11 @@
     <!-- Embed source files that are not tracked by the source control manager in the PDB -->
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
 
-    <Copyright>Copyright 2024 © Gooseberry Team</Copyright>
+    <Copyright>Copyright 2025 © Gooseberry Team</Copyright>
     <Company>Gooseberry</Company>
     <Authors>Gooseberry Team</Authors>
-    <Description>The simplest, fastest and lowest memory consumption library for writing Excel files to streams. Completely free to use.</Description>
-    <PackageTags>excel;stream;streaming;fast;write;create</PackageTags>
+    <Description>The simplest, fastest and low memory consumption library for writing Excel files to streams. Completely free to use.</Description>
+    <PackageTags>excel;openxml;spreadsheet;spreadsheetml;stream;streaming;fast;write;create</PackageTags>
     <PackageProjectUrl>https://github.com/gooseberrysoft/excel-streaming</PackageProjectUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
