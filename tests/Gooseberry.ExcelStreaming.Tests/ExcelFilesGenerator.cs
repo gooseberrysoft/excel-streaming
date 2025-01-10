@@ -13,7 +13,7 @@ namespace Gooseberry.ExcelStreaming.Tests;
 
 public sealed class ExcelFilesGenerator
 {
-    private const string? Skip = null;//"Null me for manual run";
+    private const string? Skip = null; //"Null me for manual run";
     private const string? IgnoreZip = "ignore";
 
     const string BasePath = "c:\\temp\\excelWriter\\";
@@ -58,9 +58,13 @@ public sealed class ExcelFilesGenerator
         var sharedStringRef2 = sharedStringTableBuilder.GetOrAdd("“Tell us a story!” said the March Hare.‰");
         var sharedStringTable = sharedStringTableBuilder.Build();
 
+        var styleBuilder = new StylesSheetBuilder();
+        var styleDateTime = styleBuilder.GetOrAdd(new Style(Format: StandardFormat.MonthDayYear4WithDashesHour24Minutes));
+        var styleIntSeparator = styleBuilder.GetOrAdd(new Style(Format: StandardFormat.IntegerWithSeparator));
+
         await using var writer = stream != null
-            ? new ExcelWriter(stream!, sharedStringTable: sharedStringTable, async: async)
-            : new ExcelWriter(archive!, sharedStringTable: sharedStringTable, async: async);
+            ? new ExcelWriter(stream!, sharedStringTable: sharedStringTable, async: async, styles: styleBuilder.Build())
+            : new ExcelWriter(archive!, sharedStringTable: sharedStringTable, async: async, styles: styleBuilder.Build());
 
         for (var sheetIndex = 0; sheetIndex < 3; sheetIndex++)
         {
@@ -81,8 +85,10 @@ public sealed class ExcelFilesGenerator
                 {
                     writer.AddEmptyCell();
                     writer.AddCell(row);
-                    writer.AddCell(DateTime.Now.Ticks);
-                    writer.AddCell(DateTime.Now);
+                    writer.AddCell(DateTime.Now.Ticks, styleIntSeparator);
+                    writer.AddCell(DateTime.Now, styleDateTime);
+                    writer.AddCell(DateTime.Now.Date);
+                    writer.AddCell(DateOnly.FromDateTime(DateTime.Now));
                     writer.AddCell(1234567.9876M);
                     writer.AddCell("Tags such as ‰<img> and <input>‰ directly introduce content into the page.");
                     writer.AddCell("The cat (Felis catus), commonly referred to as the domestic cat");
@@ -345,6 +351,8 @@ public sealed class ExcelFilesGenerator
                 Alignment: new Alignment(HorizontalAlignment.Right, VerticalAlignment.Bottom, false)
             ));
 
+        var style3 = styleBuilder.GetOrAdd(new Style(Format: StandardFormat.DayMonthAbbrWithDash));
+
         var styleSheet = styleBuilder.Build();
 
         await using var writer = new ExcelWriter(outputStream, styleSheet);
@@ -357,7 +365,7 @@ public sealed class ExcelFilesGenerator
 
             writer.AddCell(row, style1);
             writer.AddCell(DateTime.Now.Ticks);
-            writer.AddCell(DateTime.Now);
+            writer.AddCell(DateTime.Now, style3);
             writer.AddCell(1234567.9876M);
             writer.AddCell("Tags such as <img> and <input> directly introduce content into the page.", style2);
             writer.AddCell("The cat (Felis catus), commonly referred to as the domestic cat");

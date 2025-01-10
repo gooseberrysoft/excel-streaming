@@ -274,6 +274,10 @@ public sealed class ExcelWriter : IAsyncDisposable
             AddEmptyCell(style, rightMerge, downMerge);
     }
 
+
+    /// <summary>
+    /// Format by default is StandardFormat.DayMonthYear4WithSlashes =  d/m/yyyy or mm.dd.yyyy depending on excel locale.
+    /// </summary>
     public void AddCell(DateTime data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
         CheckWriteCell();
@@ -286,6 +290,9 @@ public sealed class ExcelWriter : IAsyncDisposable
         MergeCell(rightMerge, downMerge);
     }
 
+    /// <summary>
+    /// Format by default is StandardFormat.DayMonthYear4WithSlashes =  d/m/yyyy or mm.dd.yyyy depending on excel locale.
+    /// </summary>
     public void AddCell(DateTime? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
         if (data.HasValue)
@@ -294,6 +301,9 @@ public sealed class ExcelWriter : IAsyncDisposable
             AddEmptyCell(style, rightMerge, downMerge);
     }
 
+    /// <summary>
+    /// Format by default is StandardFormat.DayMonthYear4WithSlashes =  d/m/yyyy or mm.dd.yyyy depending on excel locale.
+    /// </summary>
     public void AddCell(DateOnly data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
 #if NET8_0_OR_GREATER
@@ -307,6 +317,9 @@ public sealed class ExcelWriter : IAsyncDisposable
 #endif
     }
 
+    /// <summary>
+    /// Format by default is StandardFormat.DayMonthYear4WithSlashes =  d/m/yyyy or mm.dd.yyyy depending on excel locale.
+    /// </summary>
     public void AddCell(DateOnly? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
         if (data.HasValue)
