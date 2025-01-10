@@ -1,4 +1,3 @@
-using System;
 using System.Runtime.CompilerServices;
 
 namespace Gooseberry.ExcelStreaming.Writers;
@@ -22,17 +21,17 @@ internal static class BytesWriter
         if (data.TryCopyTo(span))
             buffer.Advance(written + data.Length);
         else
-            GrowWrite(data, buffer, written);
+            GrowWrite(buffer, data, written);
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        static void GrowWrite(ReadOnlySpan<byte> readOnlySpan, BuffersChain buffersChain, int written)
+        static void GrowWrite(BuffersChain buffer, ReadOnlySpan<byte> data, int written)
         {
-            buffersChain.Advance(written);
-            readOnlySpan.CopyTo(buffersChain.GetSpan(readOnlySpan.Length));
-            buffersChain.Advance(readOnlySpan.Length);
+            buffer.Advance(written);
+            data.CopyTo(buffer.GetSpan(data.Length));
+            buffer.Advance(data.Length);
         }
     }
-    
+
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void CopyTo(this ReadOnlySpan<byte> data, ref Span<byte> span, ref int written)

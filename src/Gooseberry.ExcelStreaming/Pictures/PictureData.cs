@@ -19,17 +19,13 @@ internal readonly struct PictureData
         _memory = memory;
     }
 
-    public  ValueTask WriteTo(IArchiveWriter archive, string entryPath)
+    public ValueTask WriteTo(IArchiveWriter archive, string entryPath)
     {
         if (_stream is not null)
-        {
             return archive.WriteEntry(entryPath, _stream);
-        }
-        
+
         if (_memory is not null)
-        {
             return archive.WriteEntry(entryPath, _memory.Value);
-        }
 
         return ValueTask.CompletedTask;
     }
