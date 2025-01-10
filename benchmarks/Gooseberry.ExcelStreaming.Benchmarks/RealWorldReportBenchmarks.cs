@@ -16,7 +16,7 @@ public class RealWorldReportBenchmarks
         await using var writer = new ExcelWriter(Stream.Null);
 
         await writer.StartSheet("PNL");
-        var dateTime = DateTime.Now;
+        var dateTime = new DateTime(638721164006405476);
 
         for (var row = 0; row < RowsCount; row++)
         {
