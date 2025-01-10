@@ -1,49 +1,55 @@
 #if NET8_0_OR_GREATER
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
-using Gooseberry.ExcelStreaming.Extensions;
 using Gooseberry.ExcelStreaming.Styles;
 
 namespace Gooseberry.ExcelStreaming.Writers;
 
 internal static class Utf8StringCellWriter
 {
-    private static readonly byte[] StylelessPrefix = Constants.Worksheet.SheetData.Row.Cell.Prefix
-        .Combine(Constants.Worksheet.SheetData.Row.Cell.StringDataType, Constants.Worksheet.SheetData.Row.Cell.Middle);
+    private static ReadOnlySpan<byte> Prefix => "<c t=\"str\"><v>"u8;
+    private static ReadOnlySpan<byte> StylePrefix => "<c t=\"str\" s=\""u8;
+    private static ReadOnlySpan<byte> StylePostfix => "\"><v>"u8;
+    private static ReadOnlySpan<byte> Postfix => "</v></c>"u8;
 
-    private static readonly byte[] StylePrefix = Constants.Worksheet.SheetData.Row.Cell.Prefix
-        .Combine(Constants.Worksheet.SheetData.Row.Cell.StringDataType, Constants.Worksheet.SheetData.Row.Cell.Style.Prefix);
+    private const int NumberSize = 20;
+    private static readonly int Size = Prefix.Length + Postfix.Length;
 
-    private static readonly byte[] StylePostfix = Constants.Worksheet.SheetData.Row.Cell.Style.Postfix
-        .Combine(Constants.Worksheet.SheetData.Row.Cell.Middle);
+    private static readonly int StyleSize = StylePrefix.Length + NumberSize + StylePostfix.Length
+        + Postfix.Length;
+
+    public static void Write<T>(
+        T value,
+        ReadOnlySpan<char> format,
+        IFormatProvider? provider,
+        BuffersChain buffer)
+        where T : IUtf8SpanFormattable
+    {
+        var span = buffer.GetSpan(Size);
+        var written = 0;
+
+        Prefix.CopyTo(ref span, ref written);
+
+        StringWriter.WriteEscapedUtf8To(value, format, provider, buffer, ref span, ref written);
+
+        Postfix.WriteAdvanceTo(buffer, span, written);
+    }
 
     public static void Write<T>(
         T value,
         ReadOnlySpan<char> format,
         IFormatProvider? provider,
         BuffersChain buffer,
-        StyleReference? style = null)
+        StyleReference style)
         where T : IUtf8SpanFormattable
     {
-        var span = buffer.GetSpan();
+        var span = buffer.GetSpan(StyleSize);
         var written = 0;
 
-        if (style.HasValue)
-            WriteStyle(buffer, style.Value, ref span, ref written);
-        else
-            StylelessPrefix.WriteTo(buffer, ref span, ref written);
-
-        StringWriter.WriteEscapedUtf8To(value, format, provider, buffer, ref span, ref written);
-        Constants.Worksheet.SheetData.Row.Cell.Postfix.WriteTo(buffer, ref span, ref written);
-
-        buffer.Advance(written);
-    }
-
-    private static void WriteStyle(BuffersChain buffer, StyleReference style, ref Span<byte> span, ref int written)
-    {
-        StylePrefix.WriteTo(buffer, ref span, ref written);
+        StylePrefix.CopyTo(ref span, ref written);
         Utf8SpanFormattableWriter.WriteValue(style.Value, buffer, ref span, ref written);
-        StylePostfix.WriteTo(buffer, ref span, ref written);
+        StylePostfix.CopyTo(ref span, ref written);
+        
+        StringWriter.WriteEscapedUtf8To(value, format, provider, buffer, ref span, ref written);
+        Postfix.WriteAdvanceTo(buffer, span, written);
     }
 }
 #endif

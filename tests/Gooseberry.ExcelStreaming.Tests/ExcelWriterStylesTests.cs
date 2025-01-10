@@ -3,6 +3,7 @@ using Gooseberry.ExcelStreaming.Tests.Excel;
 using Color = System.Drawing.Color;
 using Gooseberry.ExcelStreaming.Styles;
 using Xunit;
+using Gooseberry.ExcelStreaming.Writers;
 
 namespace Gooseberry.ExcelStreaming.Tests;
 
@@ -74,7 +75,7 @@ public sealed class ExcelWriterStylesTests
                     new Cell("1", CellValueType.Number, style),
                     new Cell("2", CellValueType.Number, style),
                     new Cell("3.55", CellValueType.Number, style),
-                    new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), Style: style),
+                    new Cell(now.ToInternalOADate(), Style: style),
                     new Cell("", CellValueType.String, style)
                 })
             });
@@ -133,8 +134,8 @@ public sealed class ExcelWriterStylesTests
                     new Cell("1", CellValueType.Number, style),
                     new Cell("2", CellValueType.Number, style),
                     new Cell("3.55", CellValueType.Number, style),
-                    new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), Style: style),
-                    new Cell(today.ToDateTime(default).ToOADate().ToString(CultureInfo.InvariantCulture), Style: style),
+                    new Cell(now.ToInternalOADate(), Style: style),
+                    new Cell(today.ToDateTime(default).ToInternalOADate(), Style: style),
                     new Cell("", CellValueType.String, style)
                 })
             });

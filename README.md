@@ -40,8 +40,9 @@ await foreach(var record in store.GetRecordsAsync(cancellationToken))
     writer.AddCell(42); // int
     writer.AddCell(999_999_999_999_999); // long 
     writer.AddCell(DateTime.Now); // DateTime
+    writer.AddCell(DateOnly.FromDateTime(DateTime.Now.Date)); // DateOnly
     writer.AddCell(123.765M); // decimal
-    writer.AddCell(Math.PI); //double
+    writer.AddCell(Math.PI); //double (note: very slow)
     writer.AddCell("string"); // string
     writer.AddCell('#'); // char
     writer.AddCellUtf8String("string"u8); // utf8 string
@@ -130,7 +131,7 @@ var styleBuilder = new StylesSheetBuilder();
 
 staticSomeStyle = styleBuilder.GetOrAdd(
     new Style(
-        Format: "0.00%",
+        Format: "0.00%", // or StandardFormat.PercentPrecision2
         Font: new Font(Size: 24, Color: Color.DodgerBlue),
         Fill: new Fill(Color: Color.Crimson, FillPattern.Gray125),
         Borders: new Borders(
@@ -154,6 +155,9 @@ writer.AddCell(123, staticSomeStyle);  // all cells support style reference
 
 await writer.Complete();
 ```
+
+Format property can be string, int (any valid [numFmtId](https://c-rex.net/samples/ooxml/e1/Part4/OOXML_P4_DOCX_numFmt_topic_ID0EHDH6.html)) 
+or [StandardFormat enum value](https://github.com/gooseberrysoft/excel-streaming/blob/main/src/Gooseberry.ExcelStreaming/Styles/StandardFormat.cs) 
 
 ### Shared strings ###
 Shared strings decrease the size of the resulting file when it contains repeated strings. It's implemented as unique list of strings, and cell contains only reference to the list index.

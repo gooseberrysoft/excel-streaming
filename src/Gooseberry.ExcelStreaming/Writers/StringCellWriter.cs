@@ -1,10 +1,7 @@
 using System.Text;
-using Gooseberry.ExcelStreaming.Extensions;
 using Gooseberry.ExcelStreaming.Styles;
 
 namespace Gooseberry.ExcelStreaming.Writers;
-
-using RowCellConstants = Constants.Worksheet.SheetData.Row.Cell;
 
 internal static class StringCellWriter
 {
@@ -12,77 +9,86 @@ internal static class StringCellWriter
     private const int MaxCharacters = 32_767;
     internal const int MaxBytes = MaxCharacters * 3;
 
-    private static readonly byte[] _stylelessPrefix;
-    private static readonly byte[] _stylePrefix;
-    private static readonly byte[] _stylePostfix;
+    private const int MaxValueSizeBuffer = 1024;
+    private static ReadOnlySpan<byte> Prefix => "<c t=\"str\"><v>"u8;
+    private static ReadOnlySpan<byte> Postfix => "</v></c>"u8;
+    private static readonly int Size = Prefix.Length + Postfix.Length;
+
+    private static ReadOnlySpan<byte> StylePrefix => "<c t=\"str\" s=\""u8;
+    private static ReadOnlySpan<byte> StylePostfix => "\"><v>"u8;
+    private const int NumberSize = 20;
+
+    private static readonly int StyleSize = StylePrefix.Length + NumberSize + StylePostfix.Length
+        + Postfix.Length;
 
 
-    static StringCellWriter()
-    {
-        _stylelessPrefix = RowCellConstants.Prefix
-            .Combine(RowCellConstants.StringDataType,
-                RowCellConstants.Middle);
-
-        _stylePrefix = RowCellConstants.Prefix
-            .Combine(RowCellConstants.StringDataType,
-                RowCellConstants.Style.Prefix);
-
-        _stylePostfix = RowCellConstants.Style.Postfix
-            .Combine(RowCellConstants.Middle);
-    }
-
-    public static void Write(ReadOnlySpan<char> value, BuffersChain buffer, Encoder encoder, StyleReference? style = null)
+    public static void Write(ReadOnlySpan<char> value, BuffersChain buffer, Encoder encoder)
     {
         if (value.Length > MaxCharacters)
             ThrowCharsLimitExceeded();
 
-        var span = buffer.GetSpan();
+        var span = buffer.GetSpan(Size + Math.Min(value.Length, MaxValueSizeBuffer));
         var written = 0;
 
-        if (style.HasValue)
-        {
-            _stylePrefix.WriteTo(buffer, ref span, ref written);
-            style.Value.Value.WriteTo(buffer, ref span, ref written);
-            _stylePostfix.WriteTo(buffer, ref span, ref written);
-            value.WriteEscapedTo(buffer, encoder, ref span, ref written);
-            RowCellConstants.Postfix.WriteTo(buffer, ref span, ref written);
-
-            buffer.Advance(written);
-            return;
-        }
-
-        _stylelessPrefix.WriteTo(buffer, ref span, ref written);
+        Prefix.CopyTo(ref span, ref written);
         value.WriteEscapedTo(buffer, encoder, ref span, ref written);
-        RowCellConstants.Postfix.WriteTo(buffer, ref span, ref written);
 
-        buffer.Advance(written);
+        Postfix.WriteAdvanceTo(buffer, span, written);
     }
 
-    public static void WriteUtf8(ReadOnlySpan<byte> value, BuffersChain buffer, StyleReference? style = null)
+    public static void Write(ReadOnlySpan<char> value, BuffersChain buffer, Encoder encoder, StyleReference style)
+    {
+        if (value.Length > MaxCharacters)
+            ThrowCharsLimitExceeded();
+
+        var span = buffer.GetSpan(StyleSize + Math.Min(value.Length, MaxValueSizeBuffer));
+        var written = 0;
+
+        StylePrefix.CopyTo(ref span, ref written);
+#if NET8_0_OR_GREATER
+        Utf8SpanFormattableWriter.WriteValue(style.Value, buffer, ref span, ref written);
+#else
+        style.Value.WriteTo(buffer, ref span, ref written);
+#endif
+        StylePostfix.CopyTo(ref span, ref written);
+
+        value.WriteEscapedTo(buffer, encoder, ref span, ref written);
+
+        Postfix.WriteAdvanceTo(buffer, span, written);
+    }
+
+    public static void WriteUtf8(ReadOnlySpan<byte> value, BuffersChain buffer)
     {
         if (value.Length > MaxBytes)
             ThrowCharsLimitExceeded();
 
-        var span = buffer.GetSpan();
+        var span = buffer.GetSpan(Prefix.Length + Postfix.Length + value.Length);
         var written = 0;
 
-        if (style.HasValue)
-        {
-            _stylePrefix.WriteTo(buffer, ref span, ref written);
-            style.Value.Value.WriteTo(buffer, ref span, ref written);
-            _stylePostfix.WriteTo(buffer, ref span, ref written);
-            value.WriteEscapedUtf8To(buffer, ref span, ref written);
-            RowCellConstants.Postfix.WriteTo(buffer, ref span, ref written);
-
-            buffer.Advance(written);
-            return;
-        }
-
-        _stylelessPrefix.WriteTo(buffer, ref span, ref written);
+        Prefix.CopyTo(ref span, ref written);
         value.WriteEscapedUtf8To(buffer, ref span, ref written);
-        RowCellConstants.Postfix.WriteTo(buffer, ref span, ref written);
 
-        buffer.Advance(written);
+        Postfix.WriteAdvanceTo(buffer, span, written);
+    }
+
+    public static void WriteUtf8(ReadOnlySpan<byte> value, BuffersChain buffer, StyleReference style)
+    {
+        if (value.Length > MaxBytes)
+            ThrowCharsLimitExceeded();
+        var span = buffer.GetSpan(StyleSize + Math.Min(value.Length, MaxValueSizeBuffer));
+        var written = 0;
+
+        StylePrefix.CopyTo(ref span, ref written);
+#if NET8_0_OR_GREATER
+        Utf8SpanFormattableWriter.WriteValue(style.Value, buffer, ref span, ref written);
+#else
+        style.Value.WriteTo(buffer, ref span, ref written);
+#endif
+        StylePostfix.CopyTo(ref span, ref written);
+
+        value.WriteEscapedUtf8To(buffer, ref span, ref written);
+
+        Postfix.WriteAdvanceTo(buffer, span, written);
     }
 
     public static void ThrowCharsLimitExceeded()

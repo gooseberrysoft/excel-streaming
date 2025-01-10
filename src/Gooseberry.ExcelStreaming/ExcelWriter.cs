@@ -97,12 +97,8 @@ public sealed class ExcelWriter : IAsyncDisposable
     {
         EnsureNotCompleted();
 
-        var height = rowAttributes.Height;
-        if (height is <= 0)
-            throw new ArgumentOutOfRangeException(nameof(height), "Height of row cannot be less or equal than 0.");
-
         if (_sheetWriter == null)
-            throw new InvalidOperationException("Cannot start row before start sheet.");
+            ThrowSheetNotStarted();
 
         RowWriter.WriteStartRow(_buffer, _rowStarted, rowAttributes);
 
@@ -110,7 +106,7 @@ public sealed class ExcelWriter : IAsyncDisposable
         _rowCount += 1;
         _columnCount = 0;
 
-        return _rowCount % 7 == 0
+        return _rowCount % 3 == 0
             ? _buffer.FlushCompleted(_sheetWriter!)
             : ValueTask.CompletedTask;
     }
@@ -278,15 +274,25 @@ public sealed class ExcelWriter : IAsyncDisposable
             AddEmptyCell(style, rightMerge, downMerge);
     }
 
+
+    /// <summary>
+    /// Format by default is StandardFormat.DayMonthYear4WithSlashes =  d/m/yyyy or mm.dd.yyyy depending on excel locale.
+    /// </summary>
     public void AddCell(DateTime data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
         CheckWriteCell();
+#if NET8_0_OR_GREATER
+        Utf8DateTimeCellWriter.Write(data, _buffer, style ?? _styles.DefaultDateStyle);
+#else
         DataWriters.DateTimeCellWriter.Write(data, _buffer, style ?? _styles.DefaultDateStyle);
-
+#endif
         _columnCount += 1;
         MergeCell(rightMerge, downMerge);
     }
 
+    /// <summary>
+    /// Format by default is StandardFormat.DayMonthYear4WithSlashes =  d/m/yyyy or mm.dd.yyyy depending on excel locale.
+    /// </summary>
     public void AddCell(DateTime? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
         if (data.HasValue)
@@ -295,11 +301,25 @@ public sealed class ExcelWriter : IAsyncDisposable
             AddEmptyCell(style, rightMerge, downMerge);
     }
 
+    /// <summary>
+    /// Format by default is StandardFormat.DayMonthYear4WithSlashes =  d/m/yyyy or mm.dd.yyyy depending on excel locale.
+    /// </summary>
     public void AddCell(DateOnly data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
+#if NET8_0_OR_GREATER
+        CheckWriteCell();
+        Utf8DateTimeCellWriter.Write(data, _buffer, style ?? _styles.DefaultDateStyle);
+
+        _columnCount += 1;
+        MergeCell(rightMerge, downMerge);
+#else
         AddCell(data.ToDateTime(default), style, rightMerge, downMerge);
+#endif
     }
 
+    /// <summary>
+    /// Format by default is StandardFormat.DayMonthYear4WithSlashes =  d/m/yyyy or mm.dd.yyyy depending on excel locale.
+    /// </summary>
     public void AddCell(DateOnly? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
         if (data.HasValue)
@@ -321,7 +341,10 @@ public sealed class ExcelWriter : IAsyncDisposable
     public void AddCell(ReadOnlySpan<char> data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
         CheckWriteCell();
-        StringCellWriter.Write(data, _buffer, _encoder, style);
+        if (style.HasValue)
+            StringCellWriter.Write(data, _buffer, _encoder, style.Value);
+        else
+            StringCellWriter.Write(data, _buffer, _encoder);
 
         _columnCount += 1;
         MergeCell(rightMerge, downMerge);
@@ -330,7 +353,10 @@ public sealed class ExcelWriter : IAsyncDisposable
     public void AddCellUtf8String(ReadOnlySpan<byte> data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
         CheckWriteCell();
-        StringCellWriter.WriteUtf8(data, _buffer, style);
+        if (style.HasValue)
+            StringCellWriter.WriteUtf8(data, _buffer, style.Value);
+        else
+            StringCellWriter.WriteUtf8(data, _buffer);
 
         _columnCount += 1;
         MergeCell(rightMerge, downMerge);
@@ -347,7 +373,11 @@ public sealed class ExcelWriter : IAsyncDisposable
         where T : IUtf8SpanFormattable
     {
         CheckWriteCell();
-        Utf8StringCellWriter.Write(data, format, formatProvider, _buffer, style);
+
+        if (style.HasValue)
+            Utf8StringCellWriter.Write(data, format, formatProvider, _buffer, style.Value);
+        else
+            Utf8StringCellWriter.Write(data, format, formatProvider, _buffer);
 
         _columnCount += 1;
         MergeCell(rightMerge, downMerge);
@@ -360,11 +390,14 @@ public sealed class ExcelWriter : IAsyncDisposable
         IFormatProvider? formatProvider = default,
         StyleReference? style = null,
         uint rightMerge = 0,
-        uint downMerge = 0)
-        where T : IUtf8SpanFormattable
+        uint downMerge = 0) where T : IUtf8SpanFormattable
     {
         CheckWriteCell();
-        Utf8NumberCellWriter.Write(data, format, formatProvider, _buffer, style);
+
+        if (style.HasValue)
+            Utf8NumberCellWriter.Write(data, format, formatProvider, _buffer, style.Value);
+        else
+            Utf8NumberCellWriter.Write(data, format, formatProvider, _buffer);
 
         _columnCount += 1;
         MergeCell(rightMerge, downMerge);
@@ -453,12 +486,15 @@ public sealed class ExcelWriter : IAsyncDisposable
         if (_sheetWriter != null)
             await EndSheet();
 
+        if (!_initialFilesWritten)
+            await WriteInitialWorkbookFiles();
+
         await AddPictures();
         await AddWorkbook();
         await AddContentTypes();
         await AddWorkbookRelationships();
         await AddSharedStringTable();
-        
+
         //writes data to stream
         await _archiveWriter.DisposeAsync();
 
@@ -519,7 +555,7 @@ public sealed class ExcelWriter : IAsyncDisposable
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private void AddMerge(uint rightMerge, uint downMerge) 
+    private void AddMerge(uint rightMerge, uint downMerge)
         => _merges.Add(new Merge(_rowCount, _columnCount, downMerge, rightMerge));
 
     private void AddHyperlink(in Hyperlink hyperlink)
@@ -532,7 +568,7 @@ public sealed class ExcelWriter : IAsyncDisposable
 
         references.Add(new CellReference(_columnCount, _rowCount));
     }
-    
+
     private ValueTask AddWorkbook()
     {
         WorkbookWriter.Write(_sheets, _buffer, _encoder);
@@ -557,7 +593,7 @@ public sealed class ExcelWriter : IAsyncDisposable
     private ValueTask AddStyles()
         => _styles.WriteTo(_archiveWriter, "xl/styles.xml");
 
-    private ValueTask AddRelationships() 
+    private ValueTask AddRelationships()
         => _archiveWriter.WriteEntry("_rels/.rels", Constants.RelationshipsContent);
 
     private ValueTask AddSharedStringTable()
@@ -605,16 +641,16 @@ public sealed class ExcelWriter : IAsyncDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void CheckWriteCell()
     {
-        if (_isCompleted)
-            ThrowCompleted();
-
         if (!_rowStarted)
             ThrowRowNotStarted();
     }
 
-    private static void ThrowRowNotStarted() 
+    private static void ThrowRowNotStarted()
         => throw new InvalidOperationException("Row is not started yet.");
 
-    private static void ThrowCompleted() 
+    private static void ThrowCompleted()
         => throw new InvalidOperationException("Excel writer is already completed.");
+
+    private static void ThrowSheetNotStarted()
+        => throw new InvalidOperationException("Sheet is not started.");
 }

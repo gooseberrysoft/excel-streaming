@@ -3,6 +3,7 @@ using System.Text;
 using Gooseberry.ExcelStreaming.Tests.Excel;
 using FluentAssertions;
 using Xunit;
+using Gooseberry.ExcelStreaming.Writers;
 
 namespace Gooseberry.ExcelStreaming.Tests;
 
@@ -86,7 +87,7 @@ public sealed class ExcelWriterTests
                 {
                     new Cell("1", CellValueType.Number),
                     new Cell("name", CellValueType.String),
-                    new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), Style: Constants.DefaultDateTimeStyle)
+                    new Cell(now.ToInternalOADate(), Style: Constants.DefaultDateTimeStyle)
                 })
             });
 
@@ -141,7 +142,7 @@ public sealed class ExcelWriterTests
                     new Cell("", CellValueType.String),
                     new Cell("", CellValueType.String),
                     new Cell("name", CellValueType.String),
-                    new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), Style: Constants.DefaultDateTimeStyle)
+                    new Cell(now.ToInternalOADate(), Style: Constants.DefaultDateTimeStyle)
                 })
             });
 
@@ -198,7 +199,7 @@ public sealed class ExcelWriterTests
                 {
                     new Cell("1", CellValueType.Number),
                     new Cell("name", CellValueType.String),
-                    new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), Style: Constants.DefaultDateTimeStyle)
+                    new Cell(now.ToInternalOADate(), Style: Constants.DefaultDateTimeStyle)
                 })
             });
 
@@ -643,19 +644,19 @@ public sealed class ExcelWriterTests
                 {
                     new Cell("1", CellValueType.Number),
                     new Cell("name1", CellValueType.String),
-                    new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), Style: Constants.DefaultDateTimeStyle)
+                    new Cell(now.ToInternalOADate(), Style: Constants.DefaultDateTimeStyle)
                 }, isHidden: true, outlineLevel: 1, isCollapsed: true),
                 new Row(new[]
                 {
                     new Cell("2", CellValueType.Number),
                     new Cell("name2", CellValueType.String),
-                    new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), Style: Constants.DefaultDateTimeStyle)
+                    new Cell(now.ToInternalOADate(), Style: Constants.DefaultDateTimeStyle)
                 }, isHidden: true, outlineLevel: 1),
                 new Row(new[]
                 {
                     new Cell("3", CellValueType.Number),
                     new Cell("name3", CellValueType.String),
-                    new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), Style: Constants.DefaultDateTimeStyle)
+                    new Cell(now.ToInternalOADate(), Style: Constants.DefaultDateTimeStyle)
                 }, isHidden: true, outlineLevel: 1),
                 new Row(Array.Empty<Cell>(), isHidden: true, outlineLevel: 1),
                 new Row(Array.Empty<Cell>(), isHidden: true, outlineLevel: 1)
@@ -756,13 +757,13 @@ public sealed class ExcelWriterTests
                 {
                     new Cell("1", CellValueType.Number),
                     new Cell("name1", CellValueType.String),
-                    new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), Style: Constants.DefaultDateTimeStyle)
+                    new Cell(now.ToInternalOADate(), Style: Constants.DefaultDateTimeStyle)
                 }),
                 new Row(new[]
                 {
                     new Cell("2", CellValueType.Number),
                     new Cell("name2", CellValueType.String),
-                    new Cell(now.ToOADate().ToString(CultureInfo.InvariantCulture), Style: Constants.DefaultDateTimeStyle)
+                    new Cell(now.ToInternalOADate(), Style: Constants.DefaultDateTimeStyle)
                 })
             });
 

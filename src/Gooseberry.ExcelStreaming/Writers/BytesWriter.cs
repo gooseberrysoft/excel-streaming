@@ -16,6 +16,32 @@ internal static class BytesWriter
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void WriteAdvanceTo(this ReadOnlySpan<byte> data, BuffersChain buffer, Span<byte> span, int written)
+    {
+        if (data.TryCopyTo(span))
+            buffer.Advance(written + data.Length);
+        else
+            GrowWrite(buffer, data, written);
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        static void GrowWrite(BuffersChain buffer, ReadOnlySpan<byte> data, int written)
+        {
+            buffer.Advance(written);
+            data.CopyTo(buffer.GetSpan(data.Length));
+            buffer.Advance(data.Length);
+        }
+    }
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static void CopyTo(this ReadOnlySpan<byte> data, ref Span<byte> span, ref int written)
+    {
+        data.CopyTo(span);
+        written += data.Length;
+        span = span.Slice(data.Length);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteTo(
         this byte[] data,
         BuffersChain buffer,
@@ -30,10 +56,8 @@ internal static class BytesWriter
         ref Span<byte> destination,
         ref int written)
     {
-        if (data.Length <= destination.Length)
+        if (data.TryCopyTo(destination))
         {
-            data.CopyTo(destination);
-
             written += data.Length;
             destination = destination.Slice(data.Length);
 

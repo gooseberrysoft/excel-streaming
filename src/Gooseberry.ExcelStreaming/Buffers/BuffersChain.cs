@@ -3,22 +3,14 @@ using System.Runtime.CompilerServices;
 // ReSharper disable once CheckNamespace
 namespace Gooseberry.ExcelStreaming;
 
-internal sealed class BuffersChain : IDisposable
+internal sealed class BuffersChain(int initialBufferSize) : IDisposable
 {
     private const int MaxBufferSize = 1024 * 1024;
     private const int RemainingFlushSize = 1 * 1024;
     private const int FlushSize = 512 * 1024;
 
-    private int _bufferSize;
-
     private readonly Queue<Buffer> _completedBuffers = new();
-    private Buffer _currentBuffer;
-
-    public BuffersChain(int initialBufferSize)
-    {
-        _bufferSize = initialBufferSize;
-        _currentBuffer = new Buffer(_bufferSize);
-    }
+    private Buffer _currentBuffer = new(initialBufferSize);
 
     public int Written
     {
@@ -26,22 +18,11 @@ internal sealed class BuffersChain : IDisposable
         {
             var written = _currentBuffer.Written;
 
-            if (_completedBuffers.Count > 0)
-                written += GetCompletedBuffersWritten();
+            foreach (var buffer in _completedBuffers)
+                written += buffer.Written;
 
             return written;
         }
-    }
-
-    [MethodImpl(MethodImplOptions.NoInlining)]
-    private int GetCompletedBuffersWritten()
-    {
-        var written = 0;
-
-        foreach (var buffer in _completedBuffers)
-            written += buffer.Written;
-
-        return written;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -56,52 +37,61 @@ internal sealed class BuffersChain : IDisposable
     [MethodImpl(MethodImplOptions.NoInlining)]
     private void Allocate(int minSize)
     {
+        var bufferSize = _currentBuffer.AllocatedSize;
+
         if (!_currentBuffer.IsEmpty)
         {
             _completedBuffers.Enqueue(_currentBuffer);
-            _bufferSize = Math.Min(MaxBufferSize, _bufferSize * 2);
+            bufferSize = GetNewSize();
         }
 
-        _currentBuffer = new Buffer(Math.Max(_bufferSize, minSize));
+        _currentBuffer = new Buffer(Math.Max(bufferSize, minSize));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Advance(int count)
         => _currentBuffer.Advance(count);
 
-    public async ValueTask FlushCompleted(IEntryWriter output)
+    public ValueTask FlushCompleted(IEntryWriter output)
     {
-        while (_completedBuffers.Count > 0)
-        {
-            using var buffer = _completedBuffers.Dequeue();
-            await buffer.CompleteFlush(output);
-        }
+        if (_completedBuffers.Count > 0)
+            return FlushCompletedAsync(output);
 
         if (_currentBuffer.RemainingCapacity <= RemainingFlushSize)
-        {
-            await _currentBuffer.CompleteFlush(output, newSize: Math.Min(MaxBufferSize, _bufferSize * 2));
+            return _currentBuffer.CompleteFlush(output, GetNewSize());
 
-            _bufferSize = _currentBuffer.UnderlyingLength;
-        }
-        else if (_currentBuffer.Written >= FlushSize)
-        {
-            await _currentBuffer.Flush(output, newSize: Math.Min(MaxBufferSize, _bufferSize * 2));
+        if (_currentBuffer.Written >= FlushSize)
+            return _currentBuffer.Flush(output, GetNewSize());
 
-            _bufferSize = _currentBuffer.UnderlyingLength;
-        }
+        return ValueTask.CompletedTask;
     }
 
-    public async ValueTask FlushAll(IEntryWriter output)
+    private async ValueTask FlushCompletedAsync(IEntryWriter output)
     {
-        while (_completedBuffers.Count > 0)
-        {
-            using var buffer = _completedBuffers.Dequeue();
-            await buffer.CompleteFlush(output);
-        }
+        await FlushCompletedBuffers(output);
+        await FlushCompleted(output);
+    }
 
-        await _currentBuffer.Flush(output, newSize: Math.Min(MaxBufferSize, _bufferSize * 2));
+    public ValueTask FlushAll(IEntryWriter output)
+    {
+        if (_completedBuffers.Count > 0)
+            return FlushAllAsync(output);
 
-        _bufferSize = _currentBuffer.UnderlyingLength;
+        return _currentBuffer.Flush(output, GetNewSize());
+    }
+
+    private int GetNewSize()
+    {
+        if (_currentBuffer.AllocatedSize == MaxBufferSize)
+            return MaxBufferSize / 2;
+
+        return Math.Min(MaxBufferSize, _currentBuffer.AllocatedSize * 2);
+    }
+
+    private async ValueTask FlushAllAsync(IEntryWriter output)
+    {
+        await FlushCompletedBuffers(output);
+        await FlushAll(output);
     }
 
     public void FlushAll(Span<byte> span)
@@ -129,5 +119,40 @@ internal sealed class BuffersChain : IDisposable
             _completedBuffers.Dequeue().Dispose();
 
         _currentBuffer.Dispose();
+    }
+
+    private async Task FlushCompletedBuffers(IEntryWriter output)
+    {
+        while (_completedBuffers.Count > 0)
+        {
+            using var buffer = _completedBuffers.Dequeue();
+            await buffer.CompleteFlush(output);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Write(ReadOnlySpan<byte> bytes)
+    {
+        if (!_currentBuffer.TryWrite(bytes))
+            WriteBlocks(bytes);
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private void WriteBlocks(ReadOnlySpan<byte> data)
+    {
+        while (true)
+        {
+            var destination = GetSpan();
+            var copyLength = Math.Min(data.Length, destination.Length);
+
+            data.Slice(0, copyLength).CopyTo(destination);
+
+            Advance(copyLength);
+
+            if (data.Length == copyLength)
+                return;
+
+            data = data.Slice(copyLength);
+        }
     }
 }
