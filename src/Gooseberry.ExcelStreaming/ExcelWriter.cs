@@ -28,7 +28,8 @@ public sealed class ExcelWriter : IAsyncDisposable
     private uint _rowCount = 0;
     private uint _columnCount = 0;
     private readonly List<Merge> _merges = new();
-    private readonly Dictionary<string, List<CellReference>> _hyperlinks = new();
+    //TODO: Refactor hyperlinks to indexed structure
+    private Dictionary<string, List<CellReference>>? _hyperlinks;
     private readonly SheetDrawings _sheetDrawings = new();
 
     private ArrayPoolBuffer? _interpolatedStringBuffer;
@@ -106,7 +107,7 @@ public sealed class ExcelWriter : IAsyncDisposable
         _rowCount += 1;
         _columnCount = 0;
 
-        return _rowCount % 3 == 0
+        return _rowCount % 4 == 0
             ? _buffer.FlushCompleted(_sheetWriter!)
             : ValueTask.CompletedTask;
     }
@@ -187,13 +188,13 @@ public sealed class ExcelWriter : IAsyncDisposable
         if (data == null)
             AddEmptyCell(style, rightMerge, downMerge);
         else
-            AddCell(data.AsSpan(), style, rightMerge, downMerge);
+            AddCellImpl(data.AsSpan(), style, rightMerge, downMerge);
     }
 
     public void AddCell(int data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
 #if NET8_0_OR_GREATER
-        AddCellNumber(data, style: style, rightMerge: rightMerge, downMerge: downMerge);
+        AddCellNumberImpl(data, style: style, rightMerge: rightMerge, downMerge: downMerge);
 #else
         CheckWriteCell();
         DataWriters.IntCellWriter.Write(data, _buffer, style);
@@ -214,7 +215,7 @@ public sealed class ExcelWriter : IAsyncDisposable
     public void AddCell(long data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
 #if NET8_0_OR_GREATER
-        AddCellNumber(data, style: style, rightMerge: rightMerge, downMerge: downMerge);
+        AddCellNumberImpl(data, style: style, rightMerge: rightMerge, downMerge: downMerge);
 #else
         CheckWriteCell();
         DataWriters.LongCellWriter.Write(data, _buffer, style);
@@ -235,7 +236,7 @@ public sealed class ExcelWriter : IAsyncDisposable
     public void AddCell(decimal data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
 #if NET8_0_OR_GREATER
-        AddCellNumber(data, style: style, rightMerge: rightMerge, downMerge: downMerge);
+        AddCellNumberImpl(data, style: style, rightMerge: rightMerge, downMerge: downMerge);
 #else
         CheckWriteCell();
         DataWriters.DecimalCellWriter.Write(data, _buffer, style);
@@ -256,7 +257,7 @@ public sealed class ExcelWriter : IAsyncDisposable
     public void AddCell(double data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
 #if NET8_0_OR_GREATER
-        AddCellNumber(data, style: style, rightMerge: rightMerge, downMerge: downMerge);
+        AddCellNumberImpl(data, style: style, rightMerge: rightMerge, downMerge: downMerge);
 #else
         CheckWriteCell();
         DataWriters.DoubleCellWriter.Write(data, _buffer, style);
@@ -335,16 +336,18 @@ public sealed class ExcelWriter : IAsyncDisposable
 #else
         ReadOnlySpan<char> span = stackalloc char[] { data };
 #endif
-        AddCell(span, style, rightMerge, downMerge);
+        AddCellImpl(span, style, rightMerge, downMerge);
     }
 
     public void AddCell(ReadOnlySpan<char> data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+        => AddCellImpl(data, style, rightMerge, downMerge);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void AddCellImpl(ReadOnlySpan<char> data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
         CheckWriteCell();
-        if (style.HasValue)
-            StringCellWriter.Write(data, _buffer, _encoder, style.Value);
-        else
-            StringCellWriter.Write(data, _buffer, _encoder);
+
+        StringCellWriter.Write(data, _buffer, _encoder, style);
 
         _columnCount += 1;
         MergeCell(rightMerge, downMerge);
@@ -353,10 +356,8 @@ public sealed class ExcelWriter : IAsyncDisposable
     public void AddCellUtf8String(ReadOnlySpan<byte> data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
         CheckWriteCell();
-        if (style.HasValue)
-            StringCellWriter.WriteUtf8(data, _buffer, style.Value);
-        else
-            StringCellWriter.WriteUtf8(data, _buffer);
+
+        StringCellWriter.WriteUtf8(data, _buffer, style);
 
         _columnCount += 1;
         MergeCell(rightMerge, downMerge);
@@ -383,8 +384,19 @@ public sealed class ExcelWriter : IAsyncDisposable
         MergeCell(rightMerge, downMerge);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddCellNumber<T>(
+        T data,
+        ReadOnlySpan<char> format = default,
+        IFormatProvider? formatProvider = default,
+        StyleReference? style = null,
+        uint rightMerge = 0,
+        uint downMerge = 0) where T : IUtf8SpanFormattable
+    {
+        AddCellNumberImpl(data, format, formatProvider, style, rightMerge, downMerge);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void AddCellNumberImpl<T>(
         T data,
         ReadOnlySpan<char> format = default,
         IFormatProvider? formatProvider = default,
@@ -394,14 +406,12 @@ public sealed class ExcelWriter : IAsyncDisposable
     {
         CheckWriteCell();
 
-        if (style.HasValue)
-            Utf8NumberCellWriter.Write(data, format, formatProvider, _buffer, style.Value);
-        else
-            Utf8NumberCellWriter.Write(data, format, formatProvider, _buffer);
+        Utf8NumberCellWriter.Write(data, format, formatProvider, _buffer, style);
 
         _columnCount += 1;
         MergeCell(rightMerge, downMerge);
     }
+
 #endif
 
     public void AddCellSharedString(string? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
@@ -537,7 +547,7 @@ public sealed class ExcelWriter : IAsyncDisposable
         await AddDrawing(sheet.Id);
         await AddDrawingRelationships(sheet.Id);
 
-        _hyperlinks.Clear();
+        _hyperlinks?.Clear();
     }
 
     private async Task WriteInitialWorkbookFiles()
@@ -560,6 +570,8 @@ public sealed class ExcelWriter : IAsyncDisposable
 
     private void AddHyperlink(in Hyperlink hyperlink)
     {
+        _hyperlinks ??= new Dictionary<string, List<CellReference>>();
+
         if (!_hyperlinks.TryGetValue(hyperlink.Link, out var references))
         {
             references = new List<CellReference>();
@@ -626,7 +638,7 @@ public sealed class ExcelWriter : IAsyncDisposable
     private ValueTask AddSheetRelationships(int sheetId)
     {
         var drawing = _sheetDrawings.Get(sheetId);
-        SheetRelationshipsWriter.Write(_hyperlinks.Keys, drawing, _buffer, _encoder);
+        SheetRelationshipsWriter.Write(_hyperlinks?.Keys, drawing, _buffer, _encoder);
 
         return _buffer.FlushAll(_archiveWriter.CreateEntry(PathResolver.GetSheetRelationshipsFullPath(sheetId)));
     }

@@ -6,17 +6,12 @@ namespace Gooseberry.ExcelStreaming.Writers;
 
 internal static class EmptyCellWriter
 {
-    private static readonly byte[] _stateless;
+    private static ReadOnlySpan<byte> EmptyCell => "<c><v></v></c>"u8;
     private static readonly byte[] _stylePrefix;
     private static readonly byte[] _stylePostfix;
-    
+
     static EmptyCellWriter()
     {
-        _stateless = Constants.Worksheet.SheetData.Row.Cell.Prefix
-            .Combine(Constants.Worksheet.SheetData.Row.Cell.StringDataType,
-            Constants.Worksheet.SheetData.Row.Cell.Middle,
-            Constants.Worksheet.SheetData.Row.Cell.Postfix);
-
         _stylePrefix = Constants.Worksheet.SheetData.Row.Cell.Prefix
             .Combine(Constants.Worksheet.SheetData.Row.Cell.StringDataType,
                 Constants.Worksheet.SheetData.Row.Cell.Style.Prefix);
@@ -27,7 +22,7 @@ internal static class EmptyCellWriter
 
     public static void Write(BuffersChain buffer, StyleReference? style = null)
     {
-        var span = buffer.GetSpan();
+        var span = buffer.GetSpan(EmptyCell.Length);
         var written = 0;
 
         if (style.HasValue)
@@ -41,7 +36,6 @@ internal static class EmptyCellWriter
             return;
         }
 
-        _stateless.WriteTo(buffer, ref span, ref written);
-        buffer.Advance(written);
+        EmptyCell.WriteAdvanceTo(buffer, span, written);
     }
 }

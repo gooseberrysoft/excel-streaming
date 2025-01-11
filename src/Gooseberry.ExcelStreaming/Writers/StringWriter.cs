@@ -20,12 +20,27 @@ internal static class StringWriter
         ref int written)
         => WriteEscapedTo(data.AsSpan(), buffer, encoder, ref destination, ref written);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void WriteEscapedTo(
         this scoped ReadOnlySpan<char> data,
         BuffersChain buffer,
         Encoder encoder,
         ref Span<byte> destination,
         ref int written)
+    {
+        if (destination.Length >= data.Length * MaxBytesPerChar)
+        {
+            var bytesWritten = Encoding.UTF8.GetBytes(data, destination);
+            
+            Escape(buffer, ref destination, ref written, bytesWritten);
+
+            return;
+        }
+
+        WriteBlocks(data, buffer, encoder, ref destination, ref written);
+    }
+
+    private static void WriteBlocks(scoped ReadOnlySpan<char> data, BuffersChain buffer, Encoder encoder, ref Span<byte> destination, ref int written)
     {
         while (true)
         {
@@ -45,27 +60,33 @@ internal static class StringWriter
                 out var bytesWritten,
                 out var isCompleted);
 
-            var indexToEncode = HtmlEncoder.Default.FindFirstCharacterToEncodeUtf8(destination[..bytesWritten]);
-
-            if (indexToEncode == -1)
-            {
-                written += bytesWritten;
-                destination = destination[bytesWritten..];
-            }
-            else
-            {
-                var bytesUtf8ToEncode = destination[indexToEncode..bytesWritten];
-
-                written += indexToEncode;
-                destination = destination[indexToEncode..];
-
-                EscapeUtf8(bytesUtf8ToEncode, buffer, ref destination, ref written);
-            }
-
+            Escape(buffer, ref destination, ref written, bytesWritten);
+            
             if (isCompleted)
                 break;
 
             data = data.Slice(charsConsumed);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void Escape(BuffersChain buffer, ref Span<byte> destination, ref int written, int bytesWritten)
+    {
+        var indexToEncode = HtmlEncoder.Default.FindFirstCharacterToEncodeUtf8(destination[..bytesWritten]);
+
+        if (indexToEncode == -1)
+        {
+            written += bytesWritten;
+            destination = destination[bytesWritten..];
+        }
+        else
+        {
+            var bytesUtf8ToEncode = destination[indexToEncode..bytesWritten];
+
+            written += indexToEncode;
+            destination = destination[indexToEncode..];
+
+            EscapeUtf8(bytesUtf8ToEncode, buffer, ref destination, ref written);
         }
     }
 

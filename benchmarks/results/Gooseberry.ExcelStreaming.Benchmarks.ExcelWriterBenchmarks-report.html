@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
 <meta charset='utf-8' />
-<title>Gooseberry.ExcelStreaming.Benchmarks.ExcelWriterBenchmarks-20241027-234310</title>
+<title>Gooseberry.ExcelStreaming.Benchmarks.ExcelWriterBenchmarks-20250111-130455</title>
 
 <style type="text/css">
 	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
@@ -13,25 +13,29 @@
 </head>
 <body>
 <pre><code>
-BenchmarkDotNet v0.14.0, Windows 10 (10.0.19045.5011/22H2/2022Update)
+BenchmarkDotNet v0.14.0, Windows 10 (10.0.19045.5247/22H2/2022Update)
 11th Gen Intel Core i7-1185G7 3.00GHz, 1 CPU, 8 logical and 4 physical cores
-.NET SDK 8.0.403
-  [Host]     : .NET 8.0.10 (8.0.1024.46610), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
-  DefaultJob : .NET 8.0.10 (8.0.1024.46610), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+.NET SDK 9.0.101
+  [Host]     : .NET 8.0.11 (8.0.1124.51707), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+  DefaultJob : .NET 8.0.11 (8.0.1124.51707), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
 </code></pre>
 <pre><code></code></pre>
 
 <table>
-<thead><tr><th>Method</th><th>RowsCount</th><th>Mean  </th><th>Error</th><th>StdDev</th><th>Median</th><th>Gen0</th><th>Gen1</th><th>Gen2</th><th>Allocated</th>
+<thead><tr><th>Method </th><th>RowsCount</th><th>Mean  </th><th>Error</th><th>StdDev</th><th>Gen0</th><th>Gen1</th><th>Gen2</th><th>Allocated</th>
 </tr>
-</thead><tbody><tr><td>ExcelWriter</td><td>100</td><td>1.400 ms</td><td>0.0263 ms</td><td>0.0439 ms</td><td>1.400 ms</td><td>-</td><td>-</td><td>-</td><td>14.4 KB</td>
-</tr><tr><td>OpenXml</td><td>100</td><td>3.501 ms</td><td>0.0698 ms</td><td>0.1945 ms</td><td>3.594 ms</td><td>187.5000</td><td>187.5000</td><td>187.5000</td><td>1162.12 KB</td>
-</tr><tr><td>ExcelWriter</td><td>1000</td><td>11.570 ms</td><td>0.2280 ms</td><td>0.5053 ms</td><td>11.465 ms</td><td>-</td><td>-</td><td>-</td><td>14.61 KB</td>
-</tr><tr><td>OpenXml</td><td>1000</td><td>33.550 ms</td><td>0.6522 ms</td><td>0.6405 ms</td><td>33.787 ms</td><td>1533.3333</td><td>933.3333</td><td>933.3333</td><td>9941.06 KB</td>
-</tr><tr><td>ExcelWriter</td><td>10000</td><td>112.128 ms</td><td>2.2011 ms</td><td>4.1878 ms</td><td>111.093 ms</td><td>-</td><td>-</td><td>-</td><td>26.11 KB</td>
-</tr><tr><td>OpenXml</td><td>10000</td><td>330.799 ms</td><td>6.4852 ms</td><td>8.6576 ms</td><td>331.339 ms</td><td>9000.0000</td><td>3000.0000</td><td>3000.0000</td><td>136777.02 KB</td>
-</tr><tr><td>ExcelWriter</td><td>100000</td><td>1,119.574 ms</td><td>22.3077 ms</td><td>53.0167 ms</td><td>1,113.980 ms</td><td>-</td><td>-</td><td>-</td><td>142.23 KB</td>
-</tr><tr><td>OpenXml</td><td>100000</td><td>3,310.667 ms</td><td>65.5416 ms</td><td>61.3076 ms</td><td>3,314.134 ms</td><td>68000.0000</td><td>6000.0000</td><td>6000.0000</td><td>1171460.91 KB</td>
+</thead><tbody><tr><td>ExcelWriter</td><td>100</td><td>1.710 ms</td><td>0.0339 ms</td><td>0.0715 ms</td><td>-</td><td>-</td><td>-</td><td>13.74 KB</td>
+</tr><tr><td>SpreadCheetah</td><td>100</td><td>1.880 ms</td><td>0.0375 ms</td><td>0.0647 ms</td><td>-</td><td>-</td><td>-</td><td>7.29 KB</td>
+</tr><tr><td>OpenXml</td><td>100</td><td>4.033 ms</td><td>0.0801 ms</td><td>0.1424 ms</td><td>187.5000</td><td>187.5000</td><td>187.5000</td><td>1216.6 KB</td>
+</tr><tr><td>ExcelWriter</td><td>1000</td><td>12.118 ms</td><td>0.2372 ms</td><td>0.3762 ms</td><td>-</td><td>-</td><td>-</td><td>14.82 KB</td>
+</tr><tr><td>SpreadCheetah</td><td>1000</td><td>17.219 ms</td><td>0.3311 ms</td><td>0.6613 ms</td><td>-</td><td>-</td><td>-</td><td>7.31 KB</td>
+</tr><tr><td>OpenXml</td><td>1000</td><td>38.479 ms</td><td>0.5943 ms</td><td>0.5559 ms</td><td>1230.7692</td><td>692.3077</td><td>538.4615</td><td>16630.73 KB</td>
+</tr><tr><td>ExcelWriter</td><td>10000</td><td>113.283 ms</td><td>2.2228 ms</td><td>4.0645 ms</td><td>-</td><td>-</td><td>-</td><td>28.23 KB</td>
+</tr><tr><td>SpreadCheetah</td><td>10000</td><td>169.522 ms</td><td>1.1121 ms</td><td>1.8884 ms</td><td>-</td><td>-</td><td>-</td><td>7.92 KB</td>
+</tr><tr><td>OpenXml</td><td>10000</td><td>375.535 ms</td><td>2.8585 ms</td><td>2.5340 ms</td><td>10000.0000</td><td>3000.0000</td><td>3000.0000</td><td>142236.68 KB</td>
+</tr><tr><td>ExcelWriter</td><td>100000</td><td>1,078.717 ms</td><td>20.4663 ms</td><td>18.1429 ms</td><td>-</td><td>-</td><td>-</td><td>171.99 KB</td>
+</tr><tr><td>SpreadCheetah</td><td>100000</td><td>1,704.233 ms</td><td>33.6618 ms</td><td>34.5682 ms</td><td>-</td><td>-</td><td>-</td><td>24.45 KB</td>
+</tr><tr><td>OpenXml</td><td>100000</td><td>3,506.063 ms</td><td>35.1061 ms</td><td>32.8382 ms</td><td>74000.0000</td><td>3000.0000</td><td>3000.0000</td><td>1225995.05 KB</td>
 </tr></tbody></table>
 </body>
 </html>

@@ -6,7 +6,7 @@ namespace Gooseberry.ExcelStreaming.Writers;
 
 internal static class SheetRelationshipsWriter
 {
-    public static void Write(IReadOnlyCollection<string> hyperlinks, Drawing drawing, BuffersChain buffer, Encoder encoder)
+    public static void Write(IReadOnlyCollection<string>? hyperlinks, Drawing drawing, BuffersChain buffer, Encoder encoder)
     {
         var span = buffer.GetSpan();
         var written = 0;
@@ -14,16 +14,19 @@ internal static class SheetRelationshipsWriter
         Constants.XmlPrefix.WriteTo(buffer, ref span, ref written);
         Constants.SheetRelationships.Prefix.WriteTo(buffer, ref span, ref written);
 
-        var count = 0;
-        foreach (var hyperlink in hyperlinks)
+        if (hyperlinks != null)
         {
-            Constants.SheetRelationships.Hyperlink.StartPrefix.WriteTo(buffer, ref span, ref written);
-            count.WriteTo(buffer, ref span, ref written);
-            Constants.SheetRelationships.Hyperlink.EndPrefix.WriteTo(buffer, ref span, ref written);
-            hyperlink.WriteEscapedTo(buffer, encoder, ref span, ref written);
-            Constants.SheetRelationships.Hyperlink.Postfix.WriteTo(buffer, ref span, ref written);
+            var count = 0;
+            foreach (var hyperlink in hyperlinks)
+            {
+                Constants.SheetRelationships.Hyperlink.StartPrefix.WriteTo(buffer, ref span, ref written);
+                count.WriteTo(buffer, ref span, ref written);
+                Constants.SheetRelationships.Hyperlink.EndPrefix.WriteTo(buffer, ref span, ref written);
+                hyperlink.WriteEscapedTo(buffer, encoder, ref span, ref written);
+                Constants.SheetRelationships.Hyperlink.Postfix.WriteTo(buffer, ref span, ref written);
 
-            count++;
+                count++;
+            }
         }
 
         if (!drawing.IsEmpty)

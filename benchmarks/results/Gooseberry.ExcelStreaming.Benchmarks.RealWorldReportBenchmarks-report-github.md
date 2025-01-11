@@ -1,17 +1,17 @@
 ```
 
-BenchmarkDotNet v0.14.0, Windows 10 (10.0.19045.5011/22H2/2022Update)
+BenchmarkDotNet v0.14.0, Windows 10 (10.0.19045.5247/22H2/2022Update)
 11th Gen Intel Core i7-1185G7 3.00GHz, 1 CPU, 8 logical and 4 physical cores
-.NET SDK 8.0.403
-  [Host]     : .NET 8.0.10 (8.0.1024.46610), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
-  DefaultJob : .NET 8.0.10 (8.0.1024.46610), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+.NET SDK 9.0.101
+  [Host]     : .NET 8.0.11 (8.0.1124.51707), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+  DefaultJob : .NET 8.0.11 (8.0.1124.51707), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
 
 
 ```
-| Method                      | RowsCount | Mean           | Error        | StdDev        | Median         | Gen0   | Allocated |
-|---------------------------- |---------- |---------------:|-------------:|--------------:|---------------:|-------:|----------:|
-| ExcelWriter_RealWorldReport | 100       |       987.2 μs |     16.59 μs |      14.70 μs |       985.1 μs | 1.9531 |  14.94 KB |
-| ExcelWriter_RealWorldReport | 1000      |     7,346.7 μs |    146.30 μs |     129.69 μs |     7,322.4 μs |      - |  13.83 KB |
-| ExcelWriter_RealWorldReport | 10000     |    64,722.2 μs |  1,291.23 μs |   2,048.02 μs |    64,900.7 μs |      - |  15.18 KB |
-| ExcelWriter_RealWorldReport | 100000    |   645,843.6 μs | 12,911.60 μs |  35,126.97 μs |   660,441.0 μs |      - |  17.13 KB |
-| ExcelWriter_RealWorldReport | 500000    | 3,278,696.3 μs | 65,158.05 μs | 122,382.62 μs | 3,263,196.8 μs |      - |  74.73 KB |
+| Method          | RowsCount | Mean           | Error        | StdDev       | Gen0   | Allocated |
+|---------------- |---------- |---------------:|-------------:|-------------:|-------:|----------:|
+| RealWorldReport | 100       |       847.8 μs |     11.35 μs |     10.62 μs | 1.9531 |  13.47 KB |
+| RealWorldReport | 1000      |     6,577.2 μs |     35.67 μs |     29.79 μs |      - |  14.02 KB |
+| RealWorldReport | 10000     |    60,202.0 μs |    740.03 μs |    692.22 μs |      - |  19.98 KB |
+| RealWorldReport | 100000    |   584,652.5 μs | 11,666.83 μs | 12,967.65 μs |      - |  78.59 KB |
+| RealWorldReport | 500000    | 2,892,435.0 μs | 56,399.40 μs | 69,263.54 μs |      - |  344.7 KB |

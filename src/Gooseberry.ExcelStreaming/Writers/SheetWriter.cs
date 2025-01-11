@@ -28,7 +28,7 @@ internal static class SheetWriter
         Encoder encoder,
         Drawing drawing,
         IReadOnlyCollection<Merge> merges,
-        Dictionary<string, List<CellReference>> hyperlinks)
+        Dictionary<string, List<CellReference>>? hyperlinks)
     {
         var span = buffer.GetSpan();
         var written = 0;
@@ -36,7 +36,8 @@ internal static class SheetWriter
         Constants.Worksheet.SheetData.Postfix.WriteTo(buffer, ref span, ref written);
 
         WriteMerges(merges, buffer, ref span, ref written);
-        WriteHyperlinks(hyperlinks, buffer, ref span, ref written);
+        if (hyperlinks != null)
+            WriteHyperlinks(hyperlinks, buffer, ref span, ref written);
         WriteDrawing(drawing, buffer, encoder, ref span, ref written);
 
         Constants.Worksheet.Postfix.WriteTo(buffer, ref span, ref written);

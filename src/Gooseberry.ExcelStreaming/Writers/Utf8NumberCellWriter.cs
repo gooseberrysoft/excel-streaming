@@ -1,4 +1,5 @@
 #if NET8_0_OR_GREATER
+using System.Runtime.CompilerServices;
 using Gooseberry.ExcelStreaming.Styles;
 
 namespace Gooseberry.ExcelStreaming.Writers;
@@ -9,7 +10,6 @@ internal static class Utf8NumberCellWriter
 
     private static ReadOnlySpan<byte> Prefix => "<c t=\"n\"><v>"u8;
     private static ReadOnlySpan<byte> Postfix => "</v></c>"u8;
-    private static readonly int Size = Prefix.Length + NumberSize + Postfix.Length;
 
     private static ReadOnlySpan<byte> StylePrefix => "<c t=\"n\" s=\""u8;
     private static ReadOnlySpan<byte> StylePostfix => "\"><v>"u8;
@@ -18,37 +18,26 @@ internal static class Utf8NumberCellWriter
         + NumberSize
         + Postfix.Length;
 
-    public static void Write<T>(
-        in T value,
-        ReadOnlySpan<char> format,
-        IFormatProvider? provider,
-        BuffersChain buffer)
-        where T : IUtf8SpanFormattable
-    {
-        var span = buffer.GetSpan(Size);
-        var written = 0;
-
-        Prefix.CopyTo(ref span, ref written);
-
-        Utf8SpanFormattableWriter.WriteValue(value, format, provider, buffer, ref span, ref written);
-        
-        Postfix.WriteAdvanceTo(buffer, span, written);
-    }
-
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Write<T>(
         in T value,
         ReadOnlySpan<char> format,
         IFormatProvider? provider,
         BuffersChain buffer,
-        StyleReference style)
+        StyleReference? style)
         where T : IUtf8SpanFormattable
     {
         var span = buffer.GetSpan(StyleSize);
         var written = 0;
 
-        StylePrefix.CopyTo(ref span, ref written);
-        Utf8SpanFormattableWriter.WriteValue(style.Value, buffer, ref span, ref written);
-        StylePostfix.CopyTo(ref span, ref written);
+        if (style.HasValue)
+        {
+            StylePrefix.CopyTo(ref span, ref written);
+            Utf8SpanFormattableWriter.WriteValue(style.Value.Value, buffer, ref span, ref written);
+            StylePostfix.CopyTo(ref span, ref written);
+        }
+        else
+            Prefix.CopyTo(ref span, ref written);
 
         Utf8SpanFormattableWriter.WriteValue(value, format, provider, buffer, ref span, ref written);
 

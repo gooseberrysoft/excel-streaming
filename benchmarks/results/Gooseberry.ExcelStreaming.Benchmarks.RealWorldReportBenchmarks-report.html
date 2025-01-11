@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
 <meta charset='utf-8' />
-<title>Gooseberry.ExcelStreaming.Benchmarks.RealWorldReportBenchmarks-20241025-172255</title>
+<title>Gooseberry.ExcelStreaming.Benchmarks.RealWorldReportBenchmarks-20250111-131156</title>
 
 <style type="text/css">
 	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
@@ -13,22 +13,22 @@
 </head>
 <body>
 <pre><code>
-BenchmarkDotNet v0.14.0, Windows 10 (10.0.19045.5011/22H2/2022Update)
+BenchmarkDotNet v0.14.0, Windows 10 (10.0.19045.5247/22H2/2022Update)
 11th Gen Intel Core i7-1185G7 3.00GHz, 1 CPU, 8 logical and 4 physical cores
-.NET SDK 8.0.403
-  [Host]     : .NET 8.0.10 (8.0.1024.46610), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
-  DefaultJob : .NET 8.0.10 (8.0.1024.46610), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+.NET SDK 9.0.101
+  [Host]     : .NET 8.0.11 (8.0.1124.51707), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+  DefaultJob : .NET 8.0.11 (8.0.1124.51707), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
 </code></pre>
 <pre><code></code></pre>
 
 <table>
-<thead><tr><th>Method               </th><th>RowsCount</th><th>Mean    </th><th>Error </th><th>StdDev </th><th>Median  </th><th>Gen0</th><th>Allocated</th>
+<thead><tr><th>Method   </th><th>RowsCount</th><th>Mean    </th><th>Error </th><th>StdDev</th><th>Gen0</th><th>Allocated</th>
 </tr>
-</thead><tbody><tr><td>ExcelWriter_RealWorldReport</td><td>100</td><td>987.2 &mu;s</td><td>16.59 &mu;s</td><td>14.70 &mu;s</td><td>985.1 &mu;s</td><td>1.9531</td><td>14.94 KB</td>
-</tr><tr><td>ExcelWriter_RealWorldReport</td><td>1000</td><td>7,346.7 &mu;s</td><td>146.30 &mu;s</td><td>129.69 &mu;s</td><td>7,322.4 &mu;s</td><td>-</td><td>13.83 KB</td>
-</tr><tr><td>ExcelWriter_RealWorldReport</td><td>10000</td><td>64,722.2 &mu;s</td><td>1,291.23 &mu;s</td><td>2,048.02 &mu;s</td><td>64,900.7 &mu;s</td><td>-</td><td>15.18 KB</td>
-</tr><tr><td>ExcelWriter_RealWorldReport</td><td>100000</td><td>645,843.6 &mu;s</td><td>12,911.60 &mu;s</td><td>35,126.97 &mu;s</td><td>660,441.0 &mu;s</td><td>-</td><td>17.13 KB</td>
-</tr><tr><td>ExcelWriter_RealWorldReport</td><td>500000</td><td>3,278,696.3 &mu;s</td><td>65,158.05 &mu;s</td><td>122,382.62 &mu;s</td><td>3,263,196.8 &mu;s</td><td>-</td><td>74.73 KB</td>
+</thead><tbody><tr><td>RealWorldReport</td><td>100</td><td>847.8 &mu;s</td><td>11.35 &mu;s</td><td>10.62 &mu;s</td><td>1.9531</td><td>13.47 KB</td>
+</tr><tr><td>RealWorldReport</td><td>1000</td><td>6,577.2 &mu;s</td><td>35.67 &mu;s</td><td>29.79 &mu;s</td><td>-</td><td>14.02 KB</td>
+</tr><tr><td>RealWorldReport</td><td>10000</td><td>60,202.0 &mu;s</td><td>740.03 &mu;s</td><td>692.22 &mu;s</td><td>-</td><td>19.98 KB</td>
+</tr><tr><td>RealWorldReport</td><td>100000</td><td>584,652.5 &mu;s</td><td>11,666.83 &mu;s</td><td>12,967.65 &mu;s</td><td>-</td><td>78.59 KB</td>
+</tr><tr><td>RealWorldReport</td><td>500000</td><td>2,892,435.0 &mu;s</td><td>56,399.40 &mu;s</td><td>69,263.54 &mu;s</td><td>-</td><td>344.7 KB</td>
 </tr></tbody></table>
 </body>
 </html>

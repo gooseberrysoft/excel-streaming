@@ -25,7 +25,7 @@ public class RealWorldReportBenchmarks
             for (int i = 0; i < 5; i++)
             {
                 writer.AddCell(row);
-                writer.AddCell(dateTime);
+                writer.AddCell(DateOnly.FromDateTime(dateTime));
                 writer.AddCell("\"Alice’s Adventures in Wonderland\" by Lewis Carroll");
                 writer.AddCell(1789);
                 writer.AddCell(1234567.9876M);
