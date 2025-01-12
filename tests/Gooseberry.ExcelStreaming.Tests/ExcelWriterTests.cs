@@ -130,7 +130,7 @@ public sealed class ExcelWriterTests
             {
                 new Row(new[]
                 {
-                    new Cell("", CellValueType.String),
+                    new Cell("", null),
                     new Cell("Id", CellValueType.String),
                     new Cell("Name", CellValueType.String),
                     new Cell("Date", CellValueType.String)
@@ -138,9 +138,9 @@ public sealed class ExcelWriterTests
                 new Row(new[]
                 {
                     new Cell("1", CellValueType.Number),
-                    new Cell("", CellValueType.String),
-                    new Cell("", CellValueType.String),
-                    new Cell("", CellValueType.String),
+                    new Cell("", null),
+                    new Cell("", null),
+                    new Cell("", null),
                     new Cell("name", CellValueType.String),
                     new Cell(now.ToInternalOADate(), Style: Constants.DefaultDateTimeStyle)
                 })

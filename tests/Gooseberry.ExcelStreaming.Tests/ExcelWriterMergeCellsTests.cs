@@ -84,21 +84,21 @@ public sealed class ExcelWriterMergeCellsTests
                 new Row(new[]
                 {
                     new Cell("Id", CellValueType.String),
-                    new Cell("", CellValueType.String),
+                    new Cell("", null),
                     new Cell("Dates", CellValueType.String),
-                    new Cell("", CellValueType.String),
+                    new Cell("", null),
                 }),
                 new Row(new[]
                 {
-                    new Cell("", CellValueType.String),
-                    new Cell("", CellValueType.String),
+                    new Cell("", null),
+                    new Cell("", null),
                     new Cell("Create", CellValueType.String),
                     new Cell("Update", CellValueType.String)
                 }),
                 new Row(new[]
                 {
                     new Cell("1", CellValueType.Number),
-                    new Cell("", CellValueType.String),
+                    new Cell("", null),
                     new Cell(now.ToInternalOADate(), Style: Constants.DefaultDateTimeStyle),
                     new Cell(now.ToInternalOADate(), Style: Constants.DefaultDateTimeStyle)
                 })
