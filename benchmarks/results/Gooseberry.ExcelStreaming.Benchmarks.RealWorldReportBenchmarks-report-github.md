@@ -3,15 +3,21 @@
 BenchmarkDotNet v0.14.0, Windows 10 (10.0.19045.5247/22H2/2022Update)
 11th Gen Intel Core i7-1185G7 3.00GHz, 1 CPU, 8 logical and 4 physical cores
 .NET SDK 9.0.101
-  [Host]     : .NET 8.0.11 (8.0.1124.51707), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
-  DefaultJob : .NET 8.0.11 (8.0.1124.51707), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+  [Host]   : .NET 9.0.0 (9.0.24.52809), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+  .NET 8.0 : .NET 8.0.11 (8.0.1124.51707), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+  .NET 9.0 : .NET 9.0.0 (9.0.24.52809), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
 
 
 ```
-| Method          | RowsCount | Mean           | Error        | StdDev       | Gen0   | Allocated |
-|---------------- |---------- |---------------:|-------------:|-------------:|-------:|----------:|
-| RealWorldReport | 100       |       847.8 μs |     11.35 μs |     10.62 μs | 1.9531 |  13.47 KB |
-| RealWorldReport | 1000      |     6,577.2 μs |     35.67 μs |     29.79 μs |      - |  14.02 KB |
-| RealWorldReport | 10000     |    60,202.0 μs |    740.03 μs |    692.22 μs |      - |  19.98 KB |
-| RealWorldReport | 100000    |   584,652.5 μs | 11,666.83 μs | 12,967.65 μs |      - |  78.59 KB |
-| RealWorldReport | 500000    | 2,892,435.0 μs | 56,399.40 μs | 69,263.54 μs |      - |  344.7 KB |
+| Method          | Job      | Runtime  | RowsCount | Mean           | Error        | StdDev       | Median         | Gen0   | Allocated |
+|---------------- |--------- |--------- |---------- |---------------:|-------------:|-------------:|---------------:|-------:|----------:|
+| **RealWorldReport** | **.NET 8.0** | **.NET 8.0** | **100**       |       **842.9 μs** |      **8.87 μs** |      **7.86 μs** |       **842.9 μs** | **1.9531** |  **13.47 KB** |
+| RealWorldReport | .NET 9.0 | .NET 9.0 | 100       |       872.0 μs |     17.37 μs |     36.65 μs |       885.6 μs | 1.9531 |  13.01 KB |
+| **RealWorldReport** | **.NET 8.0** | **.NET 8.0** | **1000**      |     **6,335.4 μs** |     **42.32 μs** |     **35.34 μs** |     **6,337.9 μs** |      **-** |  **14.02 KB** |
+| RealWorldReport | .NET 9.0 | .NET 9.0 | 1000      |     6,197.9 μs |    100.85 μs |     94.34 μs |     6,175.2 μs |      - |  13.56 KB |
+| **RealWorldReport** | **.NET 8.0** | **.NET 8.0** | **10000**     |    **57,756.1 μs** |    **824.75 μs** |    **771.47 μs** |    **57,521.5 μs** |      **-** |  **19.98 KB** |
+| RealWorldReport | .NET 9.0 | .NET 9.0 | 10000     |    55,191.2 μs |    798.99 μs |    747.38 μs |    55,089.4 μs |      - |  26.76 KB |
+| **RealWorldReport** | **.NET 8.0** | **.NET 8.0** | **100000**    |   **565,585.8 μs** |  **7,777.29 μs** |  **6,894.36 μs** |   **565,420.3 μs** |      **-** |  **79.04 KB** |
+| RealWorldReport | .NET 9.0 | .NET 9.0 | 100000    |   545,122.2 μs |  6,340.98 μs |  5,621.11 μs |   545,437.7 μs |      - | 160.64 KB |
+| **RealWorldReport** | **.NET 8.0** | **.NET 8.0** | **500000**    | **2,853,883.4 μs** | **43,107.17 μs** | **35,996.44 μs** | **2,854,983.0 μs** |      **-** |  **344.7 KB** |
+| RealWorldReport | .NET 9.0 | .NET 9.0 | 500000    | 2,851,101.2 μs | 55,511.51 μs | 68,173.13 μs | 2,869,001.5 μs |      - | 814.27 KB |

@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
 <meta charset='utf-8' />
-<title>Gooseberry.ExcelStreaming.Benchmarks.RealWorldReportBenchmarks-20250111-131156</title>
+<title>Gooseberry.ExcelStreaming.Benchmarks.RealWorldReportBenchmarks-20250111-231554</title>
 
 <style type="text/css">
 	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
@@ -16,19 +16,25 @@
 BenchmarkDotNet v0.14.0, Windows 10 (10.0.19045.5247/22H2/2022Update)
 11th Gen Intel Core i7-1185G7 3.00GHz, 1 CPU, 8 logical and 4 physical cores
 .NET SDK 9.0.101
-  [Host]     : .NET 8.0.11 (8.0.1124.51707), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
-  DefaultJob : .NET 8.0.11 (8.0.1124.51707), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+  [Host]   : .NET 9.0.0 (9.0.24.52809), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+  .NET 8.0 : .NET 8.0.11 (8.0.1124.51707), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+  .NET 9.0 : .NET 9.0.0 (9.0.24.52809), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
 </code></pre>
 <pre><code></code></pre>
 
 <table>
-<thead><tr><th>Method   </th><th>RowsCount</th><th>Mean    </th><th>Error </th><th>StdDev</th><th>Gen0</th><th>Allocated</th>
+<thead><tr><th>Method   </th><th>Job</th><th>Runtime</th><th>RowsCount</th><th>Mean    </th><th>Error </th><th>StdDev</th><th>Median  </th><th>Gen0</th><th>Allocated</th>
 </tr>
-</thead><tbody><tr><td>RealWorldReport</td><td>100</td><td>847.8 &mu;s</td><td>11.35 &mu;s</td><td>10.62 &mu;s</td><td>1.9531</td><td>13.47 KB</td>
-</tr><tr><td>RealWorldReport</td><td>1000</td><td>6,577.2 &mu;s</td><td>35.67 &mu;s</td><td>29.79 &mu;s</td><td>-</td><td>14.02 KB</td>
-</tr><tr><td>RealWorldReport</td><td>10000</td><td>60,202.0 &mu;s</td><td>740.03 &mu;s</td><td>692.22 &mu;s</td><td>-</td><td>19.98 KB</td>
-</tr><tr><td>RealWorldReport</td><td>100000</td><td>584,652.5 &mu;s</td><td>11,666.83 &mu;s</td><td>12,967.65 &mu;s</td><td>-</td><td>78.59 KB</td>
-</tr><tr><td>RealWorldReport</td><td>500000</td><td>2,892,435.0 &mu;s</td><td>56,399.40 &mu;s</td><td>69,263.54 &mu;s</td><td>-</td><td>344.7 KB</td>
+</thead><tbody><tr><td>RealWorldReport</td><td>.NET 8.0</td><td>.NET 8.0</td><td>100</td><td>842.9 &mu;s</td><td>8.87 &mu;s</td><td>7.86 &mu;s</td><td>842.9 &mu;s</td><td>1.9531</td><td>13.47 KB</td>
+</tr><tr><td>RealWorldReport</td><td>.NET 9.0</td><td>.NET 9.0</td><td>100</td><td>872.0 &mu;s</td><td>17.37 &mu;s</td><td>36.65 &mu;s</td><td>885.6 &mu;s</td><td>1.9531</td><td>13.01 KB</td>
+</tr><tr><td>RealWorldReport</td><td>.NET 8.0</td><td>.NET 8.0</td><td>1000</td><td>6,335.4 &mu;s</td><td>42.32 &mu;s</td><td>35.34 &mu;s</td><td>6,337.9 &mu;s</td><td>-</td><td>14.02 KB</td>
+</tr><tr><td>RealWorldReport</td><td>.NET 9.0</td><td>.NET 9.0</td><td>1000</td><td>6,197.9 &mu;s</td><td>100.85 &mu;s</td><td>94.34 &mu;s</td><td>6,175.2 &mu;s</td><td>-</td><td>13.56 KB</td>
+</tr><tr><td>RealWorldReport</td><td>.NET 8.0</td><td>.NET 8.0</td><td>10000</td><td>57,756.1 &mu;s</td><td>824.75 &mu;s</td><td>771.47 &mu;s</td><td>57,521.5 &mu;s</td><td>-</td><td>19.98 KB</td>
+</tr><tr><td>RealWorldReport</td><td>.NET 9.0</td><td>.NET 9.0</td><td>10000</td><td>55,191.2 &mu;s</td><td>798.99 &mu;s</td><td>747.38 &mu;s</td><td>55,089.4 &mu;s</td><td>-</td><td>26.76 KB</td>
+</tr><tr><td>RealWorldReport</td><td>.NET 8.0</td><td>.NET 8.0</td><td>100000</td><td>565,585.8 &mu;s</td><td>7,777.29 &mu;s</td><td>6,894.36 &mu;s</td><td>565,420.3 &mu;s</td><td>-</td><td>79.04 KB</td>
+</tr><tr><td>RealWorldReport</td><td>.NET 9.0</td><td>.NET 9.0</td><td>100000</td><td>545,122.2 &mu;s</td><td>6,340.98 &mu;s</td><td>5,621.11 &mu;s</td><td>545,437.7 &mu;s</td><td>-</td><td>160.64 KB</td>
+</tr><tr><td>RealWorldReport</td><td>.NET 8.0</td><td>.NET 8.0</td><td>500000</td><td>2,853,883.4 &mu;s</td><td>43,107.17 &mu;s</td><td>35,996.44 &mu;s</td><td>2,854,983.0 &mu;s</td><td>-</td><td>344.7 KB</td>
+</tr><tr><td>RealWorldReport</td><td>.NET 9.0</td><td>.NET 9.0</td><td>500000</td><td>2,851,101.2 &mu;s</td><td>55,511.51 &mu;s</td><td>68,173.13 &mu;s</td><td>2,869,001.5 &mu;s</td><td>-</td><td>814.27 KB</td>
 </tr></tbody></table>
 </body>
 </html>

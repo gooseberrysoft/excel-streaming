@@ -1,5 +1,6 @@
 ﻿using System.IO.Packaging;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Order;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
@@ -12,6 +13,8 @@ namespace Gooseberry.ExcelStreaming.Benchmarks;
 
 [MemoryDiagnoser]
 [Orderer(SummaryOrderPolicy.Declared)]
+[SimpleJob(RuntimeMoniker.Net80)]
+[SimpleJob(RuntimeMoniker.Net90)]
 public class ExcelWriterBenchmarks
 {
     private const int ColumnBatchesCount = 10;
