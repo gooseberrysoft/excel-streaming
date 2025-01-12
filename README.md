@@ -194,7 +194,8 @@ await writer.Complete();
 ### Benchmarks & performance ###
 Benchmarks [results](https://github.com/gooseberrysoft/excel-streaming/tree/main/benchmarks/results/) and [source code](https://github.com/gooseberrysoft/excel-streaming/tree/main/benchmarks/Gooseberry.ExcelStreaming.Benchmarks).
 
-.net 9 is [2x faster](https://github.com/gooseberrysoft/excel-streaming/blob/main/benchmarks/results/Gooseberry.ExcelStreaming.Benchmarks.DotnetVersionsBenchmarks-report-github.md) than .net 8 in writing strings and integers.  
+Please note .net 9 is [2x faster](https://github.com/gooseberrysoft/excel-streaming/blob/main/benchmarks/results/Gooseberry.ExcelStreaming.Benchmarks.DotnetVersionsBenchmarks-report-github.md) than .net 8 in writing strings and integers.  
+Benchmarks below use .net 9.0 runtime.
 
 #### Real world report ####
 [100 columns](https://github.com/gooseberrysoft/excel-streaming/blob/main/benchmarks/Gooseberry.ExcelStreaming.Benchmarks/RealWorldReportBenchmarks.cs): numbers, dates, strings
@@ -209,7 +210,7 @@ Benchmarks [results](https://github.com/gooseberrysoft/excel-streaming/tree/main
 | 500000    | 2,851,101.2 μs |      - | 814.27 KB |
 
 
-#### OpenXML and SpreadCheetah comparison (.net 9) ####
+#### OpenXML and SpreadCheetah comparison ####
 
 | Method        | RowsCount | Mean           | Gen0       | Gen1      | Gen2      | Allocated     |
 |-------------- |---------- |---------------:|-----------:|----------:|----------:|--------------:|
@@ -225,3 +226,5 @@ Benchmarks [results](https://github.com/gooseberrysoft/excel-streaming/tree/main
 | **ExcelWriter**   | **100 000**   |   **582,107.2 μs** |          - |         - |         - |     171.54 KB |
 | SpreadCheetah | 100 000   | 1,233,093.7 μs |          - |         - |         - |      24.17 KB |
 | OpenXml       | 100 000   | 3,440,059.4 μs | 74000.0000 | 3000.0000 | 3000.0000 | 1226005.71 KB |
+
+Full [results](https://github.com/gooseberrysoft/excel-streaming/blob/main/benchmarks/results/Gooseberry.ExcelStreaming.Benchmarks.ExcelWriterBenchmarks-report-github.md) and benchmark [code](https://github.com/gooseberrysoft/excel-streaming/blob/main/benchmarks/results/Gooseberry.ExcelStreaming.Benchmarks.ExcelWriterBenchmarks-report-github.md).
