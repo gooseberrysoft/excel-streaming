@@ -227,4 +227,4 @@ Benchmarks below use .net 9.0 runtime.
 | SpreadCheetah | 100 000   | 1,233,093.7 μs |          - |         - |         - |      24.17 KB |
 | OpenXml       | 100 000   | 3,440,059.4 μs | 74000.0000 | 3000.0000 | 3000.0000 | 1226005.71 KB |
 
-Full [results](https://github.com/gooseberrysoft/excel-streaming/blob/main/benchmarks/results/Gooseberry.ExcelStreaming.Benchmarks.ExcelWriterBenchmarks-report-github.md) and benchmark [code](https://github.com/gooseberrysoft/excel-streaming/blob/main/benchmarks/results/Gooseberry.ExcelStreaming.Benchmarks.ExcelWriterBenchmarks-report-github.md).
+Full [results](https://github.com/gooseberrysoft/excel-streaming/blob/main/benchmarks/results/Gooseberry.ExcelStreaming.Benchmarks.ExcelWriterBenchmarks-report-github.md) and benchmark [code](https://github.com/gooseberrysoft/excel-streaming/blob/main/benchmarks/Gooseberry.ExcelStreaming.Benchmarks/ExcelWriterBenchmarks.cs).
