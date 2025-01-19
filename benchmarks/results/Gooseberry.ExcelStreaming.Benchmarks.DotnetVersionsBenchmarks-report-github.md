@@ -9,15 +9,15 @@ BenchmarkDotNet v0.14.0, Windows 10 (10.0.19045.5247/22H2/2022Update)
 
 
 ```
-| Method                | Job      | Runtime  | RowsCount | Mean      | Error    | StdDev   |
-|---------------------- |--------- |--------- |---------- |----------:|---------:|---------:|
-| SimpleStringsWriting  | .NET 8.0 | .NET 8.0 | 100000    | 100.77 ms | 1.982 ms | 2.506 ms |
-| SimpleStringsWriting  | .NET 9.0 | .NET 9.0 | 100000    |  56.64 ms | 0.661 ms | 0.618 ms |
-| EscapedStringsWriting | .NET 8.0 | .NET 8.0 | 100000    | 144.89 ms | 0.927 ms | 0.723 ms |
-| EscapedStringsWriting | .NET 9.0 | .NET 9.0 | 100000    |  80.38 ms | 1.097 ms | 0.973 ms |
-| DateTimeWriting       | .NET 8.0 | .NET 8.0 | 100000    |  25.28 ms | 0.213 ms | 0.189 ms |
-| DateTimeWriting       | .NET 9.0 | .NET 9.0 | 100000    |  27.08 ms | 0.540 ms | 0.887 ms |
-| IntWriting            | .NET 8.0 | .NET 8.0 | 100000    | 128.58 ms | 1.342 ms | 1.255 ms |
-| IntWriting            | .NET 9.0 | .NET 9.0 | 100000    |  87.84 ms | 1.260 ms | 1.117 ms |
-| DecimalWriting        | .NET 8.0 | .NET 8.0 | 100000    |  33.93 ms | 0.288 ms | 0.270 ms |
-| DecimalWriting        | .NET 9.0 | .NET 9.0 | 100000    |  31.38 ms | 0.438 ms | 0.410 ms |
+| Method                | Job      | Runtime  | RowsCount | Mean      | Error    | StdDev    |
+|---------------------- |--------- |--------- |---------- |----------:|---------:|----------:|
+| SimpleStringsWriting  | .NET 8.0 | .NET 8.0 | 100000    | 121.03 ms | 2.555 ms |  7.453 ms |
+| SimpleStringsWriting  | .NET 9.0 | .NET 9.0 | 100000    |  60.14 ms | 0.856 ms |  0.801 ms |
+| EscapedStringsWriting | .NET 8.0 | .NET 8.0 | 100000    | 161.41 ms | 3.041 ms |  4.996 ms |
+| EscapedStringsWriting | .NET 9.0 | .NET 9.0 | 100000    |  85.58 ms | 1.710 ms |  1.515 ms |
+| DateTimeWriting       | .NET 8.0 | .NET 8.0 | 100000    | 210.90 ms | 4.169 ms |  6.491 ms |
+| DateTimeWriting       | .NET 9.0 | .NET 9.0 | 100000    | 139.53 ms | 0.915 ms |  0.811 ms |
+| IntWriting            | .NET 8.0 | .NET 8.0 | 100000    | 127.08 ms | 2.128 ms |  2.090 ms |
+| IntWriting            | .NET 9.0 | .NET 9.0 | 100000    |  60.76 ms | 3.519 ms | 10.320 ms |
+| DecimalWriting        | .NET 8.0 | .NET 8.0 | 100000    | 155.06 ms | 2.207 ms |  2.065 ms |
+| DecimalWriting        | .NET 9.0 | .NET 9.0 | 100000    |  85.18 ms | 1.658 ms |  1.910 ms |

@@ -194,7 +194,7 @@ await writer.Complete();
 ### Benchmarks & performance ###
 Benchmarks [results](https://github.com/gooseberrysoft/excel-streaming/tree/main/benchmarks/results/) and [source code](https://github.com/gooseberrysoft/excel-streaming/tree/main/benchmarks/Gooseberry.ExcelStreaming.Benchmarks).
 
-Please note .net 9 is [2x faster](https://github.com/gooseberrysoft/excel-streaming/blob/main/benchmarks/results/Gooseberry.ExcelStreaming.Benchmarks.DotnetVersionsBenchmarks-report-github.md) than .net 8 in writing strings and integers.  
+Please note .net 9 can be [2x faster](https://github.com/gooseberrysoft/excel-streaming/blob/main/benchmarks/results/Gooseberry.ExcelStreaming.Benchmarks.DotnetVersionsBenchmarks-report-github.md) than .net 8 for some cases.  
 Benchmarks below use .net 9.0 runtime.
 
 #### Real world report ####

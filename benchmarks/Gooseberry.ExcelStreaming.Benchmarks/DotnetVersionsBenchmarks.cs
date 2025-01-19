@@ -6,10 +6,14 @@ namespace Gooseberry.ExcelStreaming.Benchmarks;
 
 [SimpleJob(RuntimeMoniker.Net80)]
 [SimpleJob(RuntimeMoniker.Net90)]
+[Orderer(SummaryOrderPolicy.Method)]
 public class DotnetVersionsBenchmarks
 {
     private string[] _simpleStrings = null!;
     private string[] _escapingStrings = null!;
+    private DateTime[] _dates = null!;
+    private int[] _ints = null!;
+    private decimal[] _decimals = null!;
 
     [GlobalSetup]
     public void GlobalSetup()
@@ -20,6 +24,18 @@ public class DotnetVersionsBenchmarks
 
         _escapingStrings = Enumerable.Range(0, RowsCount * 5)
             .Select(i => $"row col {i} text with <tag> & \"quote\"'s")
+            .ToArray();
+
+        _dates = Enumerable.Range(0, RowsCount * 5)
+            .Select(_ => DateTime.Now.AddTicks(Random.Shared.Next()))
+            .ToArray();
+
+        _ints = Enumerable.Range(0, RowsCount * 5)
+            .Select(i => i + 123_456_789)
+            .ToArray();
+
+        _decimals = Enumerable.Range(0, RowsCount * 5)
+            .Select(i => 1_345_767_874.56789M + i * 123.76M)
             .ToArray();
     }
 
@@ -37,10 +53,12 @@ public class DotnetVersionsBenchmarks
         {
             await writer.StartRow();
 
-            for (int i = 0; i < 5; i++)
-            {
-                writer.AddCell(_simpleStrings[row * 5 + i]);
-            }
+            int i = 0;
+            writer.AddCell(_simpleStrings[row * 5 + i++]);
+            writer.AddCell(_simpleStrings[row * 5 + i++]);
+            writer.AddCell(_simpleStrings[row * 5 + i++]);
+            writer.AddCell(_simpleStrings[row * 5 + i++]);
+            writer.AddCell(_simpleStrings[row * 5 + i++]);
         }
 
         await writer.Complete();
@@ -56,11 +74,12 @@ public class DotnetVersionsBenchmarks
         for (var row = 0; row < RowsCount; row++)
         {
             await writer.StartRow();
-
-            for (int i = 0; i < 5; i++)
-            {
-                writer.AddCell(_escapingStrings[row * 5 + i]);
-            }
+            int i = 0;
+            writer.AddCell(_escapingStrings[row * 5 + i++]);
+            writer.AddCell(_escapingStrings[row * 5 + i++]);
+            writer.AddCell(_escapingStrings[row * 5 + i++]);
+            writer.AddCell(_escapingStrings[row * 5 + i++]);
+            writer.AddCell(_escapingStrings[row * 5 + i++]);
         }
 
         await writer.Complete();
@@ -77,10 +96,12 @@ public class DotnetVersionsBenchmarks
         {
             await writer.StartRow();
 
-            for (int i = 0; i < 5; i++)
-            {
-                writer.AddCell(DateTime.Now);
-            }
+            int i = 0;
+            writer.AddCell(_dates[row * 5 + i++]);
+            writer.AddCell(_dates[row * 5 + i++]);
+            writer.AddCell(_dates[row * 5 + i++]);
+            writer.AddCell(_dates[row * 5 + i++]);
+            writer.AddCell(_dates[row * 5 + i++]);
         }
 
         await writer.Complete();
@@ -97,10 +118,12 @@ public class DotnetVersionsBenchmarks
         {
             await writer.StartRow();
 
-            for (int i = 0; i < 5; i++)
-            {
-                writer.AddCell(row * i);
-            }
+            int i = 0;
+            writer.AddCell(_ints[row * 5 + i++]);
+            writer.AddCell(_ints[row * 5 + i++]);
+            writer.AddCell(_ints[row * 5 + i++]);
+            writer.AddCell(_ints[row * 5 + i++]);
+            writer.AddCell(_ints[row * 5 + i++]);
         }
 
         await writer.Complete();
@@ -117,10 +140,12 @@ public class DotnetVersionsBenchmarks
         {
             await writer.StartRow();
 
-            for (int i = 0; i < 5; i++)
-            {
-                writer.AddCell(1_345_767_874.56789M);
-            }
+            int i = 0;
+            writer.AddCell(_decimals[row * 5 + i++]);
+            writer.AddCell(_decimals[row * 5 + i++]);
+            writer.AddCell(_decimals[row * 5 + i++]);
+            writer.AddCell(_decimals[row * 5 + i++]);
+            writer.AddCell(_decimals[row * 5 + i++]);
         }
 
         await writer.Complete();
