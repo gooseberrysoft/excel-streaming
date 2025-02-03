@@ -35,18 +35,20 @@ await foreach(var record in store.GetRecordsAsync(cancellationToken))
 {
     await writer.StartRow();
 
-    writer.AddEmptyCell(); // empty
-    writer.AddEmptyCells(5); // five empty cells
-    writer.AddCell(42); // int
-    writer.AddCell(999_999_999_999_999); // long 
-    writer.AddCell(DateTime.Now); // DateTime
-    writer.AddCell(DateOnly.FromDateTime(DateTime.Now.Date)); // DateOnly
-    writer.AddCell(123.765M); // decimal
-    writer.AddCell(Math.PI); //double (note: very slow)
-    writer.AddCell("string"); // string
-    writer.AddCell('#'); // char
-    writer.AddCellUtf8String("string"u8); // utf8 string
-    writer.AddCellSharedString("shared"); // shared string
+    writer
+        .AddEmptyCell() // empty
+        .AddEmptyCells(5) // five empty cells
+        .AddCell(42) // int
+        .AddCell(999_999_999_999_999) // long 
+        .AddCell(DateTime.Now) // DateTime
+        .AddCell(DateOnly.FromDateTime(DateTime.Now.Date)) // DateOnly
+        .AddCell(123.765M) // decimal
+        .AddCell(Math.PI) //double (note: very slow)
+        .AddCell("string") // string
+        .AddCell('#') // char
+        .AddCellUtf8String("string"u8) // utf8 string
+        .AddCellSharedString("shared"); // shared string
+   
     // hyperlink
     writer.AddCell(new Hyperlink("https://[address]", "Label text")); 
     // cell with picture

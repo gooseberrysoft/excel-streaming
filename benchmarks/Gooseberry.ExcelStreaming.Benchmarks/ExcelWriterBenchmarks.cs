@@ -54,13 +54,14 @@ public class ExcelWriterBenchmarks
 
             for (var columnBatch = 0; columnBatch < ColumnBatchesCount; columnBatch++)
             {
-                writer.AddCell(row);
-                writer.AddCell(LongValue);
-                writer.AddCell(DateOnly.FromDateTime(DateTime.Now));
-                writer.AddCell(_simpleStrings[row * ColumnBatchesCount + columnBatch]);
-                writer.AddCell(_escapingStrings[row * ColumnBatchesCount + columnBatch]);
-                writer.AddCell(102456.7655M);
-                writer.AddCell(DateTime.Now);
+                writer
+                    .AddCell(row)
+                    .AddCell(LongValue)
+                    .AddCell(DateOnly.FromDateTime(DateTime.Now))
+                    .AddCell(_simpleStrings[row * ColumnBatchesCount + columnBatch])
+                    .AddCell(_escapingStrings[row * ColumnBatchesCount + columnBatch])
+                    .AddCell(102456.7655M)
+                    .AddCell(DateTime.Now);
             }
         }
 
@@ -72,7 +73,7 @@ public class ExcelWriterBenchmarks
     {
         await using var outputStream = _streamManager.GetStream();
 
-        var options = new SpreadCheetahOptions { DefaultDateTimeFormat = null, CompressionLevel = SpreadCheetahCompressionLevel.Optimal};
+        var options = new SpreadCheetahOptions { DefaultDateTimeFormat = null, CompressionLevel = SpreadCheetahCompressionLevel.Optimal };
         await using var spreadsheet = await Spreadsheet.CreateNewAsync(outputStream, options);
         await spreadsheet.StartWorksheetAsync("test");
         var cells = new DataCell[ColumnBatchesCount * 7];
@@ -146,7 +147,7 @@ public class ExcelWriterBenchmarks
         var stringCellValue = new CellValue();
 
         var rowValue = new Row();
-        
+
 
         for (var row = 1; row < RowsCount; row++)
         {

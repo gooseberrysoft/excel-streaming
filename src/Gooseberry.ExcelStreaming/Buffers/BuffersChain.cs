@@ -6,8 +6,10 @@ namespace Gooseberry.ExcelStreaming;
 internal sealed class BuffersChain(int initialBufferSize) : IDisposable
 {
     private const int MaxBufferSize = 1024 * 1024;
-    private const int RemainingFlushSize = 1 * 1024;
     private const int FlushSize = 512 * 1024;
+
+    private int _avgBytesPerFlush = 1024;
+    private int _bytesPerFlush = 0;
 
     private readonly Queue<Buffer> _completedBuffers = new();
     private Buffer _currentBuffer = new(initialBufferSize);
@@ -50,14 +52,26 @@ internal sealed class BuffersChain(int initialBufferSize) : IDisposable
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Advance(int count)
-        => _currentBuffer.Advance(count);
+    {
+        _currentBuffer.Advance(count);
+        _bytesPerFlush += count;
+    }
 
     public ValueTask FlushCompleted(IEntryWriter output)
     {
+        _avgBytesPerFlush = (_avgBytesPerFlush + _bytesPerFlush) / 2;
+        _bytesPerFlush = 0;
+        
         if (_completedBuffers.Count > 0)
             return FlushCompletedAsync(output);
+        
+        return FlushCurrent(output);
+    }
 
-        if (_currentBuffer.RemainingCapacity <= RemainingFlushSize)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private ValueTask FlushCurrent(IEntryWriter output)
+    {
+        if (_currentBuffer.RemainingCapacity <= _avgBytesPerFlush + 64)
             return _currentBuffer.CompleteFlush(output, GetNewSize());
 
         if (_currentBuffer.Written >= FlushSize)
@@ -66,10 +80,11 @@ internal sealed class BuffersChain(int initialBufferSize) : IDisposable
         return ValueTask.CompletedTask;
     }
 
+    [MethodImpl(MethodImplOptions.NoInlining)]
     private async ValueTask FlushCompletedAsync(IEntryWriter output)
     {
         await FlushCompletedBuffers(output);
-        await FlushCompleted(output);
+        await FlushCurrent(output);
     }
 
     public ValueTask FlushAll(IEntryWriter output)

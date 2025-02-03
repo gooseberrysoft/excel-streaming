@@ -53,33 +53,26 @@ internal sealed class Buffer : IDisposable
         return false;
     }
 
-    public ValueTask CompleteFlush(IEntryWriter output, int newSize = 0)
+    public async ValueTask CompleteFlush(IEntryWriter output, int newSize = 0)
     {
         if (Written == 0)
-            return ValueTask.CompletedTask;
+            return;
 
         var memory = new MemoryOwner(_underlyingArray.AsMemory(_arrayOffset.._arrayIndex), _underlyingArray);
+        await output.Write(memory);
 
         RentNew(newSize);
-
-        return output.Write(memory);
     }
 
     public ValueTask Flush(IEntryWriter output, int newSize)
     {
+        if (RemainingCapacity <= MinSize)
+            return CompleteFlush(output, newSize);
+
         if (Written == 0)
             return ValueTask.CompletedTask;
 
         var flushedMemory = _underlyingArray.AsMemory(_arrayOffset.._arrayIndex);
-
-        if (RemainingCapacity <= MinSize)
-        {
-            var memory = new MemoryOwner(flushedMemory, _underlyingArray);
-
-            RentNew(newSize);
-
-            return output.Write(memory);
-        }
 
         _arrayOffset = _arrayIndex;
 

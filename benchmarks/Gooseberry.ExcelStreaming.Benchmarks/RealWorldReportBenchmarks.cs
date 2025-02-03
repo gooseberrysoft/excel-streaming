@@ -25,26 +25,26 @@ public class RealWorldReportBenchmarks
 
             for (int i = 0; i < 5; i++)
             {
-                writer.AddCell(row);
-                writer.AddCell(DateOnly.FromDateTime(dateTime));
-                writer.AddCell("\"Alice’s Adventures in Wonderland\" by Lewis Carroll");
-                writer.AddCell(1789);
-                writer.AddCell(1234567.9876M);
-                writer.AddCell(-936.9M);
-                writer.AddCell(0.999M);
-                writer.AddCell(23.00M);
-                writer.AddCell(56688900.56M);
-                writer.AddCell("7895-654-098-45");
-                writer.AddCell(1789);
-                writer.AddCell(1234567.9876M);
-                writer.AddCell(-936.9M);
-                writer.AddCell(0.999M);
-                writer.AddCell(23.00M);
-                writer.AddCell(56688900.56M);
-                writer.AddCell(784000);
-                writer.AddCell(dateTime);
-                writer.AddCell(56688900.56M);
-                writer.AddCell(784000);
+                writer.AddCell(row)
+                    .AddCell(DateOnly.FromDateTime(dateTime))
+                    .AddCell("\"Alice’s Adventures in Wonderland\" by Lewis Carroll")
+                    .AddCell(1789)
+                    .AddCell(1234567.9876M)
+                    .AddCell(-936.9M)
+                    .AddCell(0.999M)
+                    .AddCell(23.00M)
+                    .AddCell(56688900.56M)
+                    .AddCell("7895-654-098-45")
+                    .AddCell(1789)
+                    .AddCell(1234567.9876M)
+                    .AddCell(-936.9M)
+                    .AddCell(0.999M)
+                    .AddCell(23.00M)
+                    .AddCell(56688900.56M)
+                    .AddCell(784000)
+                    .AddCell(dateTime)
+                    .AddCell(56688900.56M)
+                    .AddCell(784000);
             }
         }
 
