@@ -4,20 +4,22 @@ using System.Runtime.InteropServices;
 namespace Gooseberry.ExcelStreaming;
 
 [StructLayout(LayoutKind.Auto)]
-internal readonly struct CellReference
+public readonly struct CellReference
 {
     public CellReference(uint column, uint row)
     {
-        EnsureCellPosition(column, row);
+        CheckValidCell(column, row);
         Row = row;
         Column = column;
     }
 
     internal readonly uint Column;
-
     internal readonly uint Row;
 
-    private static void EnsureCellPosition(uint column, uint row)
+    public static implicit operator CellReference((int column, int row) pair)
+        => new((uint)pair.column, (uint)pair.row);
+
+    private static void CheckValidCell(uint column, uint row)
     {
         // Excel limitations 1,048,576 rows by 16,384 columns
         // https://support.microsoft.com/en-us/office/excel-specifications-and-limits-1672b34d-7043-467e-8e27-269d656771c3

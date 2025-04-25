@@ -25,7 +25,8 @@ var sheetConfig = new SheetConfiguration(
     Columns: [new Column(Width: 10m), new Column(Width: 13m)], // column width
     FrozenColumns: 1, // freeze pane: colums count
     FrozenRows: 3, // freeze pane: rows count
-    ShowGridLines: true);
+    ShowGridLines: true,
+    AutoFilter: "A1:G1"); // table headers filter. A1-style string or indexes AutoFilter: new((1,1), (7,1)) 
 
 await writer.StartSheet("First sheet", sheetConfig);
 

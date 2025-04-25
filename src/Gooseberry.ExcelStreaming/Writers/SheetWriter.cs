@@ -10,15 +10,16 @@ internal static class SheetWriter
         var span = buffer.GetSpan();
         var written = 0;
 
-        Constants.Worksheet.Prefix.WriteTo(buffer, ref span, ref written);
+        "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"u8
+            .WriteTo(buffer, ref span, ref written);
 
         if (configuration != null)
-            WriteSheetView(configuration.Value, buffer, ref span, ref written);
+            WriteSheetView(configuration, buffer, ref span, ref written);
 
         if (configuration?.Columns != null && configuration?.Columns.Count != 0)
-            WriteColumns(configuration!.Value.Columns, buffer, ref span, ref written);
+            WriteColumns(configuration!.Columns, buffer, ref span, ref written);
 
-        Constants.Worksheet.SheetData.Prefix.WriteTo(buffer, ref span, ref written);
+        "<sheetData>"u8.WriteTo(buffer, ref span, ref written);
 
         buffer.Advance(written);
     }
@@ -28,19 +29,25 @@ internal static class SheetWriter
         Encoder encoder,
         Drawing drawing,
         IReadOnlyCollection<Merge> merges,
+        in CellRange? autoFilter,
         Dictionary<string, List<CellReference>>? hyperlinks)
     {
         var span = buffer.GetSpan();
         var written = 0;
 
-        Constants.Worksheet.SheetData.Postfix.WriteTo(buffer, ref span, ref written);
+        "</sheetData>"u8.WriteTo(buffer, ref span, ref written);
+
+        if (autoFilter != null)
+            WriteAutoFilter(autoFilter.Value, buffer, encoder, ref span, ref written);
 
         WriteMerges(merges, buffer, ref span, ref written);
+        
         if (hyperlinks != null)
             WriteHyperlinks(hyperlinks, buffer, ref span, ref written);
+
         WriteDrawing(drawing, buffer, encoder, ref span, ref written);
 
-        Constants.Worksheet.Postfix.WriteTo(buffer, ref span, ref written);
+        "</worksheet>"u8.WriteTo(buffer, ref span, ref written);
 
         buffer.Advance(written);
     }
@@ -51,11 +58,11 @@ internal static class SheetWriter
         ref Span<byte> span,
         ref int written)
     {
-        Constants.Worksheet.View.Prefix.WriteTo(buffer, ref span, ref written);
+        "<sheetViews><sheetView workbookViewId=\"0\""u8.WriteTo(buffer, ref span, ref written);
 
         WriteShowGridLines(configuration.ShowGridLines, buffer, ref span, ref written);
 
-        Constants.Worksheet.View.Middle.WriteTo(buffer, ref span, ref written);
+        ">"u8.WriteTo(buffer, ref span, ref written);
 
         if (configuration.FrozenColumns.HasValue || configuration.FrozenRows.HasValue)
         {
@@ -66,7 +73,7 @@ internal static class SheetWriter
                 buffer, ref span, ref written);
         }
 
-        Constants.Worksheet.View.Postfix.WriteTo(buffer, ref span, ref written);
+        "</sheetView></sheetViews>"u8.WriteTo(buffer, ref span, ref written);
     }
 
     private static void WriteFreezePanes(
@@ -75,21 +82,16 @@ internal static class SheetWriter
         ref Span<byte> span,
         ref int written)
     {
-        Constants.Worksheet.View.Pane.Prefix.WriteTo(buffer, ref span, ref written);
-
-        Constants.Worksheet.View.Pane.TopLeftCell.Prefix.WriteTo(buffer, ref span, ref written);
+        "<pane topLeftCell=\""u8.WriteTo(buffer, ref span, ref written);
         cellReference.WriteTo(buffer, ref span, ref written);
-        Constants.Worksheet.View.Pane.TopLeftCell.Postfix.WriteTo(buffer, ref span, ref written);
 
-        Constants.Worksheet.View.Pane.YSplit.Prefix.WriteTo(buffer, ref span, ref written);
+        "\" ySplit=\""u8.WriteTo(buffer, ref span, ref written);
         (cellReference.Row - 1).WriteTo(buffer, ref span, ref written);
-        Constants.Worksheet.View.Pane.YSplit.Postfix.WriteTo(buffer, ref span, ref written);
 
-        Constants.Worksheet.View.Pane.XSplit.Prefix.WriteTo(buffer, ref span, ref written);
+        "\" xSplit=\""u8.WriteTo(buffer, ref span, ref written);
         (cellReference.Column - 1).WriteTo(buffer, ref span, ref written);
-        Constants.Worksheet.View.Pane.XSplit.Postfix.WriteTo(buffer, ref span, ref written);
 
-        Constants.Worksheet.View.Pane.Postfix.WriteTo(buffer, ref span, ref written);
+        "\" activePane=\"bottomRight\" state=\"frozen\"/>"u8.WriteTo(buffer, ref span, ref written);
     }
 
     private static void WriteShowGridLines(
@@ -98,9 +100,32 @@ internal static class SheetWriter
         ref Span<byte> span,
         ref int written)
     {
-        Constants.Worksheet.View.ShowGridLines.Prefix.WriteTo(buffer, ref span, ref written);
+        " showGridLines=\""u8.WriteTo(buffer, ref span, ref written);
         showGridLines.WriteTo(buffer, ref span, ref written);
-        Constants.Worksheet.View.ShowGridLines.Postfix.WriteTo(buffer, ref span, ref written);
+        "\""u8.WriteTo(buffer, ref span, ref written);
+    }
+
+    private static void WriteAutoFilter(
+        in CellRange filterRange,
+        BuffersChain buffer,
+        Encoder encoder,
+        ref Span<byte> span,
+        ref int written)
+    {
+        "<autoFilter ref=\""u8.WriteTo(buffer, ref span, ref written);
+
+        if (!string.IsNullOrWhiteSpace(filterRange.Range))
+        {
+            filterRange.Range.WriteTo(buffer, encoder, ref span, ref written);
+        }
+        else
+        {
+            filterRange.FromCell.WriteTo(buffer, ref span, ref written);
+            ":"u8.WriteTo(buffer, ref span, ref written);
+            filterRange.ToCell.WriteTo(buffer, ref span, ref written);
+        }
+
+        "\"/>"u8.WriteTo(buffer, ref span, ref written);
     }
 
     private static void WriteColumns(
@@ -109,33 +134,28 @@ internal static class SheetWriter
         ref Span<byte> span,
         ref int written)
     {
-        Constants.Worksheet.Columns.Prefix.WriteTo(buffer, ref span, ref written);
+        "<cols>"u8.WriteTo(buffer, ref span, ref written);
 
         var index = 1;
 
         foreach (var column in columns)
         {
             // column width will be applied to columns with indexes between min and max
-            Constants.Worksheet.Columns.Item.Prefix.WriteTo(buffer, ref span, ref written);
-
-            Constants.Worksheet.Columns.Item.Min.Prefix.WriteTo(buffer, ref span, ref written);
+            "<col min=\""u8.WriteTo(buffer, ref span, ref written);
             index.WriteTo(buffer, ref span, ref written);
-            Constants.Worksheet.Columns.Item.Min.Postfix.WriteTo(buffer, ref span, ref written);
 
-            Constants.Worksheet.Columns.Item.Max.Prefix.WriteTo(buffer, ref span, ref written);
+            "\" max=\""u8.WriteTo(buffer, ref span, ref written);
             index.WriteTo(buffer, ref span, ref written);
-            Constants.Worksheet.Columns.Item.Max.Postfix.WriteTo(buffer, ref span, ref written);
 
-            Constants.Worksheet.Columns.Item.Width.Prefix.WriteTo(buffer, ref span, ref written);
+            "\" width=\""u8.WriteTo(buffer, ref span, ref written);
             column.Width.WriteTo(buffer, ref span, ref written);
-            Constants.Worksheet.Columns.Item.Width.Postfix.WriteTo(buffer, ref span, ref written);
 
-            Constants.Worksheet.Columns.Item.Postfix.WriteTo(buffer, ref span, ref written);
+            "\" customWidth=\"1\"/>"u8.WriteTo(buffer, ref span, ref written);
 
             index++;
         }
 
-        Constants.Worksheet.Columns.Postfix.WriteTo(buffer, ref span, ref written);
+        "</cols>"u8.WriteTo(buffer, ref span, ref written);
     }
 
     private static void WriteMerges(
@@ -147,16 +167,16 @@ internal static class SheetWriter
         if (merges.Count == 0)
             return;
 
-        Constants.Worksheet.Merges.Prefix.WriteTo(buffer, ref span, ref written);
+        "<mergeCells>"u8.WriteTo(buffer, ref span, ref written);
 
         foreach (var merge in merges)
         {
-            Constants.Worksheet.Merges.Merge.Prefix.WriteTo(buffer, ref span, ref written);
+            "<mergeCell ref=\""u8.WriteTo(buffer, ref span, ref written);
             merge.WriteTo(buffer, ref span, ref written);
-            Constants.Worksheet.Merges.Merge.Postfix.WriteTo(buffer, ref span, ref written);
+            "\"/>"u8.WriteTo(buffer, ref span, ref written);
         }
 
-        Constants.Worksheet.Merges.Postfix.WriteTo(buffer, ref span, ref written);
+        "</mergeCells>"u8.WriteTo(buffer, ref span, ref written);
     }
 
     private static void WriteDrawing(
@@ -169,9 +189,9 @@ internal static class SheetWriter
         if (drawing.IsEmpty)
             return;
 
-        Constants.Worksheet.Drawings.GetPrefix().WriteTo(buffer, ref span, ref written);
+        "<drawing r:id=\""u8.WriteTo(buffer, ref span, ref written);
         drawing.RelationshipId.WriteTo(buffer, encoder, ref span, ref written);
-        Constants.Worksheet.Drawings.GetPostfix().WriteTo(buffer, ref span, ref written);
+        "\"/>"u8.WriteTo(buffer, ref span, ref written);
     }
 
     private static void WriteHyperlinks(
@@ -183,7 +203,7 @@ internal static class SheetWriter
         if (hyperlinks.Count == 0)
             return;
 
-        Constants.Worksheet.Hyperlinks.Prefix.WriteTo(buffer, ref span, ref written);
+        "<hyperlinks>"u8.WriteTo(buffer, ref span, ref written);
 
         var count = 0;
 
@@ -191,16 +211,16 @@ internal static class SheetWriter
         {
             foreach (var cellReference in hyperlinkPair.Value)
             {
-                Constants.Worksheet.Hyperlinks.Hyperlink.StartPrefix.WriteTo(buffer, ref span, ref written);
+                "<hyperlink r:id=\"link"u8.WriteTo(buffer, ref span, ref written);
                 count.WriteTo(buffer, ref span, ref written);
-                Constants.Worksheet.Hyperlinks.Hyperlink.EndPrefix.WriteTo(buffer, ref span, ref written);
+                "\" ref=\""u8.WriteTo(buffer, ref span, ref written);
                 cellReference.WriteTo(buffer, ref span, ref written);
-                Constants.Worksheet.Hyperlinks.Hyperlink.Postfix.WriteTo(buffer, ref span, ref written);
+                "\"/>"u8.WriteTo(buffer, ref span, ref written);
             }
 
             count++;
         }
 
-        Constants.Worksheet.Hyperlinks.Postfix.WriteTo(buffer, ref span, ref written);
+        "</hyperlinks>"u8.WriteTo(buffer, ref span, ref written);
     }
 }

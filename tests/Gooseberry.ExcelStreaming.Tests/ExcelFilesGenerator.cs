@@ -13,7 +13,7 @@ namespace Gooseberry.ExcelStreaming.Tests;
 
 public sealed class ExcelFilesGenerator
 {
-    private const string? Skip = "Null me for manual run";
+    private const string? Skip = null;//"Null me for manual run";
     private const string? IgnoreZip = "ignore";
 
     const string BasePath = "c:\\temp\\excelWriter\\";
@@ -149,6 +149,45 @@ public sealed class ExcelFilesGenerator
 
             writer.AddEmptyRows(3);
         }
+
+        await writer.Complete();
+    }
+
+    [Theory(Skip = Skip)]
+    [InlineData(1)]
+    [InlineData(2)]
+    public async Task AutoFilter(int refStyle)
+    {
+        await using var outputStream = new FileStream(BasePath + $"AutoFilter_{refStyle}.xlsx", FileMode.Create);
+
+        await using var writer = new ExcelWriter(outputStream);
+
+        var config = refStyle == 1
+            ? new SheetConfiguration(AutoFilter: "A4:C4")
+            : new SheetConfiguration(AutoFilter: new((2, 4), (4, 4)));
+
+        await writer.StartSheet("test", config);
+
+        writer.AddEmptyRows(3);
+
+        await writer.StartRow();
+        for (var i = 1; i < 5; i++)
+            writer.AddCell($"Head {i}");
+
+
+        for (var row = 0; row < 10_000; row++)
+        {
+            await writer.StartRow();
+
+            writer
+                .AddCell(Random.Shared.Next(0, 10))
+                .AddCell(DateTime.Now.Date.AddDays(Random.Shared.Next(0, 10)))
+                .AddCell($"Text Number {Random.Shared.Next(0, 10)}")
+                .AddCell(Random.Shared.Next(0, 2))
+                .AddCell(row);
+        }
+
+        writer.AddEmptyRows(3);
 
         await writer.Complete();
     }

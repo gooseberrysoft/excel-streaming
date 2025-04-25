@@ -2,8 +2,9 @@
 
 namespace Gooseberry.ExcelStreaming;
 
-public readonly record struct SheetConfiguration(
+public record SheetConfiguration(
     IReadOnlyCollection<Column>? Columns = null,
     uint? FrozenRows = null,
     uint? FrozenColumns = null,
-    bool ShowGridLines = true);
+    bool ShowGridLines = true,
+    CellRange? AutoFilter = null);

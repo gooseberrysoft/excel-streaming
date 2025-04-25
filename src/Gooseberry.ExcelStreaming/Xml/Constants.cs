@@ -1,4 +1,5 @@
 // ReSharper disable once CheckNamespace
+
 namespace Gooseberry.ExcelStreaming;
 
 internal static partial class Constants
@@ -31,135 +32,8 @@ internal static partial class Constants
 
     public static class Worksheet
     {
-        public static ReadOnlySpan<byte> Prefix =>
-            "<worksheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\"  xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\">"u8;
-
-        public static ReadOnlySpan<byte> Postfix => "</worksheet>"u8;
-
-        public static class Columns
-        {
-            public static ReadOnlySpan<byte> Prefix => "<cols>"u8;
-
-            public static ReadOnlySpan<byte> Postfix => "</cols>"u8;
-
-            public static class Item
-            {
-                public static ReadOnlySpan<byte> Prefix => "<col"u8;
-
-                public static ReadOnlySpan<byte> Postfix => " customWidth=\"1\"/>"u8;
-
-                public static class Min
-                {
-                    public static ReadOnlySpan<byte> Prefix => " min=\""u8;
-
-                    public static ReadOnlySpan<byte> Postfix => "\""u8;
-                }
-
-                public static class Max
-                {
-                    public static ReadOnlySpan<byte> Prefix => " max=\""u8;
-
-                    public static ReadOnlySpan<byte> Postfix => "\""u8;
-                }
-
-                public static class Width
-                {
-                    public static ReadOnlySpan<byte> Prefix => " width=\""u8;
-
-                    public static ReadOnlySpan<byte> Postfix => "\""u8;
-                }
-            }
-        }
-
-        public static class Merges
-        {
-            public static ReadOnlySpan<byte> Prefix => "<mergeCells>"u8;
-
-            public static ReadOnlySpan<byte> Postfix => "</mergeCells>"u8;
-
-            public static class Merge
-            {
-                public static ReadOnlySpan<byte> Prefix => "<mergeCell ref=\""u8;
-
-                public static ReadOnlySpan<byte> Postfix => "\"/>"u8;
-            }
-        }
-
-        public static class Hyperlinks
-        {
-            public static ReadOnlySpan<byte> Prefix => "<hyperlinks>"u8;
-
-            public static ReadOnlySpan<byte> Postfix => "</hyperlinks>"u8;
-
-            public static class Hyperlink
-            {
-                public static ReadOnlySpan<byte> StartPrefix => "<hyperlink r:id=\"link"u8;
-
-                public static ReadOnlySpan<byte> EndPrefix => "\" ref=\""u8;
-
-                public static ReadOnlySpan<byte> Postfix => "\"/>"u8;
-            }
-        }
-
-        public static class Drawings
-        {
-            public static ReadOnlySpan<byte> GetPrefix()
-                => "<drawing r:id=\""u8;
-
-            public static ReadOnlySpan<byte> GetPostfix()
-                => "\"/>"u8;
-        }
-
-        public static class View
-        {
-            public static ReadOnlySpan<byte> Prefix => "<sheetViews><sheetView workbookViewId=\"0\""u8;
-
-            public static ReadOnlySpan<byte> Middle => ">"u8;
-
-            public static ReadOnlySpan<byte> Postfix => "</sheetView></sheetViews>"u8;
-
-            public static class ShowGridLines
-            {
-                public static ReadOnlySpan<byte> Prefix => " showGridLines=\""u8;
-
-                public static ReadOnlySpan<byte> Postfix => "\""u8;
-            }
-
-            public static class Pane
-            {
-                public static ReadOnlySpan<byte> Prefix => "<pane"u8;
-
-                public static ReadOnlySpan<byte> Postfix => " activePane=\"bottomRight\" state=\"frozen\"/>"u8;
-
-                public static class TopLeftCell
-                {
-                    public static ReadOnlySpan<byte> Prefix => " topLeftCell=\""u8;
-
-                    public static ReadOnlySpan<byte> Postfix => "\""u8;
-                }
-
-                public static class YSplit
-                {
-                    public static ReadOnlySpan<byte> Prefix => " ySplit=\""u8;
-
-                    public static ReadOnlySpan<byte> Postfix => "\""u8;
-                }
-
-                public static class XSplit
-                {
-                    public static ReadOnlySpan<byte> Prefix => " xSplit=\""u8;
-
-                    public static ReadOnlySpan<byte> Postfix => "\""u8;
-                }
-            }
-        }
-
         public static class SheetData
         {
-            public static ReadOnlySpan<byte> Prefix => "<sheetData>"u8;
-
-            public static ReadOnlySpan<byte> Postfix => "</sheetData>"u8;
-
             public static class Row
             {
                 public static class Open
@@ -215,7 +89,6 @@ internal static partial class Constants
                     public static ReadOnlySpan<byte> Empty => "<c t=\"str\"><v></v></c>"u8;
                 }
             }
-
         }
     }
 
@@ -360,11 +233,11 @@ internal static partial class Constants
 
     public static byte[] RelationshipsContent =>
         """
-        <?xml version="1.0" encoding="utf-8"?>
-        <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-        <Relationship Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="/xl/workbook.xml" Id="R2196c6c3552b4024" />
-        </Relationships>
-        """u8.ToArray();
+            <?xml version="1.0" encoding="utf-8"?>
+            <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+            <Relationship Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="/xl/workbook.xml" Id="R2196c6c3552b4024" />
+            </Relationships>
+            """u8.ToArray();
 
     public static class SharedStringTable
     {
@@ -372,7 +245,8 @@ internal static partial class Constants
 
         public static ReadOnlySpan<byte> Postfix => "</sst>"u8;
 
-        public static readonly byte[] EmptyTable = "<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\"></sst>"u8.ToArray();
+        public static readonly byte[] EmptyTable =
+            "<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\"></sst>"u8.ToArray();
 
         public static class Item
         {

@@ -23,14 +23,14 @@ public sealed partial class ExcelWriter : IAsyncDisposable
     private readonly Encoder _encoder;
     private IEntryWriter? _sheetWriter;
     private bool _initialFilesWritten;
-    private bool _rowStarted = false;
-    private bool _isCompleted = false;
-    private uint _rowCount = 0;
-    private uint _columnCount = 0;
+    private bool _rowStarted;
+    private bool _isCompleted;
+    private uint _rowCount;
+    private uint _columnCount;
     private readonly List<Merge> _merges = new();
-    //TODO: Refactor hyperlinks to indexed structure
-    private Dictionary<string, List<CellReference>>? _hyperlinks;
+    private Dictionary<string, List<CellReference>>? _hyperlinks; //TODO: Refactor hyperlinks to indexed structure
     private readonly SheetDrawings _sheetDrawings = new();
+    private SheetConfiguration? _sheetConfiguration;
 
     private ArrayPoolBuffer? _interpolatedStringBuffer;
 
@@ -69,6 +69,8 @@ public sealed partial class ExcelWriter : IAsyncDisposable
     public async ValueTask StartSheet(string name, SheetConfiguration? configuration = null)
     {
         EnsureNotCompleted();
+
+        _sheetConfiguration = configuration;
 
         if (!_initialFilesWritten)
             await WriteInitialWorkbookFiles();
@@ -207,7 +209,7 @@ public sealed partial class ExcelWriter : IAsyncDisposable
         var sheet = _sheets[^1];
         var drawing = _sheetDrawings.Get(sheet.Id);
 
-        SheetWriter.WriteEndSheet(_buffer, _encoder, drawing, _merges, _hyperlinks);
+        SheetWriter.WriteEndSheet(_buffer, _encoder, drawing, _merges, _sheetConfiguration?.AutoFilter, _hyperlinks);
 
         await _buffer.FlushAll(_sheetWriter!);
         _sheetWriter = null;
