@@ -13,7 +13,7 @@ namespace Gooseberry.ExcelStreaming.Tests;
 
 public sealed class ExcelFilesGenerator
 {
-    private const string? Skip = null;//"Null me for manual run";
+    private const string? Skip = "Null me for manual run";
     private const string? IgnoreZip = "ignore";
 
     const string BasePath = "c:\\temp\\excelWriter\\";
