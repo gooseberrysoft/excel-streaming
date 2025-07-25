@@ -1,4 +1,3 @@
-using System.Buffers;
 using System.Runtime.CompilerServices;
 
 // ReSharper disable once CheckNamespace
@@ -6,6 +5,7 @@ namespace Gooseberry.ExcelStreaming;
 
 internal sealed class Buffer : IDisposable
 {
+    private readonly BufferPool _pool;
     public const int MinSize = 32;
 
     private int _arrayOffset;
@@ -13,10 +13,11 @@ internal sealed class Buffer : IDisposable
     private byte[] _underlyingArray = [];
     private int _allocatedSize;
 
-    public Buffer(int size)
+    public Buffer(int size, BufferPool pool)
     {
         if (size < MinSize)
             throw new ArgumentException($"Cannot be less then {MinSize}.", nameof(size));
+        _pool = pool;
 
         RentNew(size);
     }
@@ -58,7 +59,7 @@ internal sealed class Buffer : IDisposable
         if (Written == 0)
             return;
 
-        var memory = new MemoryOwner(_underlyingArray.AsMemory(_arrayOffset.._arrayIndex), _underlyingArray);
+        var memory = new MemoryOwner(_underlyingArray.AsMemory(_arrayOffset.._arrayIndex), _underlyingArray, _pool);
         await output.Write(memory);
 
         RentNew(newSize);
@@ -90,7 +91,7 @@ internal sealed class Buffer : IDisposable
 
         if (RemainingCapacity < MinSize)
         {
-            ArrayPool<byte>.Shared.Return(_underlyingArray);
+            _pool.Return(_underlyingArray);
             RentNew(0);
         }
     }
@@ -100,7 +101,7 @@ internal sealed class Buffer : IDisposable
         if (_underlyingArray.Length == 0)
             return;
 
-        ArrayPool<byte>.Shared.Return(_underlyingArray);
+        _pool.Return(_underlyingArray);
 
         _underlyingArray = [];
         _arrayOffset = _arrayIndex = 0;
@@ -109,7 +110,7 @@ internal sealed class Buffer : IDisposable
     private void RentNew(int size)
     {
         _arrayOffset = _arrayIndex = 0;
-        _underlyingArray = size == 0 ? [] : ArrayPool<byte>.Shared.Rent(size);
+        _underlyingArray = size == 0 ? [] : _pool.Rent(size);
 
         if (_underlyingArray.Length > 0)
             _allocatedSize = _underlyingArray.Length;

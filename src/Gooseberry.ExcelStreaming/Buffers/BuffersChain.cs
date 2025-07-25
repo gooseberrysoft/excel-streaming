@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 // ReSharper disable once CheckNamespace
 namespace Gooseberry.ExcelStreaming;
 
-internal sealed class BuffersChain(int initialBufferSize) : IDisposable
+internal sealed class BuffersChain : IDisposable
 {
     private const int MaxBufferSize = 1024 * 1024;
     private const int FlushSize = 512 * 1024;
@@ -11,8 +11,14 @@ internal sealed class BuffersChain(int initialBufferSize) : IDisposable
     private int _avgBytesPerFlush = 1024;
     private int _bytesPerFlush = 0;
 
+    private readonly BufferPool _pool = new();
     private readonly Queue<Buffer> _completedBuffers = new();
-    private Buffer _currentBuffer = new(initialBufferSize);
+    private Buffer _currentBuffer;
+
+    public BuffersChain(int initialBufferSize)
+    {
+        _currentBuffer = new Buffer(initialBufferSize, _pool);
+    }
 
     public int Written
     {
@@ -47,7 +53,7 @@ internal sealed class BuffersChain(int initialBufferSize) : IDisposable
             bufferSize = GetNewSize();
         }
 
-        _currentBuffer = new Buffer(Math.Max(bufferSize, minSize));
+        _currentBuffer = new Buffer(Math.Max(bufferSize, minSize), _pool);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -134,6 +140,7 @@ internal sealed class BuffersChain(int initialBufferSize) : IDisposable
             _completedBuffers.Dequeue().Dispose();
 
         _currentBuffer.Dispose();
+        _pool.Dispose();
     }
 
     private async Task FlushCompletedBuffers(IEntryWriter output)

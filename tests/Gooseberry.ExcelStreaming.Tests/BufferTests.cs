@@ -9,7 +9,7 @@ public sealed class BufferTests
     public void InitBuffer_CorrectProperties()
     {
         var size = 64;
-        var buffer = new Buffer(size);
+        var buffer = new Buffer(size, new());
 
         buffer.IsEmpty.Should().BeFalse();
         buffer.RemainingCapacity.Should().Be(size);
@@ -23,7 +23,7 @@ public sealed class BufferTests
     {
         var size = 64;
         var written = 14;
-        var buffer = new Buffer(size);
+        var buffer = new Buffer(size, new());
         var data = Enumerable.Range(0, 64).Select(x => (byte)x).ToArray().AsSpan();
 
         data.CopyTo(buffer.GetSpan());
@@ -42,7 +42,7 @@ public sealed class BufferTests
     {
         var size = 64;
         var written = 14;
-        var buffer = new Buffer(size);
+        var buffer = new Buffer(size, new());
         var data = Enumerable.Range(0, 64).Select(x => (byte)x).ToArray().AsSpan();
 
         data.CopyTo(buffer.GetSpan());
@@ -66,7 +66,7 @@ public sealed class BufferTests
     {
         var size = 64;
         var written = 14;
-        var buffer = new Buffer(size);
+        var buffer = new Buffer(size, new());
 
         buffer.Advance(written);
 
@@ -88,7 +88,7 @@ public sealed class BufferTests
     {
         var size = 64;
         var written = 63;
-        var buffer = new Buffer(size);
+        var buffer = new Buffer(size, new());
 
         buffer.Advance(written);
 
@@ -107,7 +107,7 @@ public sealed class BufferTests
     {
         var size = 64;
         var written = 14;
-        var buffer = new Buffer(size);
+        var buffer = new Buffer(size, new());
         var data = Enumerable.Range(0, 64).Select(x => (byte)x).ToArray();
 
         data.CopyTo(buffer.GetSpan());
@@ -134,7 +134,7 @@ public sealed class BufferTests
     {
         var size = 64;
         var written = 14;
-        var buffer = new Buffer(size);
+        var buffer = new Buffer(size, new());
         var data = Enumerable.Range(0, 64).Select(x => (byte)x).ToArray();
 
         data.CopyTo(buffer.GetSpan());
@@ -162,7 +162,7 @@ public sealed class BufferTests
     {
         var size = 64;
         var written = 14;
-        var buffer = new Buffer(size);
+        var buffer = new Buffer(size, new());
         var data = Enumerable.Range(0, 64).Select(x => (byte)x).ToArray();
 
         data.CopyTo(buffer.GetSpan());
@@ -195,7 +195,7 @@ public sealed class BufferTests
     {
         var size = 64;
         var written = 14;
-        var buffer = new Buffer(size);
+        var buffer = new Buffer(size, new());
         var data = Enumerable.Range(0, 64).Select(x => (byte)x).ToArray();
 
         data.CopyTo(buffer.GetSpan());
