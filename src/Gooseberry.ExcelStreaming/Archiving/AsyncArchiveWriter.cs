@@ -11,7 +11,7 @@ internal sealed class AsyncArchiveWriter : IArchiveWriter
     private readonly CancellationToken _token;
     private Stream? _currentEntry;
 
-    public AsyncArchiveWriter(IZipArchive zipArchive, CancellationToken token, int capacity = 1)
+    public AsyncArchiveWriter(IZipArchive zipArchive, CancellationToken token, int capacity = 2)
     {
         _zipArchive = zipArchive;
         _token = token;
@@ -85,18 +85,9 @@ internal sealed class AsyncArchiveWriter : IArchiveWriter
             _created = true;
             return writer._channel.Writer.WriteAsync(new Action(entryPath, buffer), writer._token);
         }
-
-        public ValueTask Write(ReadOnlyMemory<byte> buffer)
-        {
-            if (_created)
-                return writer._channel.Writer.WriteAsync(new Action(buffer), writer._token);
-
-            _created = true;
-            return writer._channel.Writer.WriteAsync(new Action(entryPath, buffer), writer._token);
-        }
     }
 
-    private sealed class Action : IDisposable
+    private readonly struct Action : IDisposable
     {
         private readonly string? _entryPath;
         private readonly MemoryOwner? _memoryOwner;

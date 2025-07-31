@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Gooseberry.ExcelStreaming.Benchmarks": {
+      "commandName": "Project",
+      "commandLineArgs": "--profilerMode"
+    }
+  }
+}

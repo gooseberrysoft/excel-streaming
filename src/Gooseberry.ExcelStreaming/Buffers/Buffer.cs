@@ -8,30 +8,23 @@ internal sealed class Buffer : IDisposable
     private readonly BufferPool _pool;
     public const int MinSize = 32;
 
-    private int _arrayOffset;
-    private int _arrayIndex;
-    private byte[] _underlyingArray = [];
-    private int _allocatedSize;
+    private int _length;
+    private Memory<byte> _buffer = default;
 
-    public Buffer(int size, BufferPool pool)
+    public Buffer(int minSize, BufferPool pool)
     {
-        if (size < MinSize)
-            throw new ArgumentException($"Cannot be less then {MinSize}.", nameof(size));
         _pool = pool;
-
-        RentNew(size);
+        RentNew(minSize);
     }
 
-    public bool IsEmpty => _underlyingArray.Length == _arrayOffset;
+    public bool IsEmpty => _buffer.Length == 0;
 
-    public int RemainingCapacity => _underlyingArray.Length - _arrayIndex;
+    public int RemainingCapacity => _buffer.Length - _length;
 
-    public int Written => _arrayIndex - _arrayOffset;
-
-    public int AllocatedSize => _allocatedSize;
+    public int Written => _length;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Span<byte> GetSpan() => _underlyingArray.AsSpan(_arrayIndex);
+    public Span<byte> GetSpan() => _buffer.Span.Slice(_length);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Advance(int count)
@@ -39,7 +32,7 @@ internal sealed class Buffer : IDisposable
         if (count > RemainingCapacity)
             ThrowInvalidAdvance();
 
-        _arrayIndex += count;
+        _length += count;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -47,37 +40,30 @@ internal sealed class Buffer : IDisposable
     {
         if (bytes.TryCopyTo(GetSpan()))
         {
-            _arrayIndex += bytes.Length;
+            _length += bytes.Length;
             return true;
         }
 
         return false;
     }
 
-    public async ValueTask CompleteFlush(IEntryWriter output, int newSize = 0)
+    public ValueTask Flush(IEntryWriter output, bool allocateNew = true)
     {
-        if (Written == 0)
-            return;
-
-        var memory = new MemoryOwner(_underlyingArray.AsMemory(_arrayOffset.._arrayIndex), _underlyingArray, _pool);
-        await output.Write(memory);
-
-        RentNew(newSize);
-    }
-
-    public ValueTask Flush(IEntryWriter output, int newSize)
-    {
-        if (RemainingCapacity <= MinSize)
-            return CompleteFlush(output, newSize);
-
         if (Written == 0)
             return ValueTask.CompletedTask;
 
-        var flushedMemory = _underlyingArray.AsMemory(_arrayOffset.._arrayIndex);
+        var memory = new MemoryOwner(_buffer, _length, _pool);
+        var task = output.Write(memory);
 
-        _arrayOffset = _arrayIndex;
+        if (allocateNew)
+            RentNew(MinSize);
+        else
+        {
+            _length = 0;
+            _buffer = default;
+        }
 
-        return output.Write(flushedMemory);
+        return task;
     }
 
     public void Flush(Span<byte> output)
@@ -85,35 +71,32 @@ internal sealed class Buffer : IDisposable
         if (Written == 0)
             return;
 
-        _underlyingArray.AsSpan(_arrayOffset.._arrayIndex).CopyTo(output);
+        _buffer.Span.Slice(0, _length).CopyTo(output);
 
-        _arrayOffset = _arrayIndex;
-
-        if (RemainingCapacity < MinSize)
-        {
-            _pool.Return(_underlyingArray);
-            RentNew(0);
-        }
+        Return();
     }
 
     public void Dispose()
     {
-        if (_underlyingArray.Length == 0)
+        if (_buffer.IsEmpty)
             return;
 
-        _pool.Return(_underlyingArray);
-
-        _underlyingArray = [];
-        _arrayOffset = _arrayIndex = 0;
+        Return();
     }
 
-    private void RentNew(int size)
+    private void RentNew(int minSize)
     {
-        _arrayOffset = _arrayIndex = 0;
-        _underlyingArray = size == 0 ? [] : _pool.Rent(size);
+        _length = 0;
+        _buffer = _pool.Rent(minSize);
+    }
 
-        if (_underlyingArray.Length > 0)
-            _allocatedSize = _underlyingArray.Length;
+    private void Return()
+    {
+        if (!_buffer.IsEmpty)
+            _pool.Return(_buffer);
+        
+        _length = 0;
+        _buffer = default;
     }
 
     private static void ThrowInvalidAdvance()

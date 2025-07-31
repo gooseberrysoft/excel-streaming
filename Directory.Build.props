@@ -8,8 +8,9 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>CS1591</NoWarn>
     <ImplicitUsings>true</ImplicitUsings>
+	<SuppressTfmSupportBuildErrors>true</SuppressTfmSupportBuildErrors>
 
-    <!-- Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
+	  <!-- Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
 
     <!-- Embed source files that are not tracked by the source control manager in the PDB -->

@@ -1,60 +1,79 @@
 using System.Buffers;
+using System.Collections.Concurrent;
 
 // ReSharper disable once CheckNamespace
 namespace Gooseberry.ExcelStreaming;
 
 internal sealed class BufferPool : IDisposable
 {
-    private byte[]? _buffer;
+    private static readonly ArrayPool<byte> arrayPool = ArrayPool<byte>.Shared;
 
-    public byte[] Rent(int newCapacity)
+    private const int MaxBufferSize = 1024 * 1024;
+    private const int BufferSize = 64 * 1024;
+
+    private readonly List<byte[]> _rentedArrays = new();
+    private readonly ConcurrentQueue<Memory<byte>> _availableBuffers = new();
+
+    public Memory<byte> Rent(int minSize)
     {
-        var currentBuffer = _buffer;
+        if (minSize > BufferSize)
+            return RentLargeSize(minSize);
 
-        if (currentBuffer != null)
+        if (_availableBuffers.TryDequeue(out var buffer))
+            return buffer;
+
+        var newSize = _rentedArrays.Count == 0 ? BufferSize : _rentedArrays[^1].Length * 2;
+
+        var rentedArray = arrayPool.Rent(Math.Min(newSize, MaxBufferSize));
+        _rentedArrays.Add(rentedArray);
+
+        Memory<byte> chunk = default;
+
+        for (var i = 0; i < rentedArray.Length; i += BufferSize)
         {
-            var buffer = Interlocked.CompareExchange(ref _buffer, null, currentBuffer);
+            var chunkSize = Math.Min(BufferSize, rentedArray.Length - i);
+            chunk = new Memory<byte>(rentedArray, i, chunkSize);
 
-            if (ReferenceEquals(buffer, currentBuffer))
-                return currentBuffer;
+            if (i + chunkSize >= rentedArray.Length)
+                break;
+
+            _availableBuffers.Enqueue(chunk);
         }
 
-        return ArrayPool<byte>.Shared.Rent(newCapacity);
+        return chunk;
     }
 
-    public void Return(byte[] buffer)
+    public void Return(Memory<byte> buffer)
+        => _availableBuffers.Enqueue(buffer);
+
+    private Memory<byte> RentLargeSize(int minSize)
     {
-        var currentBuffer = _buffer;
+        if (_availableBuffers.Any(b => b.Length >= minSize))
+        {
+            for (var i = 0; i < _availableBuffers.Count; ++i)
+            {
+                if (!_availableBuffers.TryDequeue(out var memory))
+                    break;
 
-        if (currentBuffer == null)
-        {
-            _buffer = buffer;
-        }
-        else if (buffer.Length > currentBuffer.Length)
-        {
-            var replacedBuffer = Interlocked.CompareExchange(ref _buffer, buffer, currentBuffer);
+                if (memory.Length >= minSize)
+                    return memory;
 
-            if (ReferenceEquals(replacedBuffer, currentBuffer))
-                ArrayPool<byte>.Shared.Return(replacedBuffer);
+                _availableBuffers.Enqueue(memory);
+            }
         }
-        else
-        {
-            ArrayPool<byte>.Shared.Return(buffer);
-        }
+
+        var array = arrayPool.Rent(minSize);
+        _rentedArrays.Add(array);
+        return array;
     }
 
     public void Dispose()
     {
-        var currentBuffer = _buffer;
+        _availableBuffers.Clear();
 
-        if (currentBuffer != null)
-        {
-            var buffer = Interlocked.CompareExchange(ref _buffer, null, currentBuffer);
+        foreach (var rentedArray in _rentedArrays)
+            arrayPool.Return(rentedArray);
 
-            if (ReferenceEquals(buffer, currentBuffer))
-                ArrayPool<byte>.Shared.Return(buffer);
-            else
-                Dispose();
-        }
+        _rentedArrays.Clear();
     }
 }

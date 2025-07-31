@@ -9,7 +9,7 @@ class Program
         if (args.Length > 0 && args[0] == "--profilerMode")
         {
             var benchmark = new RealWorldReportBenchmarks();
-            benchmark.RowsCount = args.Length > 1 && int.TryParse(args[1], out var result) ? result : 100_000;
+            benchmark.RowsCount = args.Length > 1 && int.TryParse(args[1], out var result) ? result : 500_000;
 
             while (true)
             {

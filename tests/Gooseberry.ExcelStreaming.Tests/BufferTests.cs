@@ -13,7 +13,6 @@ public sealed class BufferTests
 
         buffer.IsEmpty.Should().BeFalse();
         buffer.RemainingCapacity.Should().Be(size);
-        buffer.AllocatedSize.Should().Be(size);
         buffer.Written.Should().Be(0);
         buffer.GetSpan().Length.Should().Be(size);
     }
@@ -31,7 +30,6 @@ public sealed class BufferTests
 
         buffer.IsEmpty.Should().BeFalse();
         buffer.RemainingCapacity.Should().Be(size - written);
-        buffer.AllocatedSize.Should().Be(size);
         buffer.Written.Should().Be(written);
         buffer.GetSpan().Length.Should().Be(size - written);
         buffer.GetSpan().SequenceEqual(data.Slice(written)).Should().BeTrue();
@@ -56,7 +54,6 @@ public sealed class BufferTests
 
         buffer.IsEmpty.Should().BeFalse();
         buffer.RemainingCapacity.Should().Be(size - written);
-        buffer.AllocatedSize.Should().Be(size);
         buffer.Written.Should().Be(0);
         buffer.GetSpan().Length.Should().Be(size - written);
     }
@@ -78,7 +75,6 @@ public sealed class BufferTests
 
         buffer.IsEmpty.Should().BeFalse();
         buffer.RemainingCapacity.Should().Be(size - written - writtenMore);
-        buffer.AllocatedSize.Should().Be(size);
         buffer.Written.Should().Be(writtenMore);
         buffer.GetSpan().Length.Should().Be(size - written - writtenMore);
     }
@@ -97,7 +93,6 @@ public sealed class BufferTests
 
         buffer.IsEmpty.Should().BeTrue();
         buffer.RemainingCapacity.Should().Be(0);
-        buffer.AllocatedSize.Should().Be(64);
         buffer.Written.Should().Be(0);
         buffer.GetSpan().Length.Should().Be(0);
     }
@@ -114,7 +109,7 @@ public sealed class BufferTests
         buffer.Advance(written);
 
         var target = new TestEntryWriter();
-        await buffer.CompleteFlush(target);
+        await buffer.Flush(target);
 
         target.Items.Count.Should().Be(1);
         var flushed = target.Items[0];
@@ -124,7 +119,6 @@ public sealed class BufferTests
 
         buffer.IsEmpty.Should().BeTrue();
         buffer.RemainingCapacity.Should().Be(0);
-        buffer.AllocatedSize.Should().Be(64);
         buffer.Written.Should().Be(0);
         buffer.GetSpan().Length.Should().Be(0);
     }
@@ -141,7 +135,7 @@ public sealed class BufferTests
         buffer.Advance(written);
 
         var target = new TestEntryWriter();
-        await buffer.Flush(target, 128);
+        await buffer.Flush(target);
 
         target.Items.Count.Should().Be(1);
         var flushed = target.Items[0];
@@ -151,7 +145,6 @@ public sealed class BufferTests
 
         buffer.IsEmpty.Should().BeFalse();
         buffer.RemainingCapacity.Should().Be(size - written);
-        buffer.AllocatedSize.Should().Be(size);
         buffer.Written.Should().Be(0);
         buffer.GetSpan().Length.Should().Be(size - written);
     }
@@ -170,11 +163,11 @@ public sealed class BufferTests
 
         var newSize = 128;
         var target = new TestEntryWriter();
-        await buffer.Flush(target, newSize * 2);
+        await buffer.Flush(target);
 
         var writtenMore = 45;
         buffer.Advance(writtenMore);
-        await buffer.Flush(target, newSize);
+        await buffer.Flush(target);
 
 
         target.Items.Count.Should().Be(2);
@@ -185,7 +178,6 @@ public sealed class BufferTests
 
         buffer.IsEmpty.Should().BeFalse();
         buffer.RemainingCapacity.Should().Be(newSize);
-        buffer.AllocatedSize.Should().Be(newSize);
         buffer.Written.Should().Be(0);
         buffer.GetSpan().Length.Should().Be(newSize);
     }
@@ -202,11 +194,11 @@ public sealed class BufferTests
         buffer.Advance(written);
 
         var target = new TestEntryWriter();
-        await buffer.Flush(target, 128);
+        await buffer.Flush(target);
 
         var writtenMore = 5;
         buffer.Advance(writtenMore);
-        await buffer.Flush(target, 128);
+        await buffer.Flush(target);
 
 
         target.Items.Count.Should().Be(2);
@@ -217,7 +209,6 @@ public sealed class BufferTests
 
         buffer.IsEmpty.Should().BeFalse();
         buffer.RemainingCapacity.Should().Be(size - written - writtenMore);
-        buffer.AllocatedSize.Should().Be(size);
         buffer.Written.Should().Be(0);
         buffer.GetSpan().Length.Should().Be(size - written - writtenMore);
     }
@@ -229,12 +220,6 @@ public sealed class BufferTests
         public ValueTask Write(MemoryOwner buffer)
         {
             Items.Add(buffer.Memory);
-            return ValueTask.CompletedTask;
-        }
-
-        public ValueTask Write(ReadOnlyMemory<byte> buffer)
-        {
-            Items.Add(buffer);
             return ValueTask.CompletedTask;
         }
     }

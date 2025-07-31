@@ -14,7 +14,8 @@ public class RealWorldReportBenchmarks
     [Benchmark]
     public async Task RealWorldReport()
     {
-        await using var writer = new ExcelWriter(Stream.Null);
+        //await using var writer = new ExcelWriter(Stream.Null);
+        await using var writer = new ExcelWriter(new NullZip());//Stream.Null);
 
         await writer.StartSheet("PNL");
         var dateTime = new DateTime(638721164006405476);
@@ -49,5 +50,15 @@ public class RealWorldReportBenchmarks
         }
 
         await writer.Complete();
+    }
+
+    private sealed class NullZip : IZipArchive
+    {
+        public void Dispose()
+        {
+        }
+
+        public Stream CreateEntry(string entryPath)
+            => Stream.Null;
     }
 }
