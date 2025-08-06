@@ -19,42 +19,6 @@ internal static partial class Constants
                 => "<xdr:clientData/>"u8;
         }
 
-        public static class Relationships
-        {
-            public static ReadOnlySpan<byte> GetPrefix()
-                => "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">"u8;
-
-            public static ReadOnlySpan<byte> GetPostfix()
-                => "</Relationships>"u8;
-
-            public static class Relationship
-            {
-                public static ReadOnlySpan<byte> GetPrefix()
-                    => "<Relationship Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image\""u8;
-
-                public static ReadOnlySpan<byte> GetPostfix()
-                    => "/>"u8;
-
-                public static class Id
-                {
-                    public static ReadOnlySpan<byte> GetPrefix()
-                        => " Id=\""u8;
-
-                    public static ReadOnlySpan<byte> GetPostfix()
-                        => "\""u8;
-                }
-
-                public static class Target
-                {
-                    public static ReadOnlySpan<byte> GetPrefix()
-                        => " Target=\""u8;
-
-                    public static ReadOnlySpan<byte> GetPostfix()
-                        => "\""u8;
-                }
-            }
-        }
-
         public static class Picture
         {
             public static ReadOnlySpan<byte> GetPrefix()

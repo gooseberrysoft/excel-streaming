@@ -37,8 +37,11 @@ internal static class BytesWriter
     internal static void CopyTo(this ReadOnlySpan<byte> data, ref Span<byte> span, ref int written)
     {
         data.CopyTo(span);
-        written += data.Length;
-        span = span.Slice(data.Length);
+        
+        var dataLength = data.Length;
+
+        written += dataLength;
+        span = span.Slice(dataLength);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

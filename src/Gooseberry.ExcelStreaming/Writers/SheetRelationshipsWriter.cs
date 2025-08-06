@@ -34,7 +34,7 @@ internal static class SheetRelationshipsWriter
             Constants.SheetRelationships.Drawing.GetPrefix().WriteTo(buffer, ref span, ref written);
 
             Constants.SheetRelationships.Drawing.Target.GetPrefix().WriteTo(buffer, ref span, ref written);
-            PathResolver.GetDrawingFullPath(drawing).EnsureLeadingSlash().WriteTo(buffer, encoder, ref span, ref written);
+            PathResolver.GetDrawingFullPath(drawing).WriteTo(buffer, encoder, ref span, ref written);
             Constants.SheetRelationships.Drawing.Target.GetPostfix().WriteTo(buffer, ref span, ref written);
 
             Constants.SheetRelationships.Drawing.Id.GetPrefix().WriteTo(buffer, ref span, ref written);

@@ -5,23 +5,25 @@ namespace Gooseberry.ExcelStreaming;
 
 internal sealed class BuffersChain : IDisposable
 {
+    private const int MinRemainingCapacity = 512;
+
     private readonly BufferPool _pool = new();
-    private readonly Queue<Buffer> _completedBuffers = new();
-    private Buffer _currentBuffer;
+    private readonly Queue<MemoryOwner> _completedBuffers = new(2);
+    private readonly Buffer _buffer;
 
     public BuffersChain(int initialBufferSize)
     {
-        _currentBuffer = new Buffer(initialBufferSize, _pool);
+        _buffer = new Buffer(initialBufferSize, _pool);
     }
 
     public int Written
     {
         get
         {
-            var written = _currentBuffer.Written;
+            var written = _buffer.Written;
 
             foreach (var buffer in _completedBuffers)
-                written += buffer.Written;
+                written += buffer.Memory.Length;
 
             return written;
         }
@@ -30,46 +32,39 @@ internal sealed class BuffersChain : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Span<byte> GetSpan(int minSize = 1)
     {
-        if (_currentBuffer.RemainingCapacity < minSize)
-            Allocate(minSize);
+        if (_buffer.RemainingCapacity < minSize)
+            _buffer.Flush(_completedBuffers, minSize);
 
-        return _currentBuffer.GetSpan();
+        return _buffer.GetSpan();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void Allocate(int minSize)
-    {
-        if (!_currentBuffer.IsEmpty)
-            _completedBuffers.Enqueue(_currentBuffer);
-
-        _currentBuffer = new Buffer(minSize, _pool);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Advance(int count) => _currentBuffer.Advance(count);
+    public void Advance(int count) => _buffer.Advance(count);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ValueTask FlushCompleted(IEntryWriter output)
     {
+        if (_completedBuffers.Count > 0 && _buffer.RemainingCapacity >= MinRemainingCapacity)
+            return FlushCompletedBuffers(output);
+
         if (_completedBuffers.Count > 0)
             return FlushCompletedAsync(output);
 
-        return FlushCurrent(output);
+        return FlushBuffer(output);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private ValueTask FlushCurrent(IEntryWriter output)
+    private ValueTask FlushBuffer(IEntryWriter output)
     {
-        if (_currentBuffer.RemainingCapacity < 512)
-            return _currentBuffer.Flush(output);
-
-        return ValueTask.CompletedTask;
+        return _buffer.RemainingCapacity < MinRemainingCapacity
+            ? _buffer.Flush(output)
+            : ValueTask.CompletedTask;
     }
 
     private async ValueTask FlushCompletedAsync(IEntryWriter output)
     {
         await FlushCompletedBuffers(output);
-        await FlushCurrent(output);
+        await FlushBuffer(output);
     }
 
     public ValueTask FlushAll(IEntryWriter output)
@@ -77,13 +72,13 @@ internal sealed class BuffersChain : IDisposable
         if (_completedBuffers.Count > 0)
             return FlushAllAsync(output);
 
-        return _currentBuffer.Flush(output);
+        return _buffer.Flush(output);
     }
 
     private async ValueTask FlushAllAsync(IEntryWriter output)
     {
         await FlushCompletedBuffers(output);
-        await FlushAll(output);
+        await _buffer.Flush(output);
     }
 
     public void FlushAll(Span<byte> span)
@@ -96,13 +91,13 @@ internal sealed class BuffersChain : IDisposable
         while (_completedBuffers.Count > 0)
         {
             using var buffer = _completedBuffers.Dequeue();
-            var chunk = span.Slice(currentPosition, buffer.Written);
-            buffer.Flush(chunk);
-            currentPosition += chunk.Length;
+            var memory = buffer.Memory;
+
+            memory.Span.CopyTo(span.Slice(currentPosition));
+            currentPosition += memory.Length;
         }
 
-        if (!_currentBuffer.IsEmpty)
-            _currentBuffer.Flush(span.Slice(currentPosition, _currentBuffer.Written));
+        _buffer.Flush(span.Slice(currentPosition));
     }
 
     public void Dispose()
@@ -110,23 +105,28 @@ internal sealed class BuffersChain : IDisposable
         while (_completedBuffers.Count > 0)
             _completedBuffers.Dequeue().Dispose();
 
-        _currentBuffer.Dispose();
+        _buffer.Dispose();
         _pool.Dispose();
     }
 
-    private async Task FlushCompletedBuffers(IEntryWriter output)
+    private ValueTask FlushCompletedBuffers(IEntryWriter output)
+    {
+        if (_completedBuffers.Count == 1)
+            return output.Write(_completedBuffers.Dequeue());
+
+        return FlushCompletedBuffersAsync(output);
+    }
+
+    private async ValueTask FlushCompletedBuffersAsync(IEntryWriter output)
     {
         while (_completedBuffers.Count > 0)
-        {
-            using var buffer = _completedBuffers.Dequeue();
-            await buffer.Flush(output, allocateNew: false);
-        }
+            await output.Write(_completedBuffers.Dequeue());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Write(ReadOnlySpan<byte> bytes)
     {
-        if (!_currentBuffer.TryWrite(bytes))
+        if (!_buffer.TryWrite(bytes))
             WriteBlocks(bytes);
     }
 

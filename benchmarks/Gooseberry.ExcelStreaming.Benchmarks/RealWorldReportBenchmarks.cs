@@ -14,8 +14,7 @@ public class RealWorldReportBenchmarks
     [Benchmark]
     public async Task RealWorldReport()
     {
-        //await using var writer = new ExcelWriter(Stream.Null);
-        await using var writer = new ExcelWriter(new NullZip());//Stream.Null);
+        await using var writer = new ExcelWriter(Stream.Null);
 
         await writer.StartSheet("PNL");
         var dateTime = new DateTime(638721164006405476);

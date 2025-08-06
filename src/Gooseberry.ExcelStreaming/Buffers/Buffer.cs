@@ -17,8 +17,6 @@ internal sealed class Buffer : IDisposable
         RentNew(minSize);
     }
 
-    public bool IsEmpty => _buffer.Length == 0;
-
     public int RemainingCapacity => _buffer.Length - _length;
 
     public int Written => _length;
@@ -47,28 +45,33 @@ internal sealed class Buffer : IDisposable
         return false;
     }
 
-    public ValueTask Flush(IEntryWriter output, bool allocateNew = true)
+    public void Flush(Queue<MemoryOwner> queue, int minSize)
     {
         if (Written == 0)
+            return;
+
+        var memory = new MemoryOwner(_buffer, _length, _pool);
+        queue.Enqueue(memory);
+
+        RentNew(minSize);
+    }
+
+    public ValueTask Flush(IEntryWriter output)
+    {
+        if (_length == 0)
             return ValueTask.CompletedTask;
 
         var memory = new MemoryOwner(_buffer, _length, _pool);
         var task = output.Write(memory);
 
-        if (allocateNew)
-            RentNew(MinSize);
-        else
-        {
-            _length = 0;
-            _buffer = default;
-        }
+        RentNew(MinSize);
 
         return task;
     }
 
     public void Flush(Span<byte> output)
     {
-        if (Written == 0)
+        if (_length == 0)
             return;
 
         _buffer.Span.Slice(0, _length).CopyTo(output);
@@ -94,7 +97,7 @@ internal sealed class Buffer : IDisposable
     {
         if (!_buffer.IsEmpty)
             _pool.Return(_buffer);
-        
+
         _length = 0;
         _buffer = default;
     }

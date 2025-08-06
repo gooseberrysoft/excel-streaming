@@ -86,10 +86,10 @@ public sealed partial class ExcelWriter : IAsyncDisposable
         _merges.Clear();
 
         var sheetId = _sheets.Count + 1;
-        var relationshipId = $"sheet{sheetId}";
-        _sheets.Add(new(name, sheetId, relationshipId));
+        
+        _sheets.Add(new(name, sheetId));
 
-        _sheetWriter = _archiveWriter.CreateEntry(PathResolver.GetSheetFullPath(relationshipId));
+        _sheetWriter = _archiveWriter.CreateEntry(PathResolver.GetSheetFullPath(sheetId));
         SheetWriter.WriteStartSheet(_buffer, configuration);
     }
 
