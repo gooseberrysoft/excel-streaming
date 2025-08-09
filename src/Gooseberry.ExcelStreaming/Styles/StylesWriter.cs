@@ -11,7 +11,7 @@ internal sealed class StylesWriter : IDisposable
 
     public StylesWriter()
     {
-        _buffer = new BuffersChain(initialBufferSize: 16 * 1024);
+        _buffer = new BuffersChain(bufferMinSize: 16 * 1024);
         _encoder = Encoding.UTF8.GetEncoder();
 
         Constants.XmlPrefix.WriteTo(_buffer);

@@ -47,7 +47,7 @@ internal sealed class Buffer : IDisposable
 
     public void Flush(Queue<MemoryOwner> queue, int minSize)
     {
-        if (Written == 0)
+        if (_length == 0)
             return;
 
         var memory = new MemoryOwner(_buffer, _length, _pool);
@@ -76,7 +76,7 @@ internal sealed class Buffer : IDisposable
 
         _buffer.Span.Slice(0, _length).CopyTo(output);
 
-        Return();
+        RentNew(MinSize);
     }
 
     public void Dispose()
@@ -84,22 +84,16 @@ internal sealed class Buffer : IDisposable
         if (_buffer.IsEmpty)
             return;
 
-        Return();
+        _pool.Return(_buffer);
+
+        _length = 0;
+        _buffer = default;
     }
 
     private void RentNew(int minSize)
     {
         _length = 0;
         _buffer = _pool.Rent(minSize);
-    }
-
-    private void Return()
-    {
-        if (!_buffer.IsEmpty)
-            _pool.Return(_buffer);
-
-        _length = 0;
-        _buffer = default;
     }
 
     private static void ThrowInvalidAdvance()

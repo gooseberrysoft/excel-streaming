@@ -11,9 +11,9 @@ internal sealed class BuffersChain : IDisposable
     private readonly Queue<MemoryOwner> _completedBuffers = new(2);
     private readonly Buffer _buffer;
 
-    public BuffersChain(int initialBufferSize)
+    public BuffersChain(int bufferMinSize)
     {
-        _buffer = new Buffer(initialBufferSize, _pool);
+        _buffer = new Buffer(bufferMinSize, _pool);
     }
 
     public int Written

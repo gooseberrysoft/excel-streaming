@@ -4,34 +4,34 @@ using System.Collections.Concurrent;
 // ReSharper disable once CheckNamespace
 namespace Gooseberry.ExcelStreaming;
 
-internal sealed class BufferPool : IDisposable
+internal sealed class BufferPool(int bufferSize = BufferPool.DefaultBufferSize) : IDisposable
 {
     private static readonly ArrayPool<byte> arrayPool = ArrayPool<byte>.Shared;
 
     private const int MaxBufferSize = 1024 * 1024;
-    private const int BufferSize = 64 * 1024;
+    private const int DefaultBufferSize = 64 * 1024;
 
     private readonly List<byte[]> _rentedArrays = new();
     private readonly ConcurrentQueue<Memory<byte>> _availableBuffers = new();
 
     public Memory<byte> Rent(int minSize)
     {
-        if (minSize > BufferSize)
+        if (minSize > bufferSize)
             return RentLargeSize(minSize);
 
         if (_availableBuffers.TryDequeue(out var buffer))
             return buffer;
 
-        var newSize = _rentedArrays.Count == 0 ? BufferSize : _rentedArrays[^1].Length * 2;
+        var newSize = _rentedArrays.Count == 0 ? bufferSize : _rentedArrays[^1].Length * 2;
 
         var rentedArray = arrayPool.Rent(Math.Min(newSize, MaxBufferSize));
         _rentedArrays.Add(rentedArray);
 
         Memory<byte> chunk = default;
 
-        for (var i = 0; i < rentedArray.Length; i += BufferSize)
+        for (var i = 0; i < rentedArray.Length; i += bufferSize)
         {
-            var chunkSize = Math.Min(BufferSize, rentedArray.Length - i);
+            var chunkSize = Math.Min(bufferSize, rentedArray.Length - i);
             chunk = new Memory<byte>(rentedArray, i, chunkSize);
 
             if (i + chunkSize >= rentedArray.Length)
