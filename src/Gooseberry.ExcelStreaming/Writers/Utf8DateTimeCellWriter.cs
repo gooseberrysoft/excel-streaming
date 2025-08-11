@@ -109,7 +109,7 @@ internal static class Utf8DateTimeCellWriter
         //replace prefix 1 in timePartPrefixed with dot
         span[written] = (byte)'.';
 
-        written += 1 + timeBytesWritten;
+        written += timeBytesWritten;
     }
 
     private static void ThrowNotEnoughMemory()
