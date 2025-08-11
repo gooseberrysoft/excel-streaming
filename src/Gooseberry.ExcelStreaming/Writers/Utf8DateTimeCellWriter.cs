@@ -91,8 +91,7 @@ internal static class Utf8DateTimeCellWriter
         //ticks positive 
 
         var gigaOADate = ticks / GigaTicksPerDay;
-        var days = (int)(gigaOADate / Giga);
-        var time = gigaOADate - Giga * days;
+        var days = Math.DivRem(gigaOADate, Giga, out var time);
 
         if (!days.TryFormat(span.Slice(written), out var daysBytesWritten))
             ThrowNotEnoughMemory();
@@ -102,10 +101,13 @@ internal static class Utf8DateTimeCellWriter
         if (time == 0)
             return;
 
-        span[written] = (byte)'.';
+        var timePartPrefixed = time + Giga; //align to 9 digits after dot
 
-        if (!time.TryFormat(span.Slice(written + 1), out var timeBytesWritten))
+        if (!timePartPrefixed.TryFormat(span.Slice(written), out var timeBytesWritten))
             ThrowNotEnoughMemory();
+
+        //replace prefix 1 in timePartPrefixed with dot
+        span[written] = (byte)'.';
 
         written += 1 + timeBytesWritten;
     }

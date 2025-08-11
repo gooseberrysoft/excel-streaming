@@ -6,12 +6,12 @@ using Gooseberry.ExcelStreaming.Writers;
 namespace Gooseberry.ExcelStreaming.Benchmarks;
 
 /*
-| Method              | Mean       | Error     | StdDev    |
-|-------------------- |-----------:|----------:|----------:|
-| DateCustomFormatter |   5.815 ms | 0.0754 ms | 0.0706 ms |
-| CustomFormatter     |  13.545 ms | 0.1515 ms | 0.1343 ms |
-| DateDoubleFormatter |  76.139 ms | 1.0479 ms | 0.9289 ms |
-| DoubleFormatter     | 113.291 ms | 1.5578 ms | 1.4572 ms |
+| Method              | Mean       | Error     | StdDev     | Median     |
+|-------------------- |-----------:|----------:|-----------:|-----------:|
+| DateCustomFormatter |   3.574 ms | 0.1830 ms |  0.5396 ms |   3.413 ms |
+| CustomFormatter     |  11.247 ms | 0.3841 ms |  1.1143 ms |  11.017 ms |
+| DateDoubleFormatter |  83.862 ms | 1.6674 ms |  1.7123 ms |  83.485 ms |
+| DoubleFormatter     | 144.717 ms | 5.4055 ms | 15.6822 ms | 142.020 ms |
 */
 
 [Orderer(SummaryOrderPolicy.FastestToSlowest)]
