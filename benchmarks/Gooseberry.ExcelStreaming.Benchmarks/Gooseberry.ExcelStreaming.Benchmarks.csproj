@@ -4,6 +4,7 @@
 	    <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
 		<OutputType>Exe</OutputType>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	    <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
     </PropertyGroup>
 
     <ItemGroup>
