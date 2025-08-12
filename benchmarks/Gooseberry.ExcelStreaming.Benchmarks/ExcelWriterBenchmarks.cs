@@ -13,7 +13,6 @@ namespace Gooseberry.ExcelStreaming.Benchmarks;
 
 [MemoryDiagnoser]
 [Orderer(SummaryOrderPolicy.Declared)]
-[SimpleJob(RuntimeMoniker.Net80)]
 [SimpleJob(RuntimeMoniker.Net90)]
 public class ExcelWriterBenchmarks
 {
