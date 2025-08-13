@@ -72,51 +72,6 @@ internal static partial class Constants
         }
     }
 
-    public static class SheetRelationships
-    {
-        public static ReadOnlySpan<byte> Prefix =>
-            "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">"u8;
-
-        public static ReadOnlySpan<byte> Postfix => "</Relationships>"u8;
-
-        public static class Hyperlink
-        {
-            public static ReadOnlySpan<byte> StartPrefix => "<Relationship Id=\"link"u8;
-
-            public static ReadOnlySpan<byte> EndPrefix =>
-                "\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink\" Target=\""u8;
-
-            public static ReadOnlySpan<byte> Postfix => "\" TargetMode=\"External\"/>"u8;
-        }
-
-        public static class Drawing
-        {
-            public static ReadOnlySpan<byte> GetPrefix()
-                => "<Relationship Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing\""u8;
-
-            public static ReadOnlySpan<byte> GetPostfix()
-                => "/>"u8;
-
-            public static class Id
-            {
-                public static ReadOnlySpan<byte> GetPrefix()
-                    => " Id=\""u8;
-
-                public static ReadOnlySpan<byte> GetPostfix()
-                    => "\""u8;
-            }
-
-            public static class Target
-            {
-                public static ReadOnlySpan<byte> GetPrefix()
-                    => " Target=\"/"u8;
-
-                public static ReadOnlySpan<byte> GetPostfix()
-                    => "\""u8;
-            }
-        }
-    }
-
     public static byte[] RelationshipsContent =
         """
             <?xml version="1.0" encoding="utf-8"?>
