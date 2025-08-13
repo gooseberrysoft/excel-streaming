@@ -4,8 +4,8 @@ namespace Gooseberry.ExcelStreaming;
 
 internal static class PathResolver
 {
-    public static string GetSheetFullPath(string sheetName) 
-        => $"xl/worksheets/{sheetName}.xml";
+    public static string GetSheetFullPath(int id) 
+        => $"xl/worksheets/sheet{id}.xml";
 
     public static string GetSheetRelationshipsFullPath(int sheetId)
         => $"xl/worksheets/_rels/sheet{sheetId}.xml.rels";

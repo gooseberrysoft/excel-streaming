@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
 <meta charset='utf-8' />
-<title>Gooseberry.ExcelStreaming.Benchmarks.ExcelWriterSyncVsAsyncBenchmarks-20240509-213407</title>
+<title>Gooseberry.ExcelStreaming.Benchmarks.ExcelWriterSyncVsAsyncBenchmarks-20250812-123945</title>
 
 <style type="text/css">
 	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
@@ -13,25 +13,25 @@
 </head>
 <body>
 <pre><code>
-BenchmarkDotNet v0.13.12, Windows 10 (10.0.19045.4291/22H2/2022Update)
-11th Gen Intel Core i7-1185G7 3.00GHz, 1 CPU, 8 logical and 4 physical cores
-.NET SDK 8.0.204
-  [Host]     : .NET 8.0.4 (8.0.424.16909), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
-  DefaultJob : .NET 8.0.4 (8.0.424.16909), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+BenchmarkDotNet v0.15.2, Windows 10 (10.0.19045.6093/22H2/2022Update)
+11th Gen Intel Core i7-1185G7 3.00GHz (Max: 1.80GHz), 1 CPU, 8 logical and 4 physical cores
+.NET SDK 9.0.302
+  [Host]     : .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+  DefaultJob : .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
 </code></pre>
 <pre><code></code></pre>
 
 <table>
-<thead><tr><th>Method</th><th>RowsCount</th><th>Mean  </th><th>Error</th><th>StdDev</th><th>Allocated</th>
+<thead><tr><th>Method</th><th>RowsCount</th><th>Mean  </th><th>Error</th><th>StdDev</th><th>Median</th><th>Gen0</th><th>Allocated</th>
 </tr>
-</thead><tbody><tr><td>AsyncZip</td><td>100</td><td>1.630 ms</td><td>0.0315 ms</td><td>0.0323 ms</td><td>15.33 KB</td>
-</tr><tr><td>SyncZip</td><td>100</td><td>1.758 ms</td><td>0.0231 ms</td><td>0.0216 ms</td><td>10.49 KB</td>
-</tr><tr><td>AsyncZip</td><td>1000</td><td>11.563 ms</td><td>0.0353 ms</td><td>0.0276 ms</td><td>15.35 KB</td>
-</tr><tr><td>SyncZip</td><td>1000</td><td>15.862 ms</td><td>0.1990 ms</td><td>0.1662 ms</td><td>10.7 KB</td>
-</tr><tr><td>AsyncZip</td><td>10000</td><td>107.735 ms</td><td>1.5390 ms</td><td>1.4396 ms</td><td>39.55 KB</td>
-</tr><tr><td>SyncZip</td><td>10000</td><td>156.068 ms</td><td>1.2315 ms</td><td>1.0284 ms</td><td>12.21 KB</td>
-</tr><tr><td>AsyncZip</td><td>100000</td><td>1,045.828 ms</td><td>7.4986 ms</td><td>7.0142 ms</td><td>283.48 KB</td>
-</tr><tr><td>SyncZip</td><td>100000</td><td>1,554.097 ms</td><td>14.5628 ms</td><td>12.9096 ms</td><td>26.86 KB</td>
+</thead><tbody><tr><td>AsyncZip</td><td>100</td><td>1.391 ms</td><td>0.0278 ms</td><td>0.0599 ms</td><td>1.408 ms</td><td>1.9531</td><td>16.64 KB</td>
+</tr><tr><td>SyncZip</td><td>100</td><td>1.612 ms</td><td>0.0319 ms</td><td>0.0615 ms</td><td>1.616 ms</td><td>1.9531</td><td>14 KB</td>
+</tr><tr><td>AsyncZip</td><td>1000</td><td>10.722 ms</td><td>0.2127 ms</td><td>0.4440 ms</td><td>10.539 ms</td><td>-</td><td>16.66 KB</td>
+</tr><tr><td>SyncZip</td><td>1000</td><td>14.373 ms</td><td>0.2860 ms</td><td>0.2809 ms</td><td>14.317 ms</td><td>-</td><td>14 KB</td>
+</tr><tr><td>AsyncZip</td><td>10000</td><td>97.231 ms</td><td>1.2172 ms</td><td>1.0164 ms</td><td>96.888 ms</td><td>-</td><td>16.73 KB</td>
+</tr><tr><td>SyncZip</td><td>10000</td><td>136.363 ms</td><td>2.6709 ms</td><td>3.2801 ms</td><td>135.843 ms</td><td>-</td><td>14 KB</td>
+</tr><tr><td>AsyncZip</td><td>100000</td><td>911.601 ms</td><td>16.1153 ms</td><td>15.0743 ms</td><td>906.647 ms</td><td>-</td><td>16.87 KB</td>
+</tr><tr><td>SyncZip</td><td>100000</td><td>1,350.763 ms</td><td>26.7790 ms</td><td>27.5001 ms</td><td>1,350.734 ms</td><td>-</td><td>14.07 KB</td>
 </tr></tbody></table>
 </body>
 </html>

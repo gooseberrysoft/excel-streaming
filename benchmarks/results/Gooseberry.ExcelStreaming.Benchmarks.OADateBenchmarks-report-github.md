@@ -1,16 +1,16 @@
 ```
 
-BenchmarkDotNet v0.14.0, Windows 10 (10.0.19045.5247/22H2/2022Update)
+BenchmarkDotNet v0.14.0, Windows 10 (10.0.19045.6093/22H2/2022Update)
 11th Gen Intel Core i7-1185G7 3.00GHz, 1 CPU, 8 logical and 4 physical cores
-.NET SDK 9.0.101
-  [Host]     : .NET 8.0.11 (8.0.1124.51707), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
-  DefaultJob : .NET 8.0.11 (8.0.1124.51707), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+.NET SDK 9.0.302
+  [Host]     : .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+  DefaultJob : .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
 
 
 ```
-| Method              | Mean       | Error     | StdDev    |
-|-------------------- |-----------:|----------:|----------:|
-| DateCustomFormatter |   5.968 ms | 0.0899 ms | 0.0841 ms |
-| CustomFormatter     |  13.674 ms | 0.2596 ms | 0.2429 ms |
-| DateDoubleFormatter |  75.714 ms | 0.9390 ms | 0.7841 ms |
-| DoubleFormatter     | 123.004 ms | 1.4347 ms | 1.3420 ms |
+| Method              | Mean       | Error     | StdDev     | Median     |
+|-------------------- |-----------:|----------:|-----------:|-----------:|
+| DateCustomFormatter |   3.574 ms | 0.1830 ms |  0.5396 ms |   3.413 ms |
+| CustomFormatter     |  11.247 ms | 0.3841 ms |  1.1143 ms |  11.017 ms |
+| DateDoubleFormatter |  83.862 ms | 1.6674 ms |  1.7123 ms |  83.485 ms |
+| DoubleFormatter     | 144.717 ms | 5.4055 ms | 15.6822 ms | 142.020 ms |

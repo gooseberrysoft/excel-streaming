@@ -50,4 +50,14 @@ public class RealWorldReportBenchmarks
 
         await writer.Complete();
     }
+
+    private sealed class NullZip : IZipArchive
+    {
+        public void Dispose()
+        {
+        }
+
+        public Stream CreateEntry(string entryPath)
+            => Stream.Null;
+    }
 }

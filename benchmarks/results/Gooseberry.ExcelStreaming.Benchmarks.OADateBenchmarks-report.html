@@ -2,7 +2,7 @@
 <html lang='en'>
 <head>
 <meta charset='utf-8' />
-<title>Gooseberry.ExcelStreaming.Benchmarks.OADateBenchmarks-20250110-171321</title>
+<title>Gooseberry.ExcelStreaming.Benchmarks.OADateBenchmarks-20250811-151028</title>
 
 <style type="text/css">
 	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
@@ -13,21 +13,21 @@
 </head>
 <body>
 <pre><code>
-BenchmarkDotNet v0.14.0, Windows 10 (10.0.19045.5247/22H2/2022Update)
+BenchmarkDotNet v0.14.0, Windows 10 (10.0.19045.6093/22H2/2022Update)
 11th Gen Intel Core i7-1185G7 3.00GHz, 1 CPU, 8 logical and 4 physical cores
-.NET SDK 9.0.101
-  [Host]     : .NET 8.0.11 (8.0.1124.51707), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
-  DefaultJob : .NET 8.0.11 (8.0.1124.51707), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+.NET SDK 9.0.302
+  [Host]     : .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
+  DefaultJob : .NET 9.0.7 (9.0.725.31616), X64 RyuJIT AVX-512F+CD+BW+DQ+VL+VBMI
 </code></pre>
 <pre><code></code></pre>
 
 <table>
-<thead><tr><th>Method       </th><th>Mean</th><th>Error</th><th>StdDev</th>
+<thead><tr><th>Method       </th><th>Mean</th><th>Error</th><th>StdDev</th><th>Median</th>
 </tr>
-</thead><tbody><tr><td>DateCustomFormatter</td><td>5.968 ms</td><td>0.0899 ms</td><td>0.0841 ms</td>
-</tr><tr><td>CustomFormatter</td><td>13.674 ms</td><td>0.2596 ms</td><td>0.2429 ms</td>
-</tr><tr><td>DateDoubleFormatter</td><td>75.714 ms</td><td>0.9390 ms</td><td>0.7841 ms</td>
-</tr><tr><td>DoubleFormatter</td><td>123.004 ms</td><td>1.4347 ms</td><td>1.3420 ms</td>
+</thead><tbody><tr><td>DateCustomFormatter</td><td>3.574 ms</td><td>0.1830 ms</td><td>0.5396 ms</td><td>3.413 ms</td>
+</tr><tr><td>CustomFormatter</td><td>11.247 ms</td><td>0.3841 ms</td><td>1.1143 ms</td><td>11.017 ms</td>
+</tr><tr><td>DateDoubleFormatter</td><td>83.862 ms</td><td>1.6674 ms</td><td>1.7123 ms</td><td>83.485 ms</td>
+</tr><tr><td>DoubleFormatter</td><td>144.717 ms</td><td>5.4055 ms</td><td>15.6822 ms</td><td>142.020 ms</td>
 </tr></tbody></table>
 </body>
 </html>

@@ -86,10 +86,10 @@ public sealed partial class ExcelWriter : IAsyncDisposable
         _merges.Clear();
 
         var sheetId = _sheets.Count + 1;
-        var relationshipId = $"sheet{sheetId}";
-        _sheets.Add(new(name, sheetId, relationshipId));
+        
+        _sheets.Add(new(name, sheetId));
 
-        _sheetWriter = _archiveWriter.CreateEntry(PathResolver.GetSheetFullPath(relationshipId));
+        _sheetWriter = _archiveWriter.CreateEntry(PathResolver.GetSheetFullPath(sheetId));
         SheetWriter.WriteStartSheet(_buffer, configuration);
     }
 
@@ -109,9 +109,7 @@ public sealed partial class ExcelWriter : IAsyncDisposable
         _rowCount += 1;
         _columnCount = 0;
 
-        return _rowCount % 4 == 0
-            ? _buffer.FlushCompleted(_sheetWriter!)
-            : ValueTask.CompletedTask;
+        return _buffer.FlushCompleted(_sheetWriter!);
     }
 
     public void AddEmptyRows(uint count)
@@ -123,7 +121,7 @@ public sealed partial class ExcelWriter : IAsyncDisposable
         //TODO: Optimize with r (rowIndex)
 
         if (_sheetWriter == null)
-            throw new InvalidOperationException("Cannot start row before start sheet.");
+            ThrowSheetNotStarted();
 
         if (count == 0)
             return;

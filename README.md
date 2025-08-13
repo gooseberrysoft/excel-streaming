@@ -5,7 +5,7 @@
 Create Excel files with high performance and low memory allocations.
 
 ### Features ###
-* Extremely fast streaming write (100 columns * 100 000 rows in [0.55 second, 100Kb allocated memory](https://github.com/gooseberrysoft/excel-streaming/blob/main/benchmarks/results/Gooseberry.ExcelStreaming.Benchmarks.RealWorldReportBenchmarks-report-github.md))
+* Extremely fast streaming write (100 columns * 100 000 rows in [0.58 second, 14Kb allocated memory](https://github.com/gooseberrysoft/excel-streaming/blob/main/benchmarks/results/Gooseberry.ExcelStreaming.Benchmarks.RealWorldReportBenchmarks-report-github.md))
 * Most basic excel column types are supported (incl. hyperlinks)
 * Shared strings, utf8 binary and interpolated strings
 * Cell formatting, styling and merging
@@ -26,7 +26,7 @@ var sheetConfig = new SheetConfiguration(
     FrozenColumns: 1, // freeze pane: colums count
     FrozenRows: 3, // freeze pane: rows count
     ShowGridLines: true,
-    AutoFilter: "A1:G1"); // table headers filter. A1-style string or indexes AutoFilter: new((1,1), (7,1)) 
+    AutoFilter: "A1:G1" /* or new((1,1), (7,1)) */); // table headers filter. A1-style string or indexes 
 
 await writer.StartSheet("First sheet", sheetConfig);
 
@@ -203,31 +203,30 @@ Benchmarks below use .net 9.0 runtime.
 #### Real world report ####
 [100 columns](https://github.com/gooseberrysoft/excel-streaming/blob/main/benchmarks/Gooseberry.ExcelStreaming.Benchmarks/RealWorldReportBenchmarks.cs): numbers, dates, strings
 
-
-| RowsCount | Mean           | Gen0   | Allocated |
-|---------- |---------------:|-------:|----------:|
-| 100       |       872.0 μs | 1.9531 |  13.01 KB |
-| 1000      |     6,197.9 μs |      - |  13.56 KB |
-| 10000     |    55,191.2 μs |      - |  26.76 KB |
-| 100000    |   545,122.2 μs |      - | 160.64 KB |
-| 500000    | 2,851,101.2 μs |      - | 814.27 KB |
+| RowsCount | Mean           | Allocated |
+|---------- |---------------:|----------:|
+| 100       |       972.0 μs |  13.96 KB |
+| 1000      |     6,317.1 μs |     14 KB |
+| 10000     |    57,972.8 μs |  13.89 KB |
+| 100000    |   587,329.5 μs |  14.05 KB |
+| 500000    | 2,984,083.0 μs |  14.16 KB |
 
 
 #### OpenXML and SpreadCheetah comparison ####
 
-| Method        | RowsCount | Mean           | Gen0       | Gen1      | Gen2      | Allocated     |
-|-------------- |---------- |---------------:|-----------:|----------:|----------:|--------------:|
-| **ExcelWriter**   | **100**       |       **999.6 μs** |     1.9531 |         - |         - |      13.27 KB |
-| SpreadCheetah | 100       |     1,344.5 μs |          - |         - |         - |       7.02 KB |
-| OpenXml       | 100       |     3,583.9 μs |   187.5000 |  187.5000 |  187.5000 |    1216.56 KB |
-| **ExcelWriter**   | **1 000**     |     **6,506.4 μs** |          - |         - |         - |      14.11 KB |
-| SpreadCheetah | 1 000     |    12,527.9 μs |          - |         - |         - |       7.03 KB |
-| OpenXml       | 1 000     |    35,395.4 μs |  1133.3333 |  533.3333 |  466.6667 |   16631.97 KB |
-| **ExcelWriter**   | **10 000**    |    **62,054.4 μs** |          - |         - |         - |      27.39 KB |
-| SpreadCheetah | 10 000    |   126,385.1 μs |          - |         - |         - |       7.59 KB |
-| OpenXml       | 10 000    |   350,409.4 μs | 10000.0000 | 3000.0000 | 3000.0000 |  142223.66 KB |
-| **ExcelWriter**   | **100 000**   |   **582,107.2 μs** |          - |         - |         - |     171.54 KB |
-| SpreadCheetah | 100 000   | 1,233,093.7 μs |          - |         - |         - |      24.17 KB |
-| OpenXml       | 100 000   | 3,440,059.4 μs | 74000.0000 | 3000.0000 | 3000.0000 | 1226005.71 KB |
+| Method        | RowsCount | Mean         | Gen0       | Gen1      | Gen2      | Allocated     |
+|-------------- |---------- |-------------:|-----------:|----------:|----------:|--------------:|
+| **ExcelWriter**   | **100**       |     **1.260 ms** |          - |         - |         - |      **14.23 KB** |
+| SpreadCheetah | 100       |     1.305 ms |          - |         - |         - |       8.61 KB |
+| OpenXml       | 100       |     4.258 ms |   195.3125 |  195.3125 |  195.3125 |    1216.48 KB |
+| **ExcelWriter**   | **1000**      |     **7.435 ms** |          - |         - |         - |      **14.32 KB** |
+| SpreadCheetah | 1000      |    11.655 ms |          - |         - |         - |       8.61 KB |
+| OpenXml       | 1000      |    36.718 ms |  1214.2857 |  571.4286 |  500.0000 |   16630.37 KB |
+| **ExcelWriter**   | **10000**     |    **73.579 ms** |          - |         - |         - |      **14.73 KB** |
+| SpreadCheetah | 10000     |   112.971 ms |          - |         - |         - |       9.11 KB |
+| OpenXml       | 10000     |   349.437 ms | 10000.0000 | 3000.0000 | 3000.0000 |  142199.43 KB |
+| **ExcelWriter**   | **100000**    |   **751.082 ms** |          - |         - |         - |      **29.38 KB** |
+| SpreadCheetah | 100000    | 1,210.076 ms |          - |         - |         - |       27.7 KB |
+| OpenXml       | 100000    | 3,570.153 ms | 74000.0000 | 3000.0000 | 3000.0000 | 1225984.89 KB |
 
 Full [results](https://github.com/gooseberrysoft/excel-streaming/blob/main/benchmarks/results/Gooseberry.ExcelStreaming.Benchmarks.ExcelWriterBenchmarks-report-github.md) and benchmark [code](https://github.com/gooseberrysoft/excel-streaming/blob/main/benchmarks/Gooseberry.ExcelStreaming.Benchmarks/ExcelWriterBenchmarks.cs).
