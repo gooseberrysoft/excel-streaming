@@ -76,7 +76,7 @@ internal sealed class Buffer : IDisposable
 
         _buffer.Span.Slice(0, _length).CopyTo(output);
 
-        RentNew(MinSize);
+        _length = 0;
     }
 
     public void Dispose()
