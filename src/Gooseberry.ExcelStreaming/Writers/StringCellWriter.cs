@@ -15,11 +15,6 @@ internal static class StringCellWriter
 
     private static ReadOnlySpan<byte> StylePrefix => "<c t=\"str\" s=\""u8;
     private static ReadOnlySpan<byte> StylePostfix => "\"><v>"u8;
-    private const int NumberSize = 3;
-    private const int MaxSpanSize = 512;
-
-    private static readonly int StyleSize = StylePrefix.Length + NumberSize + StylePostfix.Length
-        + Postfix.Length;
 
     private static readonly int RegularSize = Prefix.Length + Postfix.Length;
 
@@ -29,11 +24,7 @@ internal static class StringCellWriter
         if (value.Length > MaxCharacters)
             ThrowCharsLimitExceeded();
 
-        //var spanSize = (style.HasValue ? StyleSize : RegularSize) + value.Length;
-        //var span = buffer.GetSpan(Math.Min(spanSize, MaxSpanSize));
-
         var span = buffer.GetSpan(RegularSize);
-
         var written = 0;
 
         if (style.HasValue)
@@ -60,10 +51,7 @@ internal static class StringCellWriter
         if (value.Length > MaxBytes)
             ThrowCharsLimitExceeded();
 
-        //var spanSize = (style.HasValue ? StyleSize : RegularSize) + value.Length;
-        //var span = buffer.GetSpan(Math.Min(spanSize, MaxSpanSize));
         var span = buffer.GetSpan(RegularSize);
-
         var written = 0;
 
         if (style.HasValue)
