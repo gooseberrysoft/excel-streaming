@@ -25,4 +25,4 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release --no-restore
     - name: Test
-      run: dotnet test Gooseberry.ExcelStreaming.Tests --no-restore
+      run: dotnet test --directory tests --no-restore
