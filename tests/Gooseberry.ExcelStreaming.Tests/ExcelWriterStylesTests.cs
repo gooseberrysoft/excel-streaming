@@ -76,7 +76,7 @@ public sealed class ExcelWriterStylesTests
                     new Cell("2", CellValueType.Number, style),
                     new Cell("3.55", CellValueType.Number, style),
                     new Cell(now.ToInternalOADate(), Style: style),
-                    new Cell("", CellValueType.String, style)
+                    new Cell("", null, style)
                 })
             });
 
@@ -136,7 +136,7 @@ public sealed class ExcelWriterStylesTests
                     new Cell("3.55", CellValueType.Number, style),
                     new Cell(now.ToInternalOADate(), Style: style),
                     new Cell(today.ToDateTime(default).ToInternalOADate(), Style: style),
-                    new Cell("", CellValueType.String, style)
+                    new Cell("", null, style)
                 })
             });
 

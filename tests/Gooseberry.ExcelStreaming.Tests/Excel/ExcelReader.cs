@@ -176,7 +176,7 @@ public static class ExcelReader
                 if (styles.TryGetValue(cell.StyleIndex!.Value!, out var styleValue))
                     style = styleValue;
 
-            return new Cell(cell.CellValue!.Text, valueType, style);
+            return new Cell(cell.CellValue?.Text ?? string.Empty, valueType, style);
         }
     }
 
