@@ -350,6 +350,42 @@ public sealed class ExcelFilesGenerator
         await writer.Complete();
     }
 
+    [Fact]
+    public async Task StyledEmptyCells()
+    {
+        var thinBlackBorder = new Border(BorderStyle.Thin, Color: Color.Black);
+        var thinBlackBorders = new Borders(Left: thinBlackBorder, Right: thinBlackBorder, Top: thinBlackBorder, Bottom: thinBlackBorder);
+        var builder = new StylesSheetBuilder();
+
+        var borderedStyle = builder.GetOrAdd(new Style(Borders: thinBlackBorders));
+
+        await using var file = new FileStream(BasePath + "emptyStyles.xlsx", FileMode.Create);
+
+        await using var writer = new ExcelWriter(file, styles: builder.Build(), token: CancellationToken.None);
+
+        await writer.StartSheet("First sheet");
+
+        writer.AddEmptyRows(3);
+
+        await writer.StartRow();
+
+        writer
+            .AddEmptyCell()
+            .AddCell("First header", style: borderedStyle, rightMerge: 1)
+            .AddEmptyCell(style: borderedStyle)
+            .AddCell("Second header", style: borderedStyle, downMerge: 1);
+
+        await writer.StartRow();
+
+        writer
+            .AddEmptyCell()
+            .AddCell("First subheader", style: borderedStyle)
+            .AddCell("Second subheader", style: borderedStyle)
+            .AddEmptyCell(style: borderedStyle);
+
+        await writer.Complete();
+    }
+
     private static void WriteUtf8Cell(ExcelWriter writer, ReadOnlySpan<byte> symbolBytes, int column)
     {
         Span<byte> span = new byte[symbolBytes.Length * (column + 1)];

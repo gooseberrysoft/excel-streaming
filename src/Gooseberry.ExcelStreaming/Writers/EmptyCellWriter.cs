@@ -6,19 +6,9 @@ namespace Gooseberry.ExcelStreaming.Writers;
 
 internal static class EmptyCellWriter
 {
-    private static ReadOnlySpan<byte> EmptyCell => "<c><v></v></c>"u8;
-    private static readonly byte[] _stylePrefix;
-    private static readonly byte[] _stylePostfix;
-
-    static EmptyCellWriter()
-    {
-        _stylePrefix = Constants.Worksheet.SheetData.Row.Cell.Prefix
-            .Combine(Constants.Worksheet.SheetData.Row.Cell.StringDataType,
-                Constants.Worksheet.SheetData.Row.Cell.Style.Prefix);
-
-        _stylePostfix = Constants.Worksheet.SheetData.Row.Cell.Style.Postfix
-            .Combine(Constants.Worksheet.SheetData.Row.Cell.Middle);
-    }
+    private static ReadOnlySpan<byte> EmptyCell => "<c></c>"u8;
+    private static ReadOnlySpan<byte> StylePrefix => "<c s=\""u8;
+    private static ReadOnlySpan<byte> StylePostfix => "\"></c>"u8;
 
     public static void Write(BuffersChain buffer, StyleReference? style = null)
     {
@@ -27,11 +17,14 @@ internal static class EmptyCellWriter
 
         if (style.HasValue)
         {
-            _stylePrefix.WriteTo(buffer, ref span, ref written);
-            NumberWriter<int, IntFormatter>.WriteValue(style.Value.Value, buffer, ref span, ref written);
-            _stylePostfix.WriteTo(buffer, ref span, ref written);
-            Constants.Worksheet.SheetData.Row.Cell.Postfix.WriteTo(buffer, ref span, ref written);
-
+            StylePrefix.WriteTo(buffer, ref span, ref written);
+#if NET8_0_OR_GREATER
+            Utf8SpanFormattableWriter.WriteValue(style.Value.Value, buffer, ref span, ref written);
+#else
+            style.Value.Value.WriteTo(buffer, ref span, ref written);
+#endif
+            StylePostfix.WriteTo(buffer, ref span, ref written);
+            
             buffer.Advance(written);
             return;
         }
