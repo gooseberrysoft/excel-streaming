@@ -4,8 +4,6 @@ using BenchmarkDotNet.Jobs;
 namespace Gooseberry.ExcelStreaming.Benchmarks;
 
 [MemoryDiagnoser]
-[SimpleJob(RuntimeMoniker.Net80)]
-[SimpleJob(RuntimeMoniker.Net90)]
 public class RealWorldReportBenchmarks
 {
     [Params(100, 1000, 10_000, 100_000, 500_000)]

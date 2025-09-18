@@ -16,37 +16,8 @@ internal static partial class Constants
         {
             public static class Row
             {
-                public static class Open
-                {
-                    public static ReadOnlySpan<byte> Prefix => "<row"u8;
-
-                    public static ReadOnlySpan<byte> Postfix => ">"u8;
-
-                    public static class Height
-                    {
-                        public static ReadOnlySpan<byte> Prefix => " ht=\""u8;
-
-                        public static ReadOnlySpan<byte> Postfix => "\" customHeight=\"1\""u8;
-                    }
-
-                    public static class OutlineLevel
-                    {
-                        public static ReadOnlySpan<byte> Prefix => " outlineLevel=\""u8;
-
-                        public static ReadOnlySpan<byte> Postfix => "\""u8;
-                    }
-
-                    public static ReadOnlySpan<byte> Collapsed => " collapsed=\"1\""u8;
-
-                    public static ReadOnlySpan<byte> Hidden => " hidden=\"true\""u8;
-                }
-
-                public static ReadOnlySpan<byte> Postfix => "</row>"u8;
-
                 public static class Cell
                 {
-                    public static ReadOnlySpan<byte> StringDataType => " t=\"str\""u8;
-
                     public static ReadOnlySpan<byte> SharedStringDataType => " t=\"s\""u8;
 
                     public static ReadOnlySpan<byte> NumberDataType => " t=\"n\""u8;

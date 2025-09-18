@@ -11,7 +11,7 @@ internal sealed class BufferPool(int bufferSize = BufferPool.DefaultBufferSize) 
     private const int MaxBufferSize = 1024 * 1024;
     private const int DefaultBufferSize = 64 * 1024;
 
-    private readonly List<byte[]> _rentedArrays = new();
+    private readonly List<byte[]> _rentedArrays = new(5);
     private readonly ConcurrentQueue<Memory<byte>> _availableBuffers = new();
 
     public Memory<byte> Rent(int minSize)

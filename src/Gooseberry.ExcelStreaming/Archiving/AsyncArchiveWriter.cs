@@ -11,7 +11,7 @@ internal sealed class AsyncArchiveWriter : IArchiveWriter
     private readonly CancellationToken _token;
     private Stream? _currentEntry;
 
-    public AsyncArchiveWriter(IZipArchive zipArchive, CancellationToken token, int capacity = 2)
+    public AsyncArchiveWriter(IZipArchive zipArchive, CancellationToken token, int capacity = 10)
     {
         _zipArchive = zipArchive;
         _token = token;

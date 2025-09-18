@@ -44,9 +44,14 @@ internal sealed class BuffersChain : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ValueTask FlushCompleted(IEntryWriter output)
     {
-        if (_completedBuffers.Count > 0 && _buffer.RemainingCapacity >= MinRemainingCapacity)
-            return FlushCompletedBuffers(output);
+        if (_completedBuffers.Count == 0 && _buffer.RemainingCapacity >= MinRemainingCapacity)
+            return ValueTask.CompletedTask;
 
+        return FlushCompletedImpl(output);
+    }
+
+    private ValueTask FlushCompletedImpl(IEntryWriter output)
+    {
         if (_completedBuffers.Count > 0)
             return FlushCompletedAsync(output);
 
