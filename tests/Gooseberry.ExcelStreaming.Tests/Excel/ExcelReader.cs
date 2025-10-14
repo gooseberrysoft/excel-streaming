@@ -74,7 +74,8 @@ public static class ExcelReader
                         GetRows((WorksheetPart)part.OpenXmlPart),
                         GetColumns((WorksheetPart)part.OpenXmlPart),
                         GetMerges((WorksheetPart)part.OpenXmlPart),
-                        GetPictures((WorksheetPart)part.OpenXmlPart)))
+                        GetPictures((WorksheetPart)part.OpenXmlPart),
+                        GetAutoFilter((WorksheetPart)part.OpenXmlPart)))
             .ToArray();
 
         IReadOnlyCollection<Picture> GetPictures(WorksheetPart sheetPart)
@@ -130,6 +131,11 @@ public static class ExcelReader
                     y: int.Parse(marker.RowOffset?.Text ?? "")));
         }
 
+        string? GetAutoFilter(WorksheetPart sheetPart)
+        {
+            return sheetPart.Worksheet.GetFirstChild<AutoFilter>()?.Reference?.Value;
+        }
+        
         // sheetPart.DrawingsPart.RootElement.Descendants<OneCellAnchor>().First().Descendants<Picture>().First()
         IReadOnlyCollection<Column> GetColumns(WorksheetPart sheetPart)
         {

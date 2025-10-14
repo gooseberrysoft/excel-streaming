@@ -567,6 +567,57 @@ public sealed class ExcelWriterTests
     }
 
     [Fact]
+    public async Task StartSheet_WritesCorrectColumnWidths1()
+    {
+        using var outputStream = new MemoryStream();
+
+        await using (var writer = new ExcelWriter(outputStream))
+        {
+            await writer.StartSheet(
+                "test sheet 1",
+                new SheetConfiguration(
+                    new[]
+                    {
+                        new Column(Width: 10m),
+                        new Column(Width: 15m)
+                    },
+                    AutoFilter:"A1B1"));
+
+            await writer.StartSheet(
+                "test sheet 2",
+                new SheetConfiguration(
+                    new[]
+                    {
+                        new Column(Width: 10m),
+                        new Column(Width: 15m)
+                    },
+                    AutoFilter:"A2B2"));
+
+            await writer.Complete();
+        }
+
+        outputStream.Seek(0, SeekOrigin.Begin);
+
+        var sheets = ExcelReader.ReadSheets(outputStream);
+
+        var expectedSheet = new[]
+        {
+            new Excel.Sheet(
+                "test sheet 1",
+                Array.Empty<Row>(),
+                new[] { new Column(10m), new Column(15m) },
+                AutoFilter: "A1B1"),
+            new Excel.Sheet(
+                "test sheet 2",
+                Array.Empty<Row>(),
+                new[] { new Column(10m), new Column(15m) },
+                AutoFilter: "A2B2"),
+        };
+
+        sheets.Should().BeEquivalentTo(expectedSheet);
+    }
+
+    [Fact]
     public async Task AddRow_WritesCorrectRowHeight()
     {
         using var outputStream = new MemoryStream();
