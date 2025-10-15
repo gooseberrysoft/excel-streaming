@@ -9,7 +9,8 @@ public readonly record struct Sheet(
     IReadOnlyCollection<Row> Rows,
     IReadOnlyCollection<Column>? Columns = null,
     IReadOnlyCollection<string>? Merges = null,
-    IReadOnlyCollection<Picture>? Pictures = null)
+    IReadOnlyCollection<Picture>? Pictures = null,
+    string? AutoFilter = null)
 {
     public IReadOnlyCollection<Picture> Pictures { get; init; } = Pictures ?? Array.Empty<Picture>();
 

@@ -70,8 +70,6 @@ public sealed partial class ExcelWriter : IAsyncDisposable
     {
         EnsureNotCompleted();
 
-        _sheetConfiguration = configuration;
-
         if (!_initialFilesWritten)
             await WriteInitialWorkbookFiles();
 
@@ -81,6 +79,7 @@ public sealed partial class ExcelWriter : IAsyncDisposable
         if (_sheetWriter != null)
             await EndSheet();
 
+        _sheetConfiguration = configuration;
         _rowCount = 0;
         _columnCount = 0;
         _merges.Clear();
