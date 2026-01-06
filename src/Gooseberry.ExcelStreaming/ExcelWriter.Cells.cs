@@ -7,7 +7,7 @@ namespace Gooseberry.ExcelStreaming;
 
 public sealed partial class ExcelWriter
 {
-    public ExcelWriter AddCellPicture(Stream picture, PictureFormat format, Size size, uint rightMerge = 0, uint downMerge = 0)
+    public ExcelWriter AddCellPicture(Stream picture, PictureFormat format, Size size)
     {
         CheckWriteCell();
 
@@ -15,17 +15,11 @@ public sealed partial class ExcelWriter
             new OneCellAnchorPicturePlacementWriter(new AnchorCell(_columnCount, _rowCount - 1), size));
 
         _columnCount += 1;
-        MergeCell(rightMerge, downMerge);
 
         return this;
     }
 
-    public ExcelWriter AddCellPicture(
-        ReadOnlyMemory<byte> picture,
-        PictureFormat format,
-        Size size,
-        uint rightMerge = 0,
-        uint downMerge = 0)
+    public ExcelWriter AddCellPicture(ReadOnlyMemory<byte> picture, PictureFormat format, Size size)
     {
         CheckWriteCell();
 
@@ -33,7 +27,6 @@ public sealed partial class ExcelWriter
             new OneCellAnchorPicturePlacementWriter(new AnchorCell(_columnCount, _rowCount - 1), size));
 
         _columnCount += 1;
-        MergeCell(rightMerge, downMerge);
 
         return this;
     }
@@ -41,83 +34,80 @@ public sealed partial class ExcelWriter
     public ExcelWriter AddCell(
         [InterpolatedStringHandlerArgument("")]
         Utf8InterpolatedStringHandler handler,
-        StyleReference? style = null,
-        uint rightMerge = 0,
-        uint downMerge = 0)
+        StyleReference? style = null)
     {
-        return AddCellUtf8String(handler.GetBytes(), style, rightMerge, downMerge);
+        return AddCellUtf8String(handler.GetBytes(), style);
     }
 
-    public ExcelWriter AddCell(string? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+    public ExcelWriter AddCell(string? data, StyleReference? style = null)
     {
         if (data == null)
-            return AddEmptyCell(style, rightMerge, downMerge);
+            return AddEmptyCell(style);
 
-        AddCellImpl(data.AsSpan(), style, rightMerge, downMerge);
+        AddCellImpl(data.AsSpan(), style);
         return this;
     }
 
-    public ExcelWriter AddCell(int data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+    public ExcelWriter AddCell(int data, StyleReference? style = null)
     {
-        AddCellNumberImpl(data, style: style, rightMerge: rightMerge, downMerge: downMerge);
+        AddCellNumberImpl(data, style: style);
         return this;
     }
 
-    public ExcelWriter AddCell(int? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+    public ExcelWriter AddCell(int? data, StyleReference? style = null)
     {
         return data.HasValue
-            ? AddCell(data.Value, style, rightMerge, downMerge)
-            : AddEmptyCell(style, rightMerge, downMerge);
+            ? AddCell(data.Value, style)
+            : AddEmptyCell(style);
     }
 
-    public ExcelWriter AddCell(long data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+    public ExcelWriter AddCell(long data, StyleReference? style = null)
     {
-        AddCellNumberImpl(data, style: style, rightMerge: rightMerge, downMerge: downMerge);
+        AddCellNumberImpl(data, style: style);
         return this;
     }
 
-    public ExcelWriter AddCell(long? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+    public ExcelWriter AddCell(long? data, StyleReference? style = null)
     {
         return data.HasValue
-            ? AddCell(data.Value, style, rightMerge, downMerge)
-            : AddEmptyCell(style, rightMerge, downMerge);
+            ? AddCell(data.Value, style)
+            : AddEmptyCell(style);
     }
 
-    public ExcelWriter AddCell(decimal data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+    public ExcelWriter AddCell(decimal data, StyleReference? style = null)
     {
-        AddCellNumberImpl(data, style: style, rightMerge: rightMerge, downMerge: downMerge);
+        AddCellNumberImpl(data, style: style);
         return this;
     }
 
-    public ExcelWriter AddCell(decimal? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+    public ExcelWriter AddCell(decimal? data, StyleReference? style = null)
     {
         return data.HasValue
-            ? AddCell(data.Value, style, rightMerge, downMerge)
-            : AddEmptyCell(style, rightMerge, downMerge);
+            ? AddCell(data.Value, style)
+            : AddEmptyCell(style);
     }
 
-    public ExcelWriter AddCell(double data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+    public ExcelWriter AddCell(double data, StyleReference? style = null)
     {
-        AddCellNumberImpl(data, style: style, rightMerge: rightMerge, downMerge: downMerge);
+        AddCellNumberImpl(data, style: style);
         return this;
     }
 
-    public ExcelWriter AddCell(double? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+    public ExcelWriter AddCell(double? data, StyleReference? style = null)
     {
         return data.HasValue
-            ? AddCell(data.Value, style, rightMerge, downMerge)
-            : AddEmptyCell(style, rightMerge, downMerge);
+            ? AddCell(data.Value, style)
+            : AddEmptyCell(style);
     }
 
     /// <summary>
     /// Format by default is StandardFormat.DayMonthYear4WithSlashes =  d/m/yyyy or mm.dd.yyyy depending on excel locale.
     /// </summary>
-    public ExcelWriter AddCell(DateTime data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+    public ExcelWriter AddCell(DateTime data, StyleReference? style = null)
     {
         CheckWriteCell();
         Utf8DateTimeCellWriter.Write(data, _buffer, style ?? _styles.DefaultDateStyle);
         _columnCount += 1;
-        MergeCell(rightMerge, downMerge);
 
         return this;
     }
@@ -125,79 +115,74 @@ public sealed partial class ExcelWriter
     /// <summary>
     /// Format by default is StandardFormat.DayMonthYear4WithSlashes =  d/m/yyyy or mm.dd.yyyy depending on excel locale.
     /// </summary>
-    public ExcelWriter AddCell(DateTime? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+    public ExcelWriter AddCell(DateTime? data, StyleReference? style = null)
     {
         return data.HasValue
-            ? AddCell(data.Value, style, rightMerge, downMerge)
-            : AddEmptyCell(style, rightMerge, downMerge);
+            ? AddCell(data.Value, style)
+            : AddEmptyCell(style);
     }
 
     /// <summary>
     /// Format by default is StandardFormat.DayMonthYear4WithSlashes =  d/m/yyyy or mm.dd.yyyy depending on excel locale.
     /// </summary>
-    public ExcelWriter AddCell(DateOnly data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+    public ExcelWriter AddCell(DateOnly data, StyleReference? style = null)
     {
         CheckWriteCell();
         Utf8DateTimeCellWriter.Write(data, _buffer, style ?? _styles.DefaultDateStyle);
 
         _columnCount += 1;
-        MergeCell(rightMerge, downMerge);
         return this;
     }
 
     /// <summary>
     /// Format by default is StandardFormat.DayMonthYear4WithSlashes =  d/m/yyyy or mm.dd.yyyy depending on excel locale.
     /// </summary>
-    public ExcelWriter AddCell(DateOnly? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+    public ExcelWriter AddCell(DateOnly? data, StyleReference? style = null)
     {
         return data.HasValue
-            ? AddCell(data.Value, style, rightMerge, downMerge)
-            : AddEmptyCell(style, rightMerge, downMerge);
+            ? AddCell(data.Value, style)
+            : AddEmptyCell(style);
     }
 
-    public ExcelWriter AddCell(char data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+    public ExcelWriter AddCell(char data, StyleReference? style = null)
     {
         var span = new ReadOnlySpan<char>(ref data);
-        AddCellImpl(span, style, rightMerge, downMerge);
+        AddCellImpl(span, style);
 
         return this;
     }
 
-    public ExcelWriter AddCell(ReadOnlySpan<char> data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+    public ExcelWriter AddCell(ReadOnlySpan<char> data, StyleReference? style = null)
     {
-        AddCellImpl(data, style, rightMerge, downMerge);
+        AddCellImpl(data, style);
         return this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void AddCellImpl(ReadOnlySpan<char> data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+    private void AddCellImpl(ReadOnlySpan<char> data, StyleReference? style = null)
     {
         CheckWriteCell();
 
         StringCellWriter.Write(data, _buffer, _encoder, style);
 
         _columnCount += 1;
-        MergeCell(rightMerge, downMerge);
     }
 
-    public ExcelWriter AddCellUtf8String(ReadOnlySpan<byte> data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+    public ExcelWriter AddCellUtf8String(ReadOnlySpan<byte> data, StyleReference? style = null)
     {
         CheckWriteCell();
 
         StringCellWriter.WriteUtf8(data, _buffer, style);
 
         _columnCount += 1;
-        MergeCell(rightMerge, downMerge);
         return this;
     }
 
     public ExcelWriter AddCellString<T>(
         T data,
         ReadOnlySpan<char> format = default,
-        IFormatProvider? formatProvider = default,
-        StyleReference? style = null,
-        uint rightMerge = 0,
-        uint downMerge = 0)
+        IFormatProvider? formatProvider = null,
+        StyleReference? style = null)
         where T : IUtf8SpanFormattable
     {
         CheckWriteCell();
@@ -205,19 +190,16 @@ public sealed partial class ExcelWriter
         Utf8StringCellWriter.Write(data, format, formatProvider, _buffer, style);
 
         _columnCount += 1;
-        MergeCell(rightMerge, downMerge);
         return this;
     }
 
     public ExcelWriter AddCellNumber<T>(
         T data,
         ReadOnlySpan<char> format = default,
-        IFormatProvider? formatProvider = default,
-        StyleReference? style = null,
-        uint rightMerge = 0,
-        uint downMerge = 0) where T : IUtf8SpanFormattable
+        IFormatProvider? formatProvider = null,
+        StyleReference? style = null) where T : IUtf8SpanFormattable
     {
-        AddCellNumberImpl(data, format, formatProvider, style, rightMerge, downMerge);
+        AddCellNumberImpl(data, format, formatProvider, style);
         return this;
     }
 
@@ -225,71 +207,61 @@ public sealed partial class ExcelWriter
     private void AddCellNumberImpl<T>(
         T data,
         ReadOnlySpan<char> format = default,
-        IFormatProvider? formatProvider = default,
-        StyleReference? style = null,
-        uint rightMerge = 0,
-        uint downMerge = 0) where T : IUtf8SpanFormattable
+        IFormatProvider? formatProvider = null,
+        StyleReference? style = null) where T : IUtf8SpanFormattable
     {
         CheckWriteCell();
 
         Utf8NumberCellWriter.Write(data, format, formatProvider, _buffer, style);
 
         _columnCount += 1;
-        MergeCell(rightMerge, downMerge);
     }
 
-    public ExcelWriter AddCellSharedString(string? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+    public ExcelWriter AddCellSharedString(string? data, StyleReference? style = null)
     {
         return data == null
-            ? AddEmptyCell(style, rightMerge, downMerge)
-            : AddStringReferenceCell(_sharedStringKeeper.GetOrAdd(data), style, rightMerge, downMerge);
+            ? AddEmptyCell(style)
+            : AddStringReferenceCell(_sharedStringKeeper.GetOrAdd(data), style);
     }
 
-    public ExcelWriter AddCell(SharedStringReference sharedString, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+    public ExcelWriter AddCell(SharedStringReference sharedString, StyleReference? style = null)
     {
         if (!_sharedStringKeeper.IsValidReference(sharedString))
             throw new ArgumentException(
                 "Invalid shared string reference. String not found in the table. Check sharedStringTable in ExcelWriter constructor.",
                 nameof(sharedString));
 
-        return AddStringReferenceCell(sharedString, style, rightMerge, downMerge);
+        return AddStringReferenceCell(sharedString, style);
     }
 
-    private ExcelWriter AddStringReferenceCell(
-        SharedStringReference sharedString,
-        StyleReference? style = null,
-        uint rightMerge = 0,
-        uint downMerge = 0)
+    private ExcelWriter AddStringReferenceCell(SharedStringReference sharedString, StyleReference? style = null)
     {
         CheckWriteCell();
         SharedStringCellWriter.Write(sharedString, _buffer, style);
 
         _columnCount += 1;
-        MergeCell(rightMerge, downMerge);
 
         return this;
     }
 
-    public ExcelWriter AddCell(in Hyperlink hyperlink, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+    public ExcelWriter AddCell(in Hyperlink hyperlink, StyleReference? style = null)
     {
         CheckWriteCell();
         StringCellWriter.Write(hyperlink.Text, _buffer, _encoder, style ?? _styles.DefaultHyperlinkStyle);
 
         _columnCount += 1;
-        MergeCell(rightMerge, downMerge);
         AddHyperlink(hyperlink);
 
         return this;
     }
 
-    public ExcelWriter AddEmptyCell(StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
+    public ExcelWriter AddEmptyCell(StyleReference? style = null)
     {
         CheckWriteCell();
 
         EmptyCellWriter.Write(_buffer, style);
 
         _columnCount += 1;
-        MergeCell(rightMerge, downMerge);
 
         return this;
     }
@@ -311,15 +283,13 @@ public sealed partial class ExcelWriter
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void MergeCell(uint rightMerge = 0, uint downMerge = 0)
+    public ExcelWriter MergeCells(uint colSpan = 0, uint rowSpan = 0)
     {
-        if (rightMerge != 0 || downMerge != 0)
-            AddMerge(rightMerge, downMerge);
-    }
+        if (colSpan != 0 || rowSpan != 0)
+            _merges.Add(new Merge(_rowCount, _columnCount, rowSpan, colSpan));
 
-    [MethodImpl(MethodImplOptions.NoInlining)]
-    private void AddMerge(uint rightMerge, uint downMerge)
-        => _merges.Add(new Merge(_rowCount, _columnCount, downMerge, rightMerge));
+        return this;
+    }
 
     private void AddHyperlink(in Hyperlink hyperlink)
     {

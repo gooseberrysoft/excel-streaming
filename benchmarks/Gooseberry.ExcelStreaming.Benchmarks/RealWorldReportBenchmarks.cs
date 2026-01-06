@@ -1,5 +1,4 @@
 ﻿using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Jobs;
 
 namespace Gooseberry.ExcelStreaming.Benchmarks;
 

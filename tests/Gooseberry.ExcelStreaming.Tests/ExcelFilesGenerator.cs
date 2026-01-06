@@ -369,9 +369,9 @@ public sealed class ExcelFilesGenerator
 
         writer
             .AddEmptyCell()
-            .AddCell("First header", style: borderedStyle, rightMerge: 1)
+            .AddCell("First header", style: borderedStyle).MergeCells(colSpan: 1)
             .AddEmptyCell(style: borderedStyle)
-            .AddCell("Second header", style: borderedStyle, downMerge: 1);
+            .AddCell("Second header", style: borderedStyle).MergeCells(rowSpan: 1);
 
         await writer.StartRow();
 

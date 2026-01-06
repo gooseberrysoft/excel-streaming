@@ -1,6 +1,4 @@
-using System.Globalization;
 using Gooseberry.ExcelStreaming.Tests.Excel;
-using Gooseberry.ExcelStreaming.Writers;
 using Xunit;
 
 namespace Gooseberry.ExcelStreaming.Tests;
@@ -17,7 +15,7 @@ public sealed class ExcelWriterMergeCellsTests
             await writer.StartSheet("test sheet");
 
             await writer.StartRow();
-            writer.AddCell("Id", rightMerge: 1, downMerge: 1);
+            writer.AddCell("Id").MergeCells(colSpan: 2, rowSpan: 3);
 
             await writer.Complete();
         }
@@ -35,7 +33,7 @@ public sealed class ExcelWriterMergeCellsTests
                     new Cell("Id", CellValueType.String)
                 })
             },
-            Merges: new[] { "A1:B2" });
+            Merges: new[] { "A1:C4" });
 
         sheets.ShouldBeEquivalentTo(expectedSheet);
     }
@@ -52,10 +50,10 @@ public sealed class ExcelWriterMergeCellsTests
             await writer.StartSheet("test sheet");
 
             await writer.StartRow();
-            writer.AddCell("Id", rightMerge: 1, downMerge: 1);
+            writer.AddCell("Id").MergeCells(1, 1);
             writer.AddEmptyCell();
 
-            writer.AddCell("Dates", rightMerge: 1);
+            writer.AddCell("Dates").MergeCells(colSpan: 1);
             writer.AddEmptyCell();
 
             await writer.StartRow();
@@ -65,7 +63,7 @@ public sealed class ExcelWriterMergeCellsTests
             writer.AddCell("Update");
 
             await writer.StartRow();
-            writer.AddCell(1, rightMerge: 1);
+            writer.AddCell(1).MergeCells(colSpan: 1);
             writer.AddEmptyCell();
             writer.AddCell(now);
             writer.AddCell(now);

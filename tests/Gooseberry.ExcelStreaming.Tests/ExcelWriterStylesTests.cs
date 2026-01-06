@@ -1,9 +1,7 @@
-using System.Globalization;
 using Gooseberry.ExcelStreaming.Tests.Excel;
 using Color = System.Drawing.Color;
 using Gooseberry.ExcelStreaming.Styles;
 using Xunit;
-using Gooseberry.ExcelStreaming.Writers;
 
 namespace Gooseberry.ExcelStreaming.Tests;
 
