@@ -32,9 +32,9 @@ internal static class WorkbookWriter
             sheet.Name.WriteEscapedTo(buffer, encoder, ref span, ref written);
             SheetEndPrefix.WriteTo(buffer, ref span, ref written);
 
-            sheet.Id.WriteTo(buffer, ref span, ref written);
+            Utf8SpanFormattableWriter.WriteValue(sheet.Id, buffer, ref span, ref written);
             SheetEndPostfix.WriteTo(buffer, ref span, ref written);
-            sheet.Id.WriteTo(buffer, ref span, ref written);
+            Utf8SpanFormattableWriter.WriteValue(sheet.Id, buffer, ref span, ref written);
             SheetPostfix.WriteTo(buffer, ref span, ref written);
         }
 

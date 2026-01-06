@@ -114,7 +114,6 @@ internal static class StringWriter
         }
     }
 
-#if NET8_0_OR_GREATER
     internal static void WriteEscapedUtf8To<T>(
         in T data,
         ReadOnlySpan<char> format,
@@ -158,7 +157,6 @@ internal static class StringWriter
             EscapeUtf8(bytesUtf8ToEncode, buffer, ref destination, ref written);
         }
     }
-#endif
 
     internal static void WriteEscapedUtf8To(
         this scoped ReadOnlySpan<byte> utf8Data,

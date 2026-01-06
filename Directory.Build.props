@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
-    <Version>1.8.6</Version>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <Version>2.0.0</Version>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -16,7 +16,7 @@
     <!-- Embed source files that are not tracked by the source control manager in the PDB -->
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
 
-    <Copyright>Copyright 2025 © Gooseberry Team</Copyright>
+    <Copyright>Copyright 2026 © Gooseberry Team</Copyright>
     <Company>Gooseberry</Company>
     <Authors>Gooseberry Team</Authors>
     <Description>The simplest, fastest and low memory consumption library for writing Excel files to streams. Completely free to use.</Description>

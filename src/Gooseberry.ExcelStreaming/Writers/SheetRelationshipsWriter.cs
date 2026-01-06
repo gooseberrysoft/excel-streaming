@@ -40,7 +40,7 @@ internal static class SheetRelationshipsWriter
             foreach (var hyperlink in hyperlinks)
             {
                 HyperlinkStartPrefix.WriteTo(buffer, ref span, ref written);
-                count.WriteTo(buffer, ref span, ref written);
+                Utf8SpanFormattableWriter.WriteValue(count, buffer, ref span, ref written);
                 HyperlinkEndPrefix.WriteTo(buffer, ref span, ref written);
                 hyperlink.WriteEscapedTo(buffer, encoder, ref span, ref written);
                 HyperlinkPostfix.WriteTo(buffer, ref span, ref written);

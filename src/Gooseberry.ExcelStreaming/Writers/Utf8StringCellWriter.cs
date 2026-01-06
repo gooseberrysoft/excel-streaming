@@ -1,4 +1,3 @@
-#if NET8_0_OR_GREATER
 using Gooseberry.ExcelStreaming.Styles;
 
 namespace Gooseberry.ExcelStreaming.Writers;
@@ -39,4 +38,3 @@ internal static class Utf8StringCellWriter
         Postfix.WriteAdvanceTo(buffer, span, written);
     }
 }
-#endif

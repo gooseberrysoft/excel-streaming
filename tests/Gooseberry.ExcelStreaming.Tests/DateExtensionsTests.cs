@@ -24,7 +24,6 @@ public sealed class DateExtensionsTests
         }
     }
 
-#if NET8_0_OR_GREATER
     [Fact]
     public void CheckCustomOADateByDay()
     {
@@ -75,5 +74,4 @@ public sealed class DateExtensionsTests
             date = date.AddMilliseconds(100);
         }
     }
-#endif
 }

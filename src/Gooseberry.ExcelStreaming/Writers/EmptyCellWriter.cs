@@ -1,6 +1,4 @@
-using Gooseberry.ExcelStreaming.Extensions;
 using Gooseberry.ExcelStreaming.Styles;
-using Gooseberry.ExcelStreaming.Writers.Formatters;
 
 namespace Gooseberry.ExcelStreaming.Writers;
 
@@ -18,11 +16,7 @@ internal static class EmptyCellWriter
         if (style.HasValue)
         {
             StylePrefix.WriteTo(buffer, ref span, ref written);
-#if NET8_0_OR_GREATER
             Utf8SpanFormattableWriter.WriteValue(style.Value.Value, buffer, ref span, ref written);
-#else
-            style.Value.Value.WriteTo(buffer, ref span, ref written);
-#endif
             StylePostfix.WriteTo(buffer, ref span, ref written);
             
             buffer.Advance(written);

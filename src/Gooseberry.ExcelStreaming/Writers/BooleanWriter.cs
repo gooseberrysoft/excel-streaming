@@ -10,5 +10,5 @@ public static class BooleanWriter
         BuffersChain buffer,
         ref Span<byte> destination,
         ref int written)
-        => (data ? Constants.TrueValue : Constants.FalseValue).WriteTo(buffer, ref destination, ref written);
+        => (data ? "true"u8 : "false"u8).WriteTo(buffer, ref destination, ref written);
 }

@@ -66,7 +66,10 @@ internal sealed class SyncArchiveWriter : IArchiveWriter
                 await Write(buffer.Memory);
         }
 
-        public async ValueTask Write(ReadOnlyMemory<byte> buffer)
+        public bool TryWrite(in MemoryOwner buffer)
+            => false;
+
+        private async ValueTask Write(ReadOnlyMemory<byte> buffer)
         {
             if (!_created)
             {

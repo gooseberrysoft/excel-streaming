@@ -30,11 +30,7 @@ internal static class StringCellWriter
         if (style.HasValue)
         {
             StylePrefix.CopyTo(ref span, ref written);
-#if NET8_0_OR_GREATER
             Utf8SpanFormattableWriter.WriteValue(style.Value.Value, buffer, ref span, ref written);
-#else
-            style.Value.Value.WriteTo(buffer, ref span, ref written);
-#endif
             StylePostfix.CopyTo(ref span, ref written);
         }
         else
@@ -57,11 +53,7 @@ internal static class StringCellWriter
         if (style.HasValue)
         {
             StylePrefix.CopyTo(ref span, ref written);
-#if NET8_0_OR_GREATER
             Utf8SpanFormattableWriter.WriteValue(style.Value.Value, buffer, ref span, ref written);
-#else
-            style.Value.Value.WriteTo(buffer, ref span, ref written);
-#endif
             StylePostfix.CopyTo(ref span, ref written);
         }
         else

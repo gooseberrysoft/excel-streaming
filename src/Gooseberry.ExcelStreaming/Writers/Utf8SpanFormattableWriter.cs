@@ -1,4 +1,3 @@
-#if NET8_0_OR_GREATER
 using System.Globalization;
 using System.Runtime.CompilerServices;
 
@@ -63,5 +62,3 @@ internal static class Utf8SpanFormattableWriter
         written += bytesWritten;
     }
 }
-
-#endif

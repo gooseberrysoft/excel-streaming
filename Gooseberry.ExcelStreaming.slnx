@@ -1,0 +1,19 @@
+<Solution>
+  <Folder Name="/benchmarks/">
+    <Project Path="benchmarks/Gooseberry.ExcelStreaming.Benchmarks/Gooseberry.ExcelStreaming.Benchmarks.csproj" />
+  </Folder>
+  <Folder Name="/common/">
+    <File Path=".github/workflows/dotnet-core.yml" />
+    <File Path=".github/workflows/nuget-publish.yml" />
+    <File Path=".gitignore" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Gooseberry.ExcelStreaming/Gooseberry.ExcelStreaming.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Gooseberry.ExcelStreaming.Tests/Gooseberry.ExcelStreaming.Tests.csproj" />
+  </Folder>
+</Solution>

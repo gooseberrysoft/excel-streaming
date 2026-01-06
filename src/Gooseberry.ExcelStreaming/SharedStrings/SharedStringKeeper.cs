@@ -40,7 +40,7 @@ internal sealed class SharedStringKeeper : IDisposable
     public ValueTask WriteTo(IArchiveWriter archive, string entryPath)
     {
         if (_buffer == null)
-            return archive.WriteEntry(entryPath, Constants.SharedStringTable.EmptyTable);
+            return archive.WriteEntry(entryPath, SharedStringWriter.EmptyTable);
 
         SharedStringWriter.WritePostfix(_buffer);
         return _buffer.FlushAll(archive.CreateEntry(entryPath));

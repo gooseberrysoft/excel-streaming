@@ -129,7 +129,7 @@ public sealed class BufferTests
         buffer.Advance(written);
 
         var target = new Queue<MemoryOwner>();
-        buffer.Flush(target, size);
+        buffer.Flush(target, null, size);
 
         target.Count.Should().Be(1);
         var flushed = target.Single().Memory;
@@ -150,6 +150,12 @@ public sealed class BufferTests
         {
             Items.Add(buffer.Memory);
             return ValueTask.CompletedTask;
+        }
+
+        public bool TryWrite(in MemoryOwner buffer)
+        {
+            Items.Add(buffer.Memory);
+            return true;
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿#if NET8_0_OR_GREATER
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Text.Unicode;
 using Gooseberry.ExcelStreaming.Buffers;
 using Gooseberry.ExcelStreaming.Writers;
@@ -114,4 +113,3 @@ public ref struct Utf8InterpolatedStringHandler
         return _buffer.Span.Slice(0, bytesWritten);
     }
 }
-#endif

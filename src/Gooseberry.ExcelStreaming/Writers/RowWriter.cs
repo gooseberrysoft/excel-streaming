@@ -47,14 +47,14 @@ internal static class RowWriter
         if (rowAttributes.Height.HasValue)
         {
             " ht=\""u8.WriteTo(buffer, ref span, ref written);
-            rowAttributes.Height.Value.WriteTo(buffer, ref span, ref written);
+            Utf8SpanFormattableWriter.WriteValue(rowAttributes.Height.Value, buffer, ref span, ref written);
             "\" customHeight=\"1\""u8.WriteTo(buffer, ref span, ref written);
         }
 
         if (rowAttributes.OutlineLevel.HasValue)
         {
             " outlineLevel=\""u8.WriteTo(buffer, ref span, ref written);
-            NumberWriterExtensions.WriteTo(rowAttributes.OutlineLevel.Value, buffer, ref span, ref written);
+            Utf8SpanFormattableWriter.WriteValue(rowAttributes.OutlineLevel.Value, buffer, ref span, ref written);
             "\""u8.WriteTo(buffer, ref span, ref written);
         }
 

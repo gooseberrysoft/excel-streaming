@@ -1,5 +1,4 @@
-﻿#if NET8_0_OR_GREATER
-using BenchmarkDotNet.Attributes;
+﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Order;
 
 namespace Gooseberry.ExcelStreaming.Benchmarks;
@@ -117,4 +116,3 @@ public class Utf8FormattableBenchmarks
         }
     }
 }
-#endif

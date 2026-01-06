@@ -1,4 +1,3 @@
-#if NET8_0_OR_GREATER
 using Gooseberry.ExcelStreaming.Extensions;
 using Gooseberry.ExcelStreaming.Styles;
 using System.Runtime.CompilerServices;
@@ -134,4 +133,3 @@ internal static class Utf8DateTimeCellWriter
     
     private const long DoubleDateOffset = DateExtensions.DaysTo1899 * TicksPerDay;
 }
-#endif

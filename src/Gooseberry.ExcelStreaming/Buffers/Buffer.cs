@@ -45,13 +45,15 @@ internal sealed class Buffer : IDisposable
         return false;
     }
 
-    public void Flush(Queue<MemoryOwner> queue, int minSize)
+    public void Flush(Queue<MemoryOwner> queue, IEntryWriter? entryWriter, int minSize)
     {
         if (_length == 0)
             return;
 
         var memory = new MemoryOwner(_buffer, _length, _pool);
-        queue.Enqueue(memory);
+
+        if(entryWriter == null || !entryWriter.TryWrite(memory))
+            queue.Enqueue(memory);
 
         RentNew(minSize);
     }

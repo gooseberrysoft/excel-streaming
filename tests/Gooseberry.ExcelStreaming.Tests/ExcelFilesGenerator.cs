@@ -192,7 +192,6 @@ public sealed class ExcelFilesGenerator
         await writer.Complete();
     }
 
-#if NET8_0_OR_GREATER
     [Fact(Skip = Skip)]
     public async Task InterpolatedStrings()
     {
@@ -279,7 +278,6 @@ public sealed class ExcelFilesGenerator
             return true;
         }
     }
-#endif
 
     [Fact(Skip = Skip)]
     public async Task IncreaseColumns()

@@ -13,20 +13,20 @@ internal static class AnchorCellWriter
 
     public static void Write(in AnchorCell cell, BuffersChain buffer, ref Span<byte> span, ref int written)
     {
-        Constants.Drawing.AnchorCell.Column.GetPrefix().WriteTo(buffer, ref span, ref written);
-        cell.Column.WriteTo(buffer, ref span, ref written);
-        Constants.Drawing.AnchorCell.Column.GetPostfix().WriteTo(buffer, ref span, ref written);
+        "<xdr:col>"u8.WriteTo(buffer, ref span, ref written);
+        Utf8SpanFormattableWriter.WriteValue(cell.Column, buffer, ref span, ref written);
+        "</xdr:col>"u8.WriteTo(buffer, ref span, ref written);
 
-        Constants.Drawing.AnchorCell.ColumnOffset.GetPrefix().WriteTo(buffer, ref span, ref written);
-        cell.Offset.X.WriteTo(buffer, ref span, ref written);
-        Constants.Drawing.AnchorCell.ColumnOffset.GetPostfix().WriteTo(buffer, ref span, ref written);
+        "<xdr:colOff>"u8.WriteTo(buffer, ref span, ref written);
+        Utf8SpanFormattableWriter.WriteValue(cell.Offset.X, buffer, ref span, ref written);
+        "</xdr:colOff>"u8.WriteTo(buffer, ref span, ref written);
 
-        Constants.Drawing.AnchorCell.Row.GetPrefix().WriteTo(buffer, ref span, ref written);
-        cell.Row.WriteTo(buffer, ref span, ref written);
-        Constants.Drawing.AnchorCell.Row.GetPostfix().WriteTo(buffer, ref span, ref written);
+        "<xdr:row>"u8.WriteTo(buffer, ref span, ref written);
+        Utf8SpanFormattableWriter.WriteValue(cell.Row, buffer, ref span, ref written);
+        "</xdr:row>"u8.WriteTo(buffer, ref span, ref written);
 
-        Constants.Drawing.AnchorCell.RowOffset.GetPrefix().WriteTo(buffer, ref span, ref written);
-        cell.Offset.Y.WriteTo(buffer, ref span, ref written);
-        Constants.Drawing.AnchorCell.RowOffset.GetPostfix().WriteTo(buffer, ref span, ref written);
+        "<xdr:rowOff>"u8.WriteTo(buffer, ref span, ref written);
+        Utf8SpanFormattableWriter.WriteValue(cell.Offset.Y, buffer, ref span, ref written);
+        "</xdr:rowOff>"u8.WriteTo(buffer, ref span, ref written);
     }
 }

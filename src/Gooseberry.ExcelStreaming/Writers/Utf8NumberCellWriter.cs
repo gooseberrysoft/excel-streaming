@@ -1,4 +1,3 @@
-#if NET8_0_OR_GREATER
 using System.Runtime.CompilerServices;
 using Gooseberry.ExcelStreaming.Styles;
 
@@ -44,4 +43,3 @@ internal static class Utf8NumberCellWriter
         Postfix.WriteAdvanceTo(buffer, span, written);
     }
 }
-#endif

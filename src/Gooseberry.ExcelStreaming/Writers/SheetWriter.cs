@@ -41,7 +41,7 @@ internal static class SheetWriter
             WriteAutoFilter(autoFilter.Value, buffer, encoder, ref span, ref written);
 
         WriteMerges(merges, buffer, ref span, ref written);
-        
+
         if (hyperlinks != null)
             WriteHyperlinks(hyperlinks, buffer, ref span, ref written);
 
@@ -86,10 +86,10 @@ internal static class SheetWriter
         cellReference.WriteTo(buffer, ref span, ref written);
 
         "\" ySplit=\""u8.WriteTo(buffer, ref span, ref written);
-        (cellReference.Row - 1).WriteTo(buffer, ref span, ref written);
+        Utf8SpanFormattableWriter.WriteValue((cellReference.Row - 1), buffer, ref span, ref written);
 
         "\" xSplit=\""u8.WriteTo(buffer, ref span, ref written);
-        (cellReference.Column - 1).WriteTo(buffer, ref span, ref written);
+        Utf8SpanFormattableWriter.WriteValue((cellReference.Column - 1), buffer, ref span, ref written);
 
         "\" activePane=\"bottomRight\" state=\"frozen\"/>"u8.WriteTo(buffer, ref span, ref written);
     }
@@ -142,13 +142,13 @@ internal static class SheetWriter
         {
             // column width will be applied to columns with indexes between min and max
             "<col min=\""u8.WriteTo(buffer, ref span, ref written);
-            index.WriteTo(buffer, ref span, ref written);
+            Utf8SpanFormattableWriter.WriteValue(index, buffer, ref span, ref written);
 
             "\" max=\""u8.WriteTo(buffer, ref span, ref written);
-            index.WriteTo(buffer, ref span, ref written);
+            Utf8SpanFormattableWriter.WriteValue(index, buffer, ref span, ref written);
 
             "\" width=\""u8.WriteTo(buffer, ref span, ref written);
-            column.Width.WriteTo(buffer, ref span, ref written);
+            Utf8SpanFormattableWriter.WriteValue(column.Width, buffer, ref span, ref written);
 
             "\" customWidth=\"1\"/>"u8.WriteTo(buffer, ref span, ref written);
 
@@ -212,7 +212,7 @@ internal static class SheetWriter
             foreach (var cellReference in hyperlinkPair.Value)
             {
                 "<hyperlink r:id=\"link"u8.WriteTo(buffer, ref span, ref written);
-                count.WriteTo(buffer, ref span, ref written);
+                Utf8SpanFormattableWriter.WriteValue(count, buffer, ref span, ref written);
                 "\" ref=\""u8.WriteTo(buffer, ref span, ref written);
                 cellReference.WriteTo(buffer, ref span, ref written);
                 "\"/>"u8.WriteTo(buffer, ref span, ref written);

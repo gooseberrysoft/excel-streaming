@@ -38,7 +38,6 @@ public sealed partial class ExcelWriter
         return this;
     }
 
-#if NET8_0_OR_GREATER
     public ExcelWriter AddCell(
         [InterpolatedStringHandlerArgument("")]
         Utf8InterpolatedStringHandler handler,
@@ -48,7 +47,6 @@ public sealed partial class ExcelWriter
     {
         return AddCellUtf8String(handler.GetBytes(), style, rightMerge, downMerge);
     }
-#endif
 
     public ExcelWriter AddCell(string? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
@@ -61,15 +59,7 @@ public sealed partial class ExcelWriter
 
     public ExcelWriter AddCell(int data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
-#if NET8_0_OR_GREATER
         AddCellNumberImpl(data, style: style, rightMerge: rightMerge, downMerge: downMerge);
-#else
-        CheckWriteCell();
-        DataWriters.IntCellWriter.Write(data, _buffer, style);
-
-        _columnCount += 1;
-        MergeCell(rightMerge, downMerge);
-#endif
         return this;
     }
 
@@ -82,15 +72,7 @@ public sealed partial class ExcelWriter
 
     public ExcelWriter AddCell(long data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
-#if NET8_0_OR_GREATER
         AddCellNumberImpl(data, style: style, rightMerge: rightMerge, downMerge: downMerge);
-#else
-        CheckWriteCell();
-        DataWriters.LongCellWriter.Write(data, _buffer, style);
-
-        _columnCount += 1;
-        MergeCell(rightMerge, downMerge);
-#endif
         return this;
     }
 
@@ -103,15 +85,7 @@ public sealed partial class ExcelWriter
 
     public ExcelWriter AddCell(decimal data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
-#if NET8_0_OR_GREATER
         AddCellNumberImpl(data, style: style, rightMerge: rightMerge, downMerge: downMerge);
-#else
-        CheckWriteCell();
-        DataWriters.DecimalCellWriter.Write(data, _buffer, style);
-
-        _columnCount += 1;
-        MergeCell(rightMerge, downMerge);
-#endif
         return this;
     }
 
@@ -124,15 +98,7 @@ public sealed partial class ExcelWriter
 
     public ExcelWriter AddCell(double data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
-#if NET8_0_OR_GREATER
         AddCellNumberImpl(data, style: style, rightMerge: rightMerge, downMerge: downMerge);
-#else
-        CheckWriteCell();
-        DataWriters.DoubleCellWriter.Write(data, _buffer, style);
-
-        _columnCount += 1;
-        MergeCell(rightMerge, downMerge);
-#endif
         return this;
     }
 
@@ -149,11 +115,7 @@ public sealed partial class ExcelWriter
     public ExcelWriter AddCell(DateTime data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
         CheckWriteCell();
-#if NET8_0_OR_GREATER
         Utf8DateTimeCellWriter.Write(data, _buffer, style ?? _styles.DefaultDateStyle);
-#else
-        DataWriters.DateTimeCellWriter.Write(data, _buffer, style ?? _styles.DefaultDateStyle);
-#endif
         _columnCount += 1;
         MergeCell(rightMerge, downMerge);
 
@@ -175,15 +137,11 @@ public sealed partial class ExcelWriter
     /// </summary>
     public ExcelWriter AddCell(DateOnly data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
-#if NET8_0_OR_GREATER
         CheckWriteCell();
         Utf8DateTimeCellWriter.Write(data, _buffer, style ?? _styles.DefaultDateStyle);
 
         _columnCount += 1;
         MergeCell(rightMerge, downMerge);
-#else
-        AddCell(data.ToDateTime(default), style, rightMerge, downMerge);
-#endif
         return this;
     }
 
@@ -199,11 +157,7 @@ public sealed partial class ExcelWriter
 
     public ExcelWriter AddCell(char data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {
-#if NET8_0_OR_GREATER
         var span = new ReadOnlySpan<char>(ref data);
-#else
-        ReadOnlySpan<char> span = stackalloc char[] { data };
-#endif
         AddCellImpl(span, style, rightMerge, downMerge);
 
         return this;
@@ -237,7 +191,6 @@ public sealed partial class ExcelWriter
         return this;
     }
 
-#if NET8_0_OR_GREATER
     public ExcelWriter AddCellString<T>(
         T data,
         ReadOnlySpan<char> format = default,
@@ -284,7 +237,6 @@ public sealed partial class ExcelWriter
         _columnCount += 1;
         MergeCell(rightMerge, downMerge);
     }
-#endif
 
     public ExcelWriter AddCellSharedString(string? data, StyleReference? style = null, uint rightMerge = 0, uint downMerge = 0)
     {

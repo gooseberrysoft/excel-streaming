@@ -17,35 +17,27 @@ internal static class PictureWriter
 
     public static void Write(Picture picture, BuffersChain buffer, Encoder encoder, ref Span<byte> span, ref int written)
     {
-        Constants.Drawing.Picture.GetPrefix().WriteTo(buffer, ref span, ref written);
+        "<xdr:pic>"u8.WriteTo(buffer, ref span, ref written);
 
         WriteNonVisualProperties(picture, buffer, encoder, ref span, ref written);
         WriteBinaryLargeImage(picture, buffer, encoder, ref span, ref written);
         WriteShapeProperties(buffer, ref span, ref written);
 
-        Constants.Drawing.Picture.GetPostfix().WriteTo(buffer, ref span, ref written);
+        "</xdr:pic>"u8.WriteTo(buffer, ref span, ref written);
     }
 
     private static void WriteShapeProperties(BuffersChain buffer, ref Span<byte> span, ref int written)
     {
-        Constants.Drawing.Picture.ShapeProperties.GetPrefix().WriteTo(buffer, ref span, ref written);
-
-        Constants.Drawing.Picture.ShapeProperties.PresetGeometry.GetRect().WriteTo(buffer, ref span, ref written);
-
-        Constants.Drawing.Picture.ShapeProperties.GetPostfix().WriteTo(buffer, ref span, ref written);
+        "<xdr:spPr><a:prstGeom prst=\"rect\"/></xdr:spPr>"u8.WriteTo(buffer, ref span, ref written);
     }
 
     private static void WriteBinaryLargeImage(Picture picture, BuffersChain buffer, Encoder encoder, ref Span<byte> span, ref int written)
     {
-        Constants.Drawing.Picture.BlipFill.GetPrefix().WriteTo(buffer, ref span, ref written);
+        "<xdr:blipFill><a:blip r:embed=\""u8.WriteTo(buffer, ref span, ref written);
 
-        Constants.Drawing.Picture.BlipFill.Blip.GetPrefix().WriteTo(buffer, ref span, ref written);
         picture.RelationshipId.WriteTo(buffer, encoder, ref span, ref written);
-        Constants.Drawing.Picture.BlipFill.Blip.GetPostfix().WriteTo(buffer, ref span, ref written);
 
-        Constants.Drawing.Picture.BlipFill.Stretch.GetFillRect().WriteTo(buffer, ref span, ref written);
-
-        Constants.Drawing.Picture.BlipFill.GetPostfix().WriteTo(buffer, ref span, ref written);
+        "\" cstate=\"print\"/><a:stretch><a:fillRect/></a:stretch></xdr:blipFill>"u8.WriteTo(buffer, ref span, ref written);
     }
 
     private static void WriteNonVisualProperties(
@@ -55,22 +47,14 @@ internal static class PictureWriter
         ref Span<byte> span,
         ref int written)
     {
-        Constants.Drawing.Picture.NonVisualProperties.GetPrefix().WriteTo(buffer, ref span, ref written);
+        "<xdr:nvPicPr><xdr:cNvPr  id=\""u8.WriteTo(buffer, ref span, ref written);
 
-        Constants.Drawing.Picture.NonVisualProperties.Properties.GetPrefix().WriteTo(buffer, ref span, ref written);
+        Utf8SpanFormattableWriter.WriteValue(picture.Id, buffer, ref span, ref written);
 
-        Constants.Drawing.Picture.NonVisualProperties.Properties.Id.GetPrefix().WriteTo(buffer, ref span, ref written);
-        picture.Id.WriteTo(buffer, ref span, ref written);
-        Constants.Drawing.Picture.NonVisualProperties.Properties.Id.GetPostfix().WriteTo(buffer, ref span, ref written);
+        "\" name=\""u8.WriteTo(buffer, ref span, ref written);
 
-        Constants.Drawing.Picture.NonVisualProperties.Properties.Name.GetPrefix().WriteTo(buffer, ref span, ref written);
         picture.Name.WriteTo(buffer, encoder, ref span, ref written);
-        Constants.Drawing.Picture.NonVisualProperties.Properties.Name.GetPostfix().WriteTo(buffer, ref span, ref written);
 
-        Constants.Drawing.Picture.NonVisualProperties.Properties.GetPostfix().WriteTo(buffer, ref span, ref written);
-
-        Constants.Drawing.Picture.NonVisualProperties.PictureProperties.GetBody().WriteTo(buffer, ref span, ref written);
-
-        Constants.Drawing.Picture.NonVisualProperties.GetPostfix().WriteTo(buffer, ref span, ref written);
+        "\"/><xdr:cNvPicPr><a:picLocks noChangeAspect=\"1\"/></xdr:cNvPicPr></xdr:nvPicPr>"u8.WriteTo(buffer, ref span, ref written);
     }
 }

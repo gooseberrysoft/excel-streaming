@@ -37,7 +37,7 @@ internal static class CellReferenceWriter
         }
 
         WriteColumnName(cellReference.Column, ref destination, ref written);
-        cellReference.Row.WriteTo(buffer, ref destination, ref written);
+        Utf8SpanFormattableWriter.WriteValue(cellReference.Row, buffer, ref destination, ref written);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

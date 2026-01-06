@@ -85,6 +85,19 @@ internal sealed class AsyncArchiveWriter : IArchiveWriter
             _created = true;
             return writer._channel.Writer.WriteAsync(new Action(entryPath, buffer), writer._token);
         }
+
+        public bool TryWrite(in MemoryOwner buffer)
+        {
+            if (_created)
+                return writer._channel.Writer.TryWrite(new Action(buffer));
+
+            var written = writer._channel.Writer.TryWrite(new Action(entryPath, buffer));
+
+            if (written)
+                _created = true;
+
+            return written;
+        }
     }
 
     private readonly struct Action : IDisposable

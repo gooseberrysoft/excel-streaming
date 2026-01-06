@@ -8,6 +8,7 @@ internal sealed class StylesWriter : IDisposable
 {
     private readonly BuffersChain _buffer;
     private readonly Encoder _encoder;
+    private const string Hex8 = "X8";
 
     public StylesWriter()
     {
@@ -15,7 +16,7 @@ internal sealed class StylesWriter : IDisposable
         _encoder = Encoding.UTF8.GetEncoder();
 
         Constants.XmlPrefix.WriteTo(_buffer);
-        Constants.Styles.Prefix.WriteTo(_buffer);
+        "<styleSheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\">"u8.WriteTo(_buffer);
     }
 
     public void AddNumberFormats(IReadOnlyCollection<FormatRecord> formats)
@@ -23,18 +24,18 @@ internal sealed class StylesWriter : IDisposable
         var span = _buffer.GetSpan();
         var written = 0;
 
-        Constants.Styles.NumberFormats.Prefix.WriteTo(_buffer, ref span, ref written);
+        "<numFmts>"u8.WriteTo(_buffer, ref span, ref written);
 
         foreach (var format in formats)
         {
-            Constants.Styles.NumberFormats.Item.Prefix.WriteTo(_buffer, ref span, ref written);
-            format.Id.WriteTo(_buffer, ref span, ref written);
-            Constants.Styles.NumberFormats.Item.Middle.WriteTo(_buffer, ref span, ref written);
+            "<numFmt numFmtId=\""u8.WriteTo(_buffer, ref span, ref written);
+            Utf8SpanFormattableWriter.WriteValue(format.Id, _buffer, ref span, ref written);
+            "\" formatCode=\""u8.WriteTo(_buffer, ref span, ref written);
             format.Format.WriteEscapedTo(_buffer, _encoder, ref span, ref written);
-            Constants.Styles.NumberFormats.Item.Postfix.WriteTo(_buffer, ref span, ref written);
+            "\"/>"u8.WriteTo(_buffer, ref span, ref written);
         }
 
-        Constants.Styles.NumberFormats.Postfix.WriteTo(_buffer, ref span, ref written);
+        "</numFmts>"u8.WriteTo(_buffer, ref span, ref written);
 
         _buffer.Advance(written);
     }
@@ -44,29 +45,29 @@ internal sealed class StylesWriter : IDisposable
         var span = _buffer.GetSpan();
         var written = 0;
 
-        Constants.Styles.Fills.Prefix.WriteTo(_buffer, ref span, ref written);
+        "<fills>"u8.WriteTo(_buffer, ref span, ref written);
 
         foreach (var fill in fills)
         {
-            Constants.Styles.Fills.Item.Prefix.WriteTo(_buffer, ref span, ref written);
+            "<fill>"u8.WriteTo(_buffer, ref span, ref written);
 
-            Constants.Styles.Fills.Item.Pattern.Prefix.WriteTo(_buffer, ref span, ref written);
+            "<patternFill patternType=\""u8.WriteTo(_buffer, ref span, ref written);
             fill.Pattern.Value.WriteTo(_buffer, ref span, ref written);
-            Constants.Styles.Fills.Item.Pattern.Medium.WriteTo(_buffer, ref span, ref written);
+            "\">"u8.WriteTo(_buffer, ref span, ref written);
 
             if (fill.Color.HasValue)
             {
-                Constants.Styles.Fills.Item.Pattern.Color.Prefix.WriteTo(_buffer, ref span, ref written);
-                fill.Color.Value.ToArgb().WriteHex8To(_buffer, ref span, ref written);
-                Constants.Styles.Fills.Item.Pattern.Color.Postfix.WriteTo(_buffer, ref span, ref written);
+                "<fgColor rgb=\""u8.WriteTo(_buffer, ref span, ref written);
+                Utf8SpanFormattableWriter.WriteValue(fill.Color.Value.ToArgb(), Hex8, null, _buffer, ref span, ref written);
+                "\"/><bgColor auto=\"1\"/>"u8.WriteTo(_buffer, ref span, ref written);
             }
 
-            Constants.Styles.Fills.Item.Pattern.Postfix.WriteTo(_buffer, ref span, ref written);
+            "</patternFill>"u8.WriteTo(_buffer, ref span, ref written);
 
-            Constants.Styles.Fills.Item.Postfix.WriteTo(_buffer, ref span, ref written);
+            "</fill>"u8.WriteTo(_buffer, ref span, ref written);
         }
 
-        Constants.Styles.Fills.Postfix.WriteTo(_buffer, ref span, ref written);
+        "</fills>"u8.WriteTo(_buffer, ref span, ref written);
 
         _buffer.Advance(written);
     }
@@ -76,86 +77,86 @@ internal sealed class StylesWriter : IDisposable
         var span = _buffer.GetSpan();
         var written = 0;
 
-        Constants.Styles.CellStyles.Prefix.WriteTo(_buffer, ref span, ref written);
+        "<cellXfs>"u8.WriteTo(_buffer, ref span, ref written);
 
         foreach (var style in styles)
         {
-            Constants.Styles.CellStyles.Item.Open.Prefix.WriteTo(_buffer, ref span, ref written);
+            "<xf"u8.WriteTo(_buffer, ref span, ref written);
 
             if (style.FormatId.HasValue)
             {
-                Constants.Styles.CellStyles.Item.Open.NumberFormatId.Prefix.WriteTo(_buffer, ref span, ref written);
-                style.FormatId.Value.WriteTo(_buffer, ref span, ref written);
-                Constants.Styles.CellStyles.Item.Open.NumberFormatId.Postfix.WriteTo(_buffer, ref span, ref written);
+                " numFmtId=\""u8.WriteTo(_buffer, ref span, ref written);
+                Utf8SpanFormattableWriter.WriteValue(style.FormatId.Value, _buffer, ref span, ref written);
+                "\" applyNumberFormat=\"1\""u8.WriteTo(_buffer, ref span, ref written);
             }
             else
-                Constants.Styles.CellStyles.Item.Open.NumberFormatId.Empty.WriteTo(_buffer, ref span, ref written);
+                " numFmtId=\"0\" applyNumberFormat=\"0\""u8.WriteTo(_buffer, ref span, ref written);
 
             if (style.FillId.HasValue)
             {
-                Constants.Styles.CellStyles.Item.Open.FillId.Prefix.WriteTo(_buffer, ref span, ref written);
-                style.FillId.Value.WriteTo(_buffer, ref span, ref written);
-                Constants.Styles.CellStyles.Item.Open.FillId.Postfix.WriteTo(_buffer, ref span, ref written);
+                " fillId=\""u8.WriteTo(_buffer, ref span, ref written);
+                Utf8SpanFormattableWriter.WriteValue(style.FillId.Value, _buffer, ref span, ref written);
+                "\" applyFill=\"1\""u8.WriteTo(_buffer, ref span, ref written);
             }
             else
-                Constants.Styles.CellStyles.Item.Open.FillId.Empty.WriteTo(_buffer, ref span, ref written);
+                " fillId=\"0\" applyFill=\"0\""u8.WriteTo(_buffer, ref span, ref written);
 
             if (style.FontId.HasValue)
             {
-                Constants.Styles.CellStyles.Item.Open.FontId.Prefix.WriteTo(_buffer, ref span, ref written);
-                style.FontId.Value.WriteTo(_buffer, ref span, ref written);
-                Constants.Styles.CellStyles.Item.Open.FontId.Postfix.WriteTo(_buffer, ref span, ref written);
+                " fontId=\""u8.WriteTo(_buffer, ref span, ref written);
+                Utf8SpanFormattableWriter.WriteValue(style.FontId.Value, _buffer, ref span, ref written);
+                "\" applyFont=\"1\""u8.WriteTo(_buffer, ref span, ref written);
             }
             else
-                Constants.Styles.CellStyles.Item.Open.FontId.Empty.WriteTo(_buffer, ref span, ref written);
+                " fontId=\"0\" applyFont=\"0\""u8.WriteTo(_buffer, ref span, ref written);
 
             if (style.BorderId.HasValue)
             {
-                Constants.Styles.CellStyles.Item.Open.BorderId.Prefix.WriteTo(_buffer, ref span, ref written);
-                style.BorderId.Value.WriteTo(_buffer, ref span, ref written);
-                Constants.Styles.CellStyles.Item.Open.BorderId.Postfix.WriteTo(_buffer, ref span, ref written);
+                " borderId=\""u8.WriteTo(_buffer, ref span, ref written);
+                Utf8SpanFormattableWriter.WriteValue(style.BorderId.Value, _buffer, ref span, ref written);
+                "\" applyBorder=\"1\""u8.WriteTo(_buffer, ref span, ref written);
             }
             else
-                Constants.Styles.CellStyles.Item.Open.BorderId.Empty.WriteTo(_buffer, ref span, ref written);
+                " borderId=\"0\" applyBorder=\"0\""u8.WriteTo(_buffer, ref span, ref written);
 
             if (style.Alignment.HasValue)
-                Constants.Styles.CellStyles.Item.Open.ApplyAlignment.WriteTo(_buffer, ref span, ref written);
+                " applyAlignment=\"1\""u8.WriteTo(_buffer, ref span, ref written);
 
-            Constants.Styles.CellStyles.Item.Open.Postfix.WriteTo(_buffer, ref span, ref written);
+            ">"u8.WriteTo(_buffer, ref span, ref written);
 
             if (style.Alignment.HasValue)
                 AddAlignment(style.Alignment.Value, ref span, ref written);
 
-            Constants.Styles.CellStyles.Item.Postfix.WriteTo(_buffer, ref span, ref written);
+            "</xf>"u8.WriteTo(_buffer, ref span, ref written);
         }
 
-        Constants.Styles.CellStyles.Postfix.WriteTo(_buffer, ref span, ref written);
+        "</cellXfs>"u8.WriteTo(_buffer, ref span, ref written);
 
         _buffer.Advance(written);
     }
 
     private void AddAlignment(Alignment alignment, ref Span<byte> span, ref int written)
     {
-        Constants.Styles.CellStyles.Item.Open.Alignment.Prefix.WriteTo(_buffer, ref span, ref written);
+        "<alignment"u8.WriteTo(_buffer, ref span, ref written);
 
         if (alignment.Horizontal.HasValue)
         {
-            Constants.Styles.CellStyles.Item.Open.Alignment.Horizontal.Prefix.WriteTo(_buffer, ref span, ref written);
+            " horizontal=\""u8.WriteTo(_buffer, ref span, ref written);
             alignment.Horizontal.Value.Value.WriteTo(_buffer, ref span, ref written);
-            Constants.Styles.CellStyles.Item.Open.Alignment.Horizontal.Postfix.WriteTo(_buffer, ref span, ref written);
+            "\""u8.WriteTo(_buffer, ref span, ref written);
         }
 
         if (alignment.Vertical.HasValue)
         {
-            Constants.Styles.CellStyles.Item.Open.Alignment.Vertical.Prefix.WriteTo(_buffer, ref span, ref written);
+            " vertical=\""u8.WriteTo(_buffer, ref span, ref written);
             alignment.Vertical.Value.Value.WriteTo(_buffer, ref span, ref written);
-            Constants.Styles.CellStyles.Item.Open.Alignment.Vertical.Postfix.WriteTo(_buffer, ref span, ref written);
+            "\""u8.WriteTo(_buffer, ref span, ref written);
         }
 
         if (alignment.WrapText)
-            Constants.Styles.CellStyles.Item.Open.Alignment.WrapText.WriteTo(_buffer, ref span, ref written);
+            " wrapText=\"1\""u8.WriteTo(_buffer, ref span, ref written);
 
-        Constants.Styles.CellStyles.Item.Open.Alignment.Postfix.WriteTo(_buffer, ref span, ref written);
+        "/>"u8.WriteTo(_buffer, ref span, ref written);
     }
 
     public void AddFonts(IReadOnlyCollection<Font> fonts)
@@ -163,47 +164,47 @@ internal sealed class StylesWriter : IDisposable
         var span = _buffer.GetSpan();
         var written = 0;
 
-        Constants.Styles.Fonts.Prefix.WriteTo(_buffer, ref span, ref written);
+        "<fonts>"u8.WriteTo(_buffer, ref span, ref written);
 
         foreach (var font in fonts)
         {
-            Constants.Styles.Fonts.Item.Prefix.WriteTo(_buffer, ref span, ref written);
+            "<font>"u8.WriteTo(_buffer, ref span, ref written);
 
-            Constants.Styles.Fonts.Item.Size.Prefix.WriteTo(_buffer, ref span, ref written);
-            font.Size.WriteTo(_buffer, ref span, ref written);
-            Constants.Styles.Fonts.Item.Size.Postfix.WriteTo(_buffer, ref span, ref written);
+            "<sz val=\""u8.WriteTo(_buffer, ref span, ref written);
+            Utf8SpanFormattableWriter.WriteValue(font.Size, _buffer, ref span, ref written);
+            "\"/>"u8.WriteTo(_buffer, ref span, ref written);
 
             if (!string.IsNullOrEmpty(font.Name))
             {
-                Constants.Styles.Fonts.Item.Name.Prefix.WriteTo(_buffer, ref span, ref written);
+                "<name val=\""u8.WriteTo(_buffer, ref span, ref written);
                 font.Name.WriteTo(_buffer, _encoder, ref span, ref written);
-                Constants.Styles.Fonts.Item.Name.Postfix.WriteTo(_buffer, ref span, ref written);
+                "\"/>"u8.WriteTo(_buffer, ref span, ref written);
             }
 
             if (font.Color.HasValue)
             {
-                Constants.Styles.Fonts.Item.Color.Prefix.WriteTo(_buffer, ref span, ref written);
-                font.Color.Value.ToArgb().WriteHex8To(_buffer, ref span, ref written);
-                Constants.Styles.Fonts.Item.Color.Postfix.WriteTo(_buffer, ref span, ref written);
+                "<color rgb=\""u8.WriteTo(_buffer, ref span, ref written);
+                Utf8SpanFormattableWriter.WriteValue(font.Color.Value.ToArgb(), Hex8, null, _buffer, ref span, ref written);
+                "\"/>"u8.WriteTo(_buffer, ref span, ref written);
             }
 
             if (font.Bold)
-                Constants.Styles.Fonts.Item.Bold.WriteTo(_buffer, ref span, ref written);
+                "<b val=\"1\"/>"u8.WriteTo(_buffer, ref span, ref written);
 
             if (font.Italic)
-                Constants.Styles.Fonts.Item.Italic.WriteTo(_buffer, ref span, ref written);
+                "<i val=\"1\"/>"u8.WriteTo(_buffer, ref span, ref written);
 
             if (font.Strike)
-                Constants.Styles.Fonts.Item.Strike.WriteTo(_buffer, ref span, ref written);
+                "<strike val=\"1\"/>"u8.WriteTo(_buffer, ref span, ref written);
 
-            Constants.Styles.Fonts.Item.Underline.Prefix.WriteTo(_buffer, ref span, ref written);
+            "<u val=\""u8.WriteTo(_buffer, ref span, ref written);
             font.Underline.Value.WriteTo(_buffer, ref span, ref written);
-            Constants.Styles.Fonts.Item.Underline.Postfix.WriteTo(_buffer, ref span, ref written);
+            "\"/>"u8.WriteTo(_buffer, ref span, ref written);
 
-            Constants.Styles.Fonts.Item.Postfix.WriteTo(_buffer, ref span, ref written);
+            "</font>"u8.WriteTo(_buffer, ref span, ref written);
         }
 
-        Constants.Styles.Fonts.Postfix.WriteTo(_buffer, ref span, ref written);
+        "</fonts>"u8.WriteTo(_buffer, ref span, ref written);
 
         _buffer.Advance(written);
     }
@@ -213,59 +214,55 @@ internal sealed class StylesWriter : IDisposable
         var span = _buffer.GetSpan();
         var written = 0;
 
-        Constants.Styles.Borders.Prefix.WriteTo(_buffer, ref span, ref written);
+        "<borders>"u8.WriteTo(_buffer, ref span, ref written);
 
         foreach (var border in borders)
         {
-            Constants.Styles.Borders.Border.Prefix.WriteTo(_buffer, ref span, ref written);
+            "<border>"u8.WriteTo(_buffer, ref span, ref written);
 
             AddBorder(
                 border.Left,
-                Constants.Styles.Borders.Left.Empty,
-                Constants.Styles.Borders.Left.Prefix,
-                Constants.Styles.Borders.Left.Middle,
-                Constants.Styles.Borders.Left.Postfix,
+                "<left/>"u8,
+                "<left"u8,
+                "</left>"u8,
                 ref span,
                 ref written);
 
             AddBorder(
                 border.Right,
-                Constants.Styles.Borders.Right.Empty,
-                Constants.Styles.Borders.Right.Prefix,
-                Constants.Styles.Borders.Right.Middle,
-                Constants.Styles.Borders.Right.Postfix,
+                "<right/>"u8,
+                "<right"u8,
+                "</right>"u8,
                 ref span,
                 ref written);
 
             AddBorder(
                 border.Top,
-                Constants.Styles.Borders.Top.Empty,
-                Constants.Styles.Borders.Top.Prefix,
-                Constants.Styles.Borders.Top.Middle,
-                Constants.Styles.Borders.Top.Postfix,
+                "<top/>"u8,
+                "<top"u8,
+                "</top>"u8,
                 ref span,
                 ref written);
 
             AddBorder(
                 border.Bottom,
-                Constants.Styles.Borders.Bottom.Empty,
-                Constants.Styles.Borders.Bottom.Prefix,
-                Constants.Styles.Borders.Bottom.Middle,
-                Constants.Styles.Borders.Bottom.Postfix,
+                "<bottom/>"u8,
+                "<bottom"u8,
+                "</bottom>"u8,
                 ref span,
                 ref written);
 
-            Constants.Styles.Borders.Border.Postfix.WriteTo(_buffer, ref span, ref written);
+            "</border>"u8.WriteTo(_buffer, ref span, ref written);
         }
 
-        Constants.Styles.Borders.Postfix.WriteTo(_buffer, ref span, ref written);
+        "</borders>"u8.WriteTo(_buffer, ref span, ref written);
 
         _buffer.Advance(written);
     }
 
     public byte[] GetWrittenData()
     {
-        Constants.Styles.Postfix.WriteTo(_buffer);
+        "</styleSheet>"u8.WriteTo(_buffer);
 
         var preparedData = new byte[_buffer.Written];
         _buffer.FlushAll(preparedData);
@@ -279,7 +276,6 @@ internal sealed class StylesWriter : IDisposable
         Border? border,
         ReadOnlySpan<byte> empty,
         ReadOnlySpan<byte> prefix,
-        ReadOnlySpan<byte> middle,
         ReadOnlySpan<byte> postfix,
         ref Span<byte> span,
         ref int written)
@@ -292,15 +288,13 @@ internal sealed class StylesWriter : IDisposable
 
         prefix.WriteTo(_buffer, ref span, ref written);
 
-        Constants.Styles.Borders.Style.Prefix.WriteTo(_buffer, ref span, ref written);
+        " style=\""u8.WriteTo(_buffer, ref span, ref written);
         border.Value.Style.Value.WriteTo(_buffer, ref span, ref written);
-        Constants.Styles.Borders.Style.Postfix.WriteTo(_buffer, ref span, ref written);
+        "\">"u8.WriteTo(_buffer, ref span, ref written);
 
-        middle.WriteTo(_buffer, ref span, ref written);
-
-        Constants.Styles.Borders.Color.Prefix.WriteTo(_buffer, ref span, ref written);
-        border.Value.Color.ToArgb().WriteHex8To(_buffer, ref span, ref written);
-        Constants.Styles.Borders.Color.Postfix.WriteTo(_buffer, ref span, ref written);
+        "<color rgb=\""u8.WriteTo(_buffer, ref span, ref written);
+        Utf8SpanFormattableWriter.WriteValue(border.Value.Color.ToArgb(), Hex8, null, _buffer, ref span, ref written);
+        "\"/>"u8.WriteTo(_buffer, ref span, ref written);
 
         postfix.WriteTo(_buffer, ref span, ref written);
     }

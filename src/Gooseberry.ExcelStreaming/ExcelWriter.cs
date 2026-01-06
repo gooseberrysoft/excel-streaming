@@ -89,6 +89,8 @@ public sealed partial class ExcelWriter : IAsyncDisposable
         _sheets.Add(new(name, sheetId));
 
         _sheetWriter = _archiveWriter.CreateEntry(PathResolver.GetSheetFullPath(sheetId));
+        _buffer.SetWriter(_sheetWriter);
+
         SheetWriter.WriteStartSheet(_buffer, configuration);
     }
 
@@ -107,8 +109,10 @@ public sealed partial class ExcelWriter : IAsyncDisposable
         _rowStarted = true;
         _rowCount += 1;
         _columnCount = 0;
-
-        return _buffer.FlushCompleted(_sheetWriter!);
+        
+        if(_rowCount % 10 == 0)
+            return _buffer.FlushCompleted(_sheetWriter!);
+        return ValueTask.CompletedTask;
     }
 
     public void AddEmptyRows(uint count)
@@ -210,6 +214,7 @@ public sealed partial class ExcelWriter : IAsyncDisposable
 
         await _buffer.FlushAll(_sheetWriter!);
         _sheetWriter = null;
+        _buffer.SetWriter(_sheetWriter);
 
         await AddSheetRelationships(sheet.Id);
 

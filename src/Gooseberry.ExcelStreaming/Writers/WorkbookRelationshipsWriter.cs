@@ -31,9 +31,9 @@ internal static class WorkbookRelationshipsWriter
         foreach (var sheet in sheets)
         {
             Prefix.WriteTo(buffer, ref span, ref written);
-            sheet.Id.WriteTo(buffer, ref span, ref written);
+            Utf8SpanFormattableWriter.WriteValue(sheet.Id, buffer, ref span, ref written);
             Middle.WriteTo(buffer, ref span, ref written);
-            sheet.Id.WriteTo(buffer, ref span, ref written);
+            Utf8SpanFormattableWriter.WriteValue(sheet.Id, buffer, ref span, ref written);
             Postfix.WriteTo(buffer, ref span, ref written);
         }
 

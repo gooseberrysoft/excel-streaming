@@ -5,16 +5,21 @@ namespace Gooseberry.ExcelStreaming;
 
 internal sealed class BuffersChain : IDisposable
 {
-    private const int MinRemainingCapacity = 512;
+    private const int MinRemainingCapacity = 128;
 
     private readonly BufferPool _pool = new();
     private readonly Queue<MemoryOwner> _completedBuffers = new(2);
     private readonly Buffer _buffer;
 
+    private IEntryWriter? _entryWriter;
+
     public BuffersChain(int bufferMinSize)
     {
         _buffer = new Buffer(bufferMinSize, _pool);
     }
+
+    public void SetWriter(IEntryWriter? entryWriter)
+        => _entryWriter = entryWriter;
 
     public int Written
     {
@@ -33,7 +38,7 @@ internal sealed class BuffersChain : IDisposable
     public Span<byte> GetSpan(int minSize = 1)
     {
         if (_buffer.RemainingCapacity < minSize)
-            _buffer.Flush(_completedBuffers, minSize);
+            _buffer.Flush(_completedBuffers, _entryWriter, minSize);
 
         return _buffer.GetSpan();
     }
@@ -43,14 +48,6 @@ internal sealed class BuffersChain : IDisposable
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ValueTask FlushCompleted(IEntryWriter output)
-    {
-        if (_completedBuffers.Count == 0 && _buffer.RemainingCapacity >= MinRemainingCapacity)
-            return ValueTask.CompletedTask;
-
-        return FlushCompletedImpl(output);
-    }
-
-    private ValueTask FlushCompletedImpl(IEntryWriter output)
     {
         if (_completedBuffers.Count > 0)
             return FlushCompletedAsync(output);

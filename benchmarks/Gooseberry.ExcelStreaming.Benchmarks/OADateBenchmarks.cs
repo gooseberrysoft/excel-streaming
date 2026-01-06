@@ -1,5 +1,4 @@
-﻿#if NET8_0_OR_GREATER
-using BenchmarkDotNet.Attributes;
+﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Order;
 using Gooseberry.ExcelStreaming.Writers;
 
@@ -82,4 +81,3 @@ public class OADateBenchmarks
         return total;
     }
 }
-#endif
