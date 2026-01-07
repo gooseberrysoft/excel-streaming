@@ -1,6 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Order;
-using Gooseberry.ExcelStreaming.Writers;
+using Gooseberry.ExcelStreaming.Writers.Cells;
 
 namespace Gooseberry.ExcelStreaming.Benchmarks;
 

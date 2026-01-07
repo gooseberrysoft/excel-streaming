@@ -1,6 +1,6 @@
 namespace Gooseberry.ExcelStreaming.Writers;
 
-internal static class AnchorCellWriter
+internal static class AnchorWriter
 {
     public static void Write(in AnchorCell cell, BuffersChain buffer)
     {

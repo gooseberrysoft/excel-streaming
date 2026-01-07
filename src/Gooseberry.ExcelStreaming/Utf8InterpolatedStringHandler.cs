@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Text.Unicode;
 using Gooseberry.ExcelStreaming.Buffers;
-using Gooseberry.ExcelStreaming.Writers;
+using Gooseberry.ExcelStreaming.Writers.Cells;
 
 namespace Gooseberry.ExcelStreaming;
 

@@ -2,7 +2,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Gooseberry.ExcelStreaming.Styles;
 
-namespace Gooseberry.ExcelStreaming.Writers;
+namespace Gooseberry.ExcelStreaming.Writers.Cells;
 
 internal static class StringCellWriter
 {
@@ -11,57 +11,65 @@ internal static class StringCellWriter
     internal const int MaxBytes = MaxCharacters * 3;
 
     private static ReadOnlySpan<byte> Prefix => "<c t=\"str\"><v>"u8;
-    private static ReadOnlySpan<byte> Postfix => "</v></c>"u8;
+    private static ReadOnlySpan<byte> ClosedPrefix => "</v></c><c t=\"str\"><v>"u8;
+    //private static ReadOnlySpan<byte> Postfix => "</v></c>"u8;
 
     private static ReadOnlySpan<byte> StylePrefix => "<c t=\"str\" s=\""u8;
+    private static ReadOnlySpan<byte> ClosedStylePrefix => "</v></c><c t=\"str\" s=\""u8;
     private static ReadOnlySpan<byte> StylePostfix => "\"><v>"u8;
 
-    private static readonly int RegularSize = Prefix.Length + Postfix.Length;
+    private static readonly int RegularSize = Prefix.Length;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Write(ReadOnlySpan<char> value, BuffersChain buffer, Encoder encoder, StyleReference? style)
+    public static void Write(ReadOnlySpan<char> value, CellWritingContext context, StyleReference? style)
     {
         if (value.Length > MaxCharacters)
             ThrowCharsLimitExceeded();
 
+        var buffer = context.Buffer;
         var span = buffer.GetSpan(RegularSize);
         var written = 0;
 
         if (style.HasValue)
         {
-            StylePrefix.CopyTo(ref span, ref written);
+            (context.IsCellValueOpened ? ClosedStylePrefix : StylePrefix).CopyTo(ref span, ref written);
             Utf8SpanFormattableWriter.WriteValue(style.Value.Value, buffer, ref span, ref written);
             StylePostfix.CopyTo(ref span, ref written);
         }
         else
-            Prefix.CopyTo(ref span, ref written);
+            (context.IsCellValueOpened ? ClosedPrefix : Prefix).CopyTo(ref span, ref written);
 
-        value.WriteEscapedTo(buffer, encoder, ref span, ref written);
+        value.WriteEscapedTo(buffer, context.Encoder, ref span, ref written);
 
-        Postfix.WriteAdvanceTo(buffer, span, written);
+        //Postfix.WriteAdvanceTo(buffer, span, written);
+        buffer.Advance(written);
+        context.OpenCellValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void WriteUtf8(ReadOnlySpan<byte> value, BuffersChain buffer, StyleReference? style)
+    public static void WriteUtf8(ReadOnlySpan<byte> value, CellWritingContext context, StyleReference? style)
     {
         if (value.Length > MaxBytes)
             ThrowCharsLimitExceeded();
 
+        var buffer = context.Buffer;
         var span = buffer.GetSpan(RegularSize);
         var written = 0;
 
         if (style.HasValue)
         {
-            StylePrefix.CopyTo(ref span, ref written);
+            (context.IsCellValueOpened ? ClosedStylePrefix : StylePrefix).CopyTo(ref span, ref written);
             Utf8SpanFormattableWriter.WriteValue(style.Value.Value, buffer, ref span, ref written);
             StylePostfix.CopyTo(ref span, ref written);
         }
         else
-            Prefix.CopyTo(ref span, ref written);
+            (context.IsCellValueOpened ? ClosedPrefix : Prefix).CopyTo(ref span, ref written);
 
         value.WriteEscapedUtf8To(buffer, ref span, ref written);
 
-        Postfix.WriteAdvanceTo(buffer, span, written);
+        //Postfix.WriteAdvanceTo(buffer, span, written);
+        buffer.Advance(written);
+        context.OpenCellValue();
     }
 
     public static void ThrowCharsLimitExceeded()

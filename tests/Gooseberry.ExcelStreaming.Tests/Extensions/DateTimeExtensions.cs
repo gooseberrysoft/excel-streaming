@@ -1,5 +1,5 @@
 ﻿using System.Text;
-using Gooseberry.ExcelStreaming.Writers;
+using Gooseberry.ExcelStreaming.Writers.Cells;
 
 // ReSharper disable once CheckNamespace
 namespace Gooseberry.ExcelStreaming.Tests;

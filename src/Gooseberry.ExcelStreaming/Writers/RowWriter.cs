@@ -2,24 +2,28 @@ namespace Gooseberry.ExcelStreaming.Writers;
 
 internal static class RowWriter
 {
-    public static void WriteStartRow(BuffersChain buffer, bool rowStarted, in RowAttributes rowAttributes)
+    public static void WriteStartRow(CellWritingContext context, bool rowStarted, in RowAttributes rowAttributes)
     {
+        var buffer = context.Buffer;
         var span = buffer.GetSpan();
         var written = 0;
         var attributeIsEmpty = rowAttributes.IsEmpty();
 
         if (rowStarted && attributeIsEmpty)
         {
-            "</row><row>"u8.WriteTo(buffer, ref span, ref written);
+            (context.IsCellValueOpened ? "</v></c></row><row>"u8 : "</row><row>"u8).WriteTo(buffer, ref span, ref written);
             buffer.Advance(written);
 
+            context.CloseCellValue();
             return;
         }
 
         if (rowStarted)
-            "</row>"u8.WriteTo(buffer, ref span, ref written);
+            (context.IsCellValueOpened ? "</v></c></row><row"u8 : "</row><row"u8).WriteTo(buffer, ref span, ref written);
+        else
+            "<row"u8.WriteTo(buffer, ref span, ref written);
 
-        "<row"u8.WriteTo(buffer, ref span, ref written);
+        context.CloseCellValue();
 
         if (!attributeIsEmpty)
             AddAttributes(buffer, ref span, ref written, rowAttributes);
@@ -28,13 +32,15 @@ internal static class RowWriter
         buffer.Advance(written);
     }
 
-    public static void WriteEndRow(BuffersChain buffer)
+    public static void WriteEndRow(CellWritingContext context)
     {
+        var buffer = context.Buffer;
         var span = buffer.GetSpan();
         var written = 0;
 
-        "</row>"u8.WriteTo(buffer, ref span, ref written);
-
+        (context.IsCellValueOpened ? "</v></c></row>"u8 : "</row>"u8).WriteTo(buffer, ref span, ref written);
+        
+        context.CloseCellValue();
         buffer.Advance(written);
     }
 

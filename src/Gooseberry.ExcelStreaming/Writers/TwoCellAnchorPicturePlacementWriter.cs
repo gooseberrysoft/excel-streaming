@@ -19,11 +19,11 @@ internal sealed class TwoCellAnchorPicturePlacementWriter(AnchorCell from, Ancho
     {
         "<xdr:twoCellAnchor editAs=\"oneCell\"><xdr:from>"u8.WriteTo(buffer, ref span, ref written);
 
-        AnchorCellWriter.Write(from, buffer, ref span, ref written);
+        AnchorWriter.Write(from, buffer, ref span, ref written);
 
         "</xdr:from><xdr:to>"u8.WriteTo(buffer, ref span, ref written);
 
-        AnchorCellWriter.Write(to, buffer, ref span, ref written);
+        AnchorWriter.Write(to, buffer, ref span, ref written);
 
         "</xdr:to>"u8.WriteTo(buffer, ref span, ref written);
 

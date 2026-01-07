@@ -28,7 +28,7 @@ public static class ExcelReader
     {
         using var spreadsheet = SpreadsheetDocument.Open(stream, isEditable: false);
 
-        return GetStyles(spreadsheet.WorkbookPart!.WorkbookStylesPart!.Stylesheet)
+        return GetStyles(spreadsheet.WorkbookPart!.WorkbookStylesPart!.Stylesheet!)
             .ToArray();
     }
 
@@ -54,13 +54,13 @@ public static class ExcelReader
     {
         using var spreadsheet = SpreadsheetDocument.Open(stream, isEditable: false);
 
-        var styles = GetStyles(spreadsheet.WorkbookPart!.WorkbookStylesPart!.Stylesheet)
+        var styles = GetStyles(spreadsheet.WorkbookPart!.WorkbookStylesPart!.Stylesheet!)
             .Select((style, index) => (index, style))
             .ToDictionary(x => (uint)x.index, x => x.style);
 
         var sheets = spreadsheet
             .WorkbookPart
-            !.Workbook
+            !.Workbook!
             .Descendants<DocumentFormat.OpenXml.Spreadsheet.Sheet>()
             .Select(s => (Id: s.Id!.Value!, Name: s.Name!.Value!))
             .ToDictionary(s => s.Id, s => s.Name);
@@ -133,20 +133,20 @@ public static class ExcelReader
 
         string? GetAutoFilter(WorksheetPart sheetPart)
         {
-            return sheetPart.Worksheet.GetFirstChild<AutoFilter>()?.Reference?.Value;
+            return sheetPart.Worksheet!.GetFirstChild<AutoFilter>()?.Reference?.Value;
         }
         
         // sheetPart.DrawingsPart.RootElement.Descendants<OneCellAnchor>().First().Descendants<Picture>().First()
         IReadOnlyCollection<Column> GetColumns(WorksheetPart sheetPart)
         {
-            return sheetPart.Worksheet.Descendants<DocumentFormat.OpenXml.Spreadsheet.Column>()
+            return sheetPart.Worksheet!.Descendants<DocumentFormat.OpenXml.Spreadsheet.Column>()
                 .Select(column => new Column((decimal)column.Width!.Value))
                 .ToArray();
         }
 
         IReadOnlyCollection<Row> GetRows(WorksheetPart sheetPart)
         {
-            return sheetPart.Worksheet.Descendants<DocumentFormat.OpenXml.Spreadsheet.Row>()
+            return sheetPart.Worksheet!.Descendants<DocumentFormat.OpenXml.Spreadsheet.Row>()
                 .Select(data => new Excel.Row(
                     GetCells(data),
                     (decimal?)data.Height?.Value,
@@ -158,7 +158,7 @@ public static class ExcelReader
 
         IReadOnlyCollection<string> GetMerges(WorksheetPart sheetPart)
         {
-            return sheetPart.Worksheet.Descendants<DocumentFormat.OpenXml.Spreadsheet.MergeCell>()
+            return sheetPart.Worksheet!.Descendants<DocumentFormat.OpenXml.Spreadsheet.MergeCell>()
                 .Select(data => data.Reference!.ToString()!)
                 .ToArray();
         }

@@ -1,72 +1,84 @@
 using Gooseberry.ExcelStreaming.Extensions;
 using Gooseberry.ExcelStreaming.Styles;
+using Gooseberry.ExcelStreaming.Writers;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace Gooseberry.ExcelStreaming.Writers;
+namespace Gooseberry.ExcelStreaming.Writers.Cells;
 
 internal static class Utf8DateTimeCellWriter
 {
     public static readonly int NumberSize = long.MinValue.ToString().Length + 5;
 
     private static ReadOnlySpan<byte> StylePrefix => "<c s=\""u8;
+    private static ReadOnlySpan<byte> ClosedStylePrefix => "</v></c><c s=\""u8;
     private static ReadOnlySpan<byte> StylePostfix => "\"><v>"u8;
     private static ReadOnlySpan<byte> Postfix => "</v></c>"u8;
 
     private static int DefaultStyleValue = StylesSheetBuilder.Default.DefaultDateStyle.Value;
     private static byte[] DefaultStyle = StylePrefix.Combine(Encoding.UTF8.GetBytes(DefaultStyleValue.ToString()), StylePostfix);
+    private static byte[] ClosedDefaultStyle = "</v></c>"u8.Combine(DefaultStyle);
 
     private static readonly int Size = StylePrefix.Length + NumberSize + StylePostfix.Length
         + NumberSize
         + Postfix.Length;
 
-    public static void Write(DateTime value, BuffersChain buffer, StyleReference style)
+    public static void Write(DateTime value, CellWritingContext context, StyleReference style)
     {
+        var buffer = context.Buffer;
         var span = buffer.GetSpan(Size);
         var written = 0;
 
         if (style.Value == DefaultStyleValue)
         {
-            DefaultStyle.CopyTo(span);
-            span = span.Slice(DefaultStyle.Length);
-            written = DefaultStyle.Length;
+            var styleBytes = context.IsCellValueOpened ? ClosedDefaultStyle : DefaultStyle;
+            styleBytes.CopyTo(span);
+            span = span.Slice(styleBytes.Length);
+            written = styleBytes.Length;
         }
         else
         {
-            StylePrefix.CopyTo(ref span, ref written);
+            (context.IsCellValueOpened ? ClosedStylePrefix : StylePrefix).CopyTo(ref span, ref written);
             Utf8SpanFormattableWriter.WriteValue(style.Value, buffer, ref span, ref written);
             StylePostfix.CopyTo(ref span, ref written);
         }
 
         FormatOADate(value, span, out var writtenBytes);
 
-        span = span.Slice(writtenBytes);
-        written += writtenBytes;
+        //span = span.Slice(writtenBytes);
+        //written += writtenBytes;
 
-        Postfix.WriteAdvanceTo(buffer, span, written);
+        //Postfix.WriteAdvanceTo(buffer, span, written);
+        buffer.Advance(written + writtenBytes);
+        context.OpenCellValue();
     }
 
-    public static void Write(DateOnly value, BuffersChain buffer, StyleReference style)
+    public static void Write(DateOnly value, CellWritingContext context, StyleReference style)
     {
+        var buffer = context.Buffer;
         var span = buffer.GetSpan(Size);
         var written = 0;
 
         if (style.Value == DefaultStyleValue)
         {
-            DefaultStyle.CopyTo(span);
-            span = span.Slice(DefaultStyle.Length);
-            written = DefaultStyle.Length;
+            var styleBytes = context.IsCellValueOpened ? ClosedDefaultStyle : DefaultStyle;
+
+            styleBytes.CopyTo(span);
+            span = span.Slice(styleBytes.Length);
+            written = styleBytes.Length;
         }
         else
         {
-            StylePrefix.CopyTo(ref span, ref written);
+            (context.IsCellValueOpened ? ClosedStylePrefix : StylePrefix).CopyTo(ref span, ref written);
             Utf8SpanFormattableWriter.WriteValue(style.Value, buffer, ref span, ref written);
             StylePostfix.CopyTo(ref span, ref written);
         }
 
         Utf8SpanFormattableWriter.WriteValue(value.ToOADate(), buffer, ref span, ref written);
 
-        Postfix.WriteAdvanceTo(buffer, span, written);
+        //Postfix.WriteAdvanceTo(buffer, span, written);
+        buffer.Advance(written);
+        context.OpenCellValue();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -20,6 +20,7 @@ public sealed partial class ExcelWriter : IAsyncDisposable
 
     private readonly IArchiveWriter _archiveWriter;
     private readonly BuffersChain _buffer;
+    private readonly CellWritingContext _writingContext;
     private readonly Encoder _encoder;
     private IEntryWriter? _sheetWriter;
     private bool _initialFilesWritten;
@@ -59,6 +60,7 @@ public sealed partial class ExcelWriter : IAsyncDisposable
         _sharedStringKeeper = new SharedStringKeeper(sharedStringTable, _encoder);
 
         _buffer = new BuffersChain(DefaultBufferSize);
+        _writingContext = new(_buffer, _encoder);
     }
 
     /// <summary>
@@ -104,7 +106,7 @@ public sealed partial class ExcelWriter : IAsyncDisposable
         if (_sheetWriter == null)
             ThrowSheetNotStarted();
 
-        RowWriter.WriteStartRow(_buffer, _rowStarted, rowAttributes);
+        RowWriter.WriteStartRow(_writingContext, _rowStarted, rowAttributes);
 
         _rowStarted = true;
         _rowCount += 1;
@@ -131,7 +133,7 @@ public sealed partial class ExcelWriter : IAsyncDisposable
 
         for (int i = 0; i < count; i++)
         {
-            RowWriter.WriteStartRow(_buffer, _rowStarted, rowAttributes);
+            RowWriter.WriteStartRow(_writingContext, _rowStarted, rowAttributes);
             _rowStarted = true;
         }
 
@@ -200,7 +202,7 @@ public sealed partial class ExcelWriter : IAsyncDisposable
     private ValueTask EndRow()
     {
         _rowStarted = false;
-        RowWriter.WriteEndRow(_buffer);
+        RowWriter.WriteEndRow(_writingContext);
 
         return _buffer.FlushCompleted(_sheetWriter!);
     }

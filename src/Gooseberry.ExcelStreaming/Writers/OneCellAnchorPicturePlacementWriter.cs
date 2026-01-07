@@ -20,7 +20,7 @@ internal sealed class OneCellAnchorPicturePlacementWriter(AnchorCell from, Size 
     {
         "<xdr:oneCellAnchor><xdr:from>"u8.WriteTo(buffer, ref span, ref written);
 
-        AnchorCellWriter.Write(from, buffer, ref span, ref written);
+        AnchorWriter.Write(from, buffer, ref span, ref written);
         "</xdr:from><xdr:ext cy=\""u8.WriteTo(buffer, ref span, ref written);
 
         Utf8SpanFormattableWriter.WriteValue(EmuConverter.ConvertToEnglishMetricUnits(size.Width, resolution: 96),

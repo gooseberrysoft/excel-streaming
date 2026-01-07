@@ -2,6 +2,7 @@ using System.Drawing;
 using System.Runtime.CompilerServices;
 using Gooseberry.ExcelStreaming.Styles;
 using Gooseberry.ExcelStreaming.Writers;
+using Gooseberry.ExcelStreaming.Writers.Cells;
 
 namespace Gooseberry.ExcelStreaming;
 
@@ -106,7 +107,7 @@ public sealed partial class ExcelWriter
     public ExcelWriter AddCell(DateTime data, StyleReference? style = null)
     {
         CheckWriteCell();
-        Utf8DateTimeCellWriter.Write(data, _buffer, style ?? _styles.DefaultDateStyle);
+        Utf8DateTimeCellWriter.Write(data, _writingContext, style ?? _styles.DefaultDateStyle);
         _columnCount += 1;
 
         return this;
@@ -128,7 +129,7 @@ public sealed partial class ExcelWriter
     public ExcelWriter AddCell(DateOnly data, StyleReference? style = null)
     {
         CheckWriteCell();
-        Utf8DateTimeCellWriter.Write(data, _buffer, style ?? _styles.DefaultDateStyle);
+        Utf8DateTimeCellWriter.Write(data, _writingContext, style ?? _styles.DefaultDateStyle);
 
         _columnCount += 1;
         return this;
@@ -163,7 +164,7 @@ public sealed partial class ExcelWriter
     {
         CheckWriteCell();
 
-        StringCellWriter.Write(data, _buffer, _encoder, style);
+        StringCellWriter.Write(data, _writingContext, style);
 
         _columnCount += 1;
     }
@@ -172,7 +173,7 @@ public sealed partial class ExcelWriter
     {
         CheckWriteCell();
 
-        StringCellWriter.WriteUtf8(data, _buffer, style);
+        StringCellWriter.WriteUtf8(data, _writingContext, style);
 
         _columnCount += 1;
         return this;
@@ -187,7 +188,7 @@ public sealed partial class ExcelWriter
     {
         CheckWriteCell();
 
-        Utf8StringCellWriter.Write(data, format, formatProvider, _buffer, style);
+        Utf8StringCellWriter.Write(data, format, formatProvider, _writingContext, style);
 
         _columnCount += 1;
         return this;
@@ -212,7 +213,7 @@ public sealed partial class ExcelWriter
     {
         CheckWriteCell();
 
-        Utf8NumberCellWriter.Write(data, format, formatProvider, _buffer, style);
+        Utf8NumberCellWriter.Write(data, format, formatProvider, _writingContext, style);
 
         _columnCount += 1;
     }
@@ -237,7 +238,7 @@ public sealed partial class ExcelWriter
     private ExcelWriter AddStringReferenceCell(SharedStringReference sharedString, StyleReference? style = null)
     {
         CheckWriteCell();
-        SharedStringCellWriter.Write(sharedString, _buffer, style);
+        SharedStringCellWriter.Write(sharedString, _writingContext, style);
 
         _columnCount += 1;
 
@@ -247,7 +248,7 @@ public sealed partial class ExcelWriter
     public ExcelWriter AddCell(in Hyperlink hyperlink, StyleReference? style = null)
     {
         CheckWriteCell();
-        StringCellWriter.Write(hyperlink.Text, _buffer, _encoder, style ?? _styles.DefaultHyperlinkStyle);
+        StringCellWriter.Write(hyperlink.Text, _writingContext, style ?? _styles.DefaultHyperlinkStyle);
 
         _columnCount += 1;
         AddHyperlink(hyperlink);
@@ -259,7 +260,7 @@ public sealed partial class ExcelWriter
     {
         CheckWriteCell();
 
-        EmptyCellWriter.Write(_buffer, style);
+        EmptyCellWriter.Write(_writingContext, style);
 
         _columnCount += 1;
 
@@ -275,7 +276,7 @@ public sealed partial class ExcelWriter
             return this;
 
         for (var i = 0; i < count; i++)
-            EmptyCellWriter.Write(_buffer, style);
+            EmptyCellWriter.Write(_writingContext, style);
 
         _columnCount += count;
 

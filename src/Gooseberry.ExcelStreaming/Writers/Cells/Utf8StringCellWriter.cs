@@ -1,11 +1,13 @@
 using Gooseberry.ExcelStreaming.Styles;
 
-namespace Gooseberry.ExcelStreaming.Writers;
+namespace Gooseberry.ExcelStreaming.Writers.Cells;
 
 internal static class Utf8StringCellWriter
 {
     private static ReadOnlySpan<byte> Prefix => "<c t=\"str\"><v>"u8;
+    private static ReadOnlySpan<byte> ClosedPrefix => "</v></c><c t=\"str\"><v>"u8;
     private static ReadOnlySpan<byte> StylePrefix => "<c t=\"str\" s=\""u8;
+    private static ReadOnlySpan<byte> ClosedStylePrefix => "</v></c><c t=\"str\" s=\""u8;
     private static ReadOnlySpan<byte> StylePostfix => "\"><v>"u8;
     private static ReadOnlySpan<byte> Postfix => "</v></c>"u8;
 
@@ -18,23 +20,27 @@ internal static class Utf8StringCellWriter
         T value,
         ReadOnlySpan<char> format,
         IFormatProvider? provider,
-        BuffersChain buffer,
+        CellWritingContext context,
         StyleReference? style)
         where T : IUtf8SpanFormattable
     {
+        var buffer = context.Buffer;
         var span = buffer.GetSpan(StyleSize);
         var written = 0;
 
         if (style.HasValue)
         {
-            StylePrefix.CopyTo(ref span, ref written);
+            (context.IsCellValueOpened ? ClosedStylePrefix : StylePrefix).CopyTo(ref span, ref written);
             Utf8SpanFormattableWriter.WriteValue(style.Value.Value, buffer, ref span, ref written);
             StylePostfix.CopyTo(ref span, ref written);
         }
         else
-            Prefix.CopyTo(ref span, ref written);
+            (context.IsCellValueOpened ? ClosedPrefix : Prefix).CopyTo(ref span, ref written);
 
         StringWriter.WriteEscapedUtf8To(value, format, provider, buffer, ref span, ref written);
-        Postfix.WriteAdvanceTo(buffer, span, written);
+        
+        buffer.Advance(written);
+        context.OpenCellValue();
+        //Postfix.WriteAdvanceTo(buffer, span, written);
     }
 }
