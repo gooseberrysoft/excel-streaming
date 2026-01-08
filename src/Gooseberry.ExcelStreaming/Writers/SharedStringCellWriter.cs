@@ -4,7 +4,7 @@ namespace Gooseberry.ExcelStreaming.Writers;
 
 internal static class SharedStringCellWriter
 {
-    public static void Write(SharedStringReference sharedString, BuffersChain buffer, StyleReference? style = null)
+    public static void Write(SharedStringReference sharedString, BufferSequence buffer, StyleReference? style = null)
     {
         var span = buffer.GetSpan();
         var written = 0;

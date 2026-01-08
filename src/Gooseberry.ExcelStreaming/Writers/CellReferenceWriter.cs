@@ -13,7 +13,7 @@ internal static class CellReferenceWriter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteTo(
         this in Merge merge,
-        BuffersChain buffer,
+        BufferSequence buffer,
         ref Span<byte> destination,
         ref int written)
     {
@@ -25,7 +25,7 @@ internal static class CellReferenceWriter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteTo(
         this CellReference cellReference,
-        BuffersChain buffer,
+        BufferSequence buffer,
         ref Span<byte> destination,
         ref int written)
     {

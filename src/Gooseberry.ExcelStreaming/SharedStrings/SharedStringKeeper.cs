@@ -6,7 +6,7 @@ namespace Gooseberry.ExcelStreaming.SharedStrings;
 
 internal sealed class SharedStringKeeper : IDisposable
 {
-    private BuffersChain? _buffer;
+    private BufferSequence? _buffer;
     private readonly Dictionary<string, SharedStringReference> _references = new();
     private readonly int _externalAddedStrings;
     private readonly Encoder _encoder;
@@ -49,11 +49,11 @@ internal sealed class SharedStringKeeper : IDisposable
     public void Dispose()
         => _buffer?.Dispose();
 
-    private BuffersChain GetBuffer()
+    private BufferSequence GetBuffer()
     {
         if (_buffer == null)
         {
-            _buffer = new BuffersChain(bufferMinSize: 8 * 1024);
+            _buffer = new BufferSequence(bufferMinSize: 8 * 1024);
             SharedStringWriter.WritePrefix(_buffer);
         }
 

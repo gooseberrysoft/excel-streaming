@@ -8,7 +8,7 @@ internal static class EmptyCellWriter
     private static ReadOnlySpan<byte> StylePrefix => "<c s=\""u8;
     private static ReadOnlySpan<byte> StylePostfix => "\"></c>"u8;
 
-    public static void Write(BuffersChain buffer, StyleReference? style = null)
+    public static void Write(BufferSequence buffer, StyleReference? style = null)
     {
         var span = buffer.GetSpan(EmptyCell.Length);
         var written = 0;

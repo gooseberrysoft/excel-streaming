@@ -7,10 +7,10 @@ internal static class SharedStringWriter
     public static readonly byte[] EmptyTable =
         "<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\"></sst>"u8.ToArray();
 
-    public static void WritePrefix(BuffersChain buffer)
+    public static void WritePrefix(BufferSequence buffer)
         => "<sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\">"u8.WriteTo(buffer);
 
-    public static void Write(string value, BuffersChain buffer, Encoder encoder)
+    public static void Write(string value, BufferSequence buffer, Encoder encoder)
     {
         var span = buffer.GetSpan();
         var written = 0;
@@ -22,6 +22,6 @@ internal static class SharedStringWriter
         buffer.Advance(written);
     }
 
-    public static void WritePostfix(BuffersChain buffer)
+    public static void WritePostfix(BufferSequence buffer)
         => "</sst>"u8.WriteTo(buffer);
 }

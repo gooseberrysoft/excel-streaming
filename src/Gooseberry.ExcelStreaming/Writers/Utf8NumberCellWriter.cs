@@ -22,7 +22,7 @@ internal static class Utf8NumberCellWriter
         in T value,
         ReadOnlySpan<char> format,
         IFormatProvider? provider,
-        BuffersChain buffer,
+        BufferSequence buffer,
         StyleReference? style)
         where T : IUtf8SpanFormattable
     {

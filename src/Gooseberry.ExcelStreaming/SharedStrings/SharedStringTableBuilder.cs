@@ -24,7 +24,7 @@ public sealed class SharedStringTableBuilder
 
     public SharedStringTable Build()
     {
-        using var buffer = new BuffersChain(bufferMinSize: 4 * 1024);
+        using var buffer = new BufferSequence(bufferMinSize: 4 * 1024);
 
         var encoder = Encoding.UTF8.GetEncoder();
         foreach (var value in _strings)

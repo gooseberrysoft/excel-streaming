@@ -5,7 +5,7 @@ namespace Gooseberry.ExcelStreaming.Writers;
 
 internal static class PictureWriter
 {
-    public static void Write(Picture picture, BuffersChain buffer, Encoder encoder)
+    public static void Write(Picture picture, BufferSequence buffer, Encoder encoder)
     {
         var span = buffer.GetSpan();
         var written = 0;
@@ -15,7 +15,7 @@ internal static class PictureWriter
         buffer.Advance(written);
     }
 
-    public static void Write(Picture picture, BuffersChain buffer, Encoder encoder, ref Span<byte> span, ref int written)
+    public static void Write(Picture picture, BufferSequence buffer, Encoder encoder, ref Span<byte> span, ref int written)
     {
         "<xdr:pic>"u8.WriteTo(buffer, ref span, ref written);
 
@@ -26,12 +26,12 @@ internal static class PictureWriter
         "</xdr:pic>"u8.WriteTo(buffer, ref span, ref written);
     }
 
-    private static void WriteShapeProperties(BuffersChain buffer, ref Span<byte> span, ref int written)
+    private static void WriteShapeProperties(BufferSequence buffer, ref Span<byte> span, ref int written)
     {
         "<xdr:spPr><a:prstGeom prst=\"rect\"/></xdr:spPr>"u8.WriteTo(buffer, ref span, ref written);
     }
 
-    private static void WriteBinaryLargeImage(Picture picture, BuffersChain buffer, Encoder encoder, ref Span<byte> span, ref int written)
+    private static void WriteBinaryLargeImage(Picture picture, BufferSequence buffer, Encoder encoder, ref Span<byte> span, ref int written)
     {
         "<xdr:blipFill><a:blip r:embed=\""u8.WriteTo(buffer, ref span, ref written);
 
@@ -42,7 +42,7 @@ internal static class PictureWriter
 
     private static void WriteNonVisualProperties(
         Picture picture,
-        BuffersChain buffer,
+        BufferSequence buffer,
         Encoder encoder,
         ref Span<byte> span,
         ref int written)

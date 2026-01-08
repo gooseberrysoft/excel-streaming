@@ -5,7 +5,7 @@ namespace Gooseberry.ExcelStreaming;
 
 public sealed class SharedStringTable(byte[] preparedData, int count)
 {
-    internal void WriteTo(BuffersChain buffer)
+    internal void WriteTo(BufferSequence buffer)
         => BytesWriter.WriteTo(preparedData, buffer);
 
     internal int Count { get; } = count;

@@ -19,7 +19,7 @@ internal static class StringCellWriter
     private static readonly int RegularSize = Prefix.Length + Postfix.Length;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void Write(ReadOnlySpan<char> value, BuffersChain buffer, Encoder encoder, StyleReference? style)
+    public static void Write(ReadOnlySpan<char> value, BufferSequence buffer, Encoder encoder, StyleReference? style)
     {
         if (value.Length > MaxCharacters)
             ThrowCharsLimitExceeded();
@@ -42,7 +42,7 @@ internal static class StringCellWriter
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void WriteUtf8(ReadOnlySpan<byte> value, BuffersChain buffer, StyleReference? style)
+    public static void WriteUtf8(ReadOnlySpan<byte> value, BufferSequence buffer, StyleReference? style)
     {
         if (value.Length > MaxBytes)
             ThrowCharsLimitExceeded();

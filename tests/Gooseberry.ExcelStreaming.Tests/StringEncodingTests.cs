@@ -22,7 +22,7 @@ public sealed class StringEncodingTests
     {
         _encoding.GetByteCount([symbol]).Should().Be(length);
 
-        using var buffer = new BuffersChain(Buffer.MinSize);
+        using var buffer = new BufferSequence(Buffer.MinSize);
 
         var bufferSize = buffer.GetSpan(0).Length;
 
@@ -50,7 +50,7 @@ public sealed class StringEncodingTests
     {
         _encoding.GetByteCount([symbol]).Should().Be(length);
 
-        using var buffer = new BuffersChain(Buffer.MinSize);
+        using var buffer = new BufferSequence(Buffer.MinSize);
 
         var bufferSize = buffer.GetSpan(0).Length;
 
@@ -78,7 +78,7 @@ public sealed class StringEncodingTests
     {
         _encoding.GetByteCount([symbol]).Should().Be(length);
 
-        using var buffer = new BuffersChain(Buffer.MinSize);
+        using var buffer = new BufferSequence(Buffer.MinSize);
         
         var bufferSize = buffer.GetSpan(0).Length;
 

@@ -10,7 +10,7 @@ public sealed class CellReferenceWriterTests
     [Fact]
     public void SingleLetterColumn()
     {
-        var buffer = new BuffersChain(100);
+        var buffer = new BufferSequence(100);
         var destination = new byte[10];
         for (uint column = 1; column <= 26; column++)
         {
@@ -42,7 +42,7 @@ public sealed class CellReferenceWriterTests
     [InlineData(16_384, 1_048_576, "XFD1048576")]
     public void MultiLetterColumn(uint column, uint row, string expected)
     {
-        var buffer = new BuffersChain(100);
+        var buffer = new BufferSequence(100);
         var destination = new byte[10];
         Span<byte> destinationRef = destination;
         int written = 0;

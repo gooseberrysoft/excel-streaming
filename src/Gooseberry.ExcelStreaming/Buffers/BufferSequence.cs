@@ -3,42 +3,31 @@ using System.Runtime.CompilerServices;
 // ReSharper disable once CheckNamespace
 namespace Gooseberry.ExcelStreaming;
 
-internal sealed class BuffersChain : IDisposable
+internal sealed class BufferSequence : IDisposable
 {
     private const int MinRemainingCapacity = 128;
 
     private readonly BufferPool _pool = new();
-    private readonly Queue<MemoryOwner> _completedBuffers = new(2);
     private readonly Buffer _buffer;
+    private readonly BufferQueue _bufferQueue;
 
-    private IEntryWriter? _entryWriter;
+    public BufferSequence(int bufferMinSize) : this(bufferMinSize, new BufferQueue())
+    {
+    }
 
-    public BuffersChain(int bufferMinSize)
+    public BufferSequence(int bufferMinSize, BufferQueue queue)
     {
         _buffer = new Buffer(bufferMinSize, _pool);
+        _bufferQueue = queue;
     }
 
-    public void SetWriter(IEntryWriter? entryWriter)
-        => _entryWriter = entryWriter;
-
-    public int Written
-    {
-        get
-        {
-            var written = _buffer.Written;
-
-            foreach (var buffer in _completedBuffers)
-                written += buffer.Memory.Length;
-
-            return written;
-        }
-    }
+    public int Written => _buffer.Written + _bufferQueue.GetLength();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Span<byte> GetSpan(int minSize = 1)
     {
         if (_buffer.RemainingCapacity < minSize)
-            _buffer.Flush(_completedBuffers, _entryWriter, minSize);
+            _buffer.Flush(_bufferQueue, minSize);
 
         return _buffer.GetSpan();
     }
@@ -49,7 +38,7 @@ internal sealed class BuffersChain : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ValueTask FlushCompleted(IEntryWriter output)
     {
-        if (_completedBuffers.Count > 0)
+        if (!_bufferQueue.IsEmpty)
             return FlushCompletedAsync(output);
 
         return FlushBuffer(output);
@@ -65,21 +54,16 @@ internal sealed class BuffersChain : IDisposable
 
     private async ValueTask FlushCompletedAsync(IEntryWriter output)
     {
-        await FlushCompletedBuffers(output);
+        await _bufferQueue.Flush(output);
         await FlushBuffer(output);
     }
 
     public ValueTask FlushAll(IEntryWriter output)
-    {
-        if (_completedBuffers.Count > 0)
-            return FlushAllAsync(output);
-
-        return _buffer.Flush(output);
-    }
+        => !_bufferQueue.IsEmpty ? FlushAllAsync(output) : _buffer.Flush(output);
 
     private async ValueTask FlushAllAsync(IEntryWriter output)
     {
-        await FlushCompletedBuffers(output);
+        await _bufferQueue.Flush(output);
         await _buffer.Flush(output);
     }
 
@@ -88,41 +72,15 @@ internal sealed class BuffersChain : IDisposable
         if (span.Length < Written)
             throw new ArgumentException("Span has no enough space to flush all buffers.");
 
-        var currentPosition = 0;
-
-        while (_completedBuffers.Count > 0)
-        {
-            using var buffer = _completedBuffers.Dequeue();
-            var memory = buffer.Memory;
-
-            memory.Span.CopyTo(span.Slice(currentPosition));
-            currentPosition += memory.Length;
-        }
-
-        _buffer.Flush(span.Slice(currentPosition));
+        _bufferQueue.Flush(span, out var written);
+        _buffer.Flush(span.Slice(written));
     }
 
     public void Dispose()
     {
-        while (_completedBuffers.Count > 0)
-            _completedBuffers.Dequeue().Dispose();
-
+        _bufferQueue.Dispose();
         _buffer.Dispose();
         _pool.Dispose();
-    }
-
-    private ValueTask FlushCompletedBuffers(IEntryWriter output)
-    {
-        if (_completedBuffers.Count == 1)
-            return output.Write(_completedBuffers.Dequeue());
-
-        return FlushCompletedBuffersAsync(output);
-    }
-
-    private async ValueTask FlushCompletedBuffersAsync(IEntryWriter output)
-    {
-        while (_completedBuffers.Count > 0)
-            await output.Write(_completedBuffers.Dequeue());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

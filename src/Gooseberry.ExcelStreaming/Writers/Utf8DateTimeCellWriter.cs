@@ -20,7 +20,7 @@ internal static class Utf8DateTimeCellWriter
         + NumberSize
         + Postfix.Length;
 
-    public static void Write(DateTime value, BuffersChain buffer, StyleReference style)
+    public static void Write(DateTime value, BufferSequence buffer, StyleReference style)
     {
         var span = buffer.GetSpan(Size);
         var written = 0;
@@ -46,7 +46,7 @@ internal static class Utf8DateTimeCellWriter
         Postfix.WriteAdvanceTo(buffer, span, written);
     }
 
-    public static void Write(DateOnly value, BuffersChain buffer, StyleReference style)
+    public static void Write(DateOnly value, BufferSequence buffer, StyleReference style)
     {
         var span = buffer.GetSpan(Size);
         var written = 0;

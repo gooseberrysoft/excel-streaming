@@ -2,7 +2,7 @@ namespace Gooseberry.ExcelStreaming.Writers;
 
 internal static class RowWriter
 {
-    public static void WriteStartRow(BuffersChain buffer, bool rowStarted, in RowAttributes rowAttributes)
+    public static void WriteStartRow(BufferSequence buffer, bool rowStarted, in RowAttributes rowAttributes)
     {
         var span = buffer.GetSpan();
         var written = 0;
@@ -28,7 +28,7 @@ internal static class RowWriter
         buffer.Advance(written);
     }
 
-    public static void WriteEndRow(BuffersChain buffer)
+    public static void WriteEndRow(BufferSequence buffer)
     {
         var span = buffer.GetSpan();
         var written = 0;
@@ -39,7 +39,7 @@ internal static class RowWriter
     }
 
     private static void AddAttributes(
-        BuffersChain buffer,
+        BufferSequence buffer,
         ref Span<byte> span,
         ref int written,
         in RowAttributes rowAttributes)

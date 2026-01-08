@@ -20,7 +20,7 @@ internal static class WorkbookRelationshipsWriter
     private static ReadOnlySpan<byte> Middle => ".xml\" Id=\"sheet"u8;
     private static ReadOnlySpan<byte> Postfix => "\"/>"u8;
 
-    public static void Write(IReadOnlyCollection<Sheet> sheets, BuffersChain buffer, Encoder encoder)
+    public static void Write(IReadOnlyCollection<Sheet> sheets, BufferSequence buffer, Encoder encoder)
     {
         var span = buffer.GetSpan();
         var written = 0;

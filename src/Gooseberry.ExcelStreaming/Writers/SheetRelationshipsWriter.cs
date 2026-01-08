@@ -26,7 +26,7 @@ internal static class SheetRelationshipsWriter
     private static ReadOnlySpan<byte> DrawingTargetPrefix => " Target=\"/"u8;
     private static ReadOnlySpan<byte> DrawingTargetPostfix => "\""u8;
 
-    public static void Write(IReadOnlyCollection<string>? hyperlinks, Drawing drawing, BuffersChain buffer, Encoder encoder)
+    public static void Write(IReadOnlyCollection<string>? hyperlinks, Drawing drawing, BufferSequence buffer, Encoder encoder)
     {
         var span = buffer.GetSpan();
         var written = 0;
