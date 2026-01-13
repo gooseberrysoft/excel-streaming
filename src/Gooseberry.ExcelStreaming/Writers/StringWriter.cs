@@ -14,7 +14,7 @@ internal static class StringWriter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void WriteEscapedTo(
         this string data,
-        BuffersChain buffer,
+        BufferSequence buffer,
         Encoder encoder,
         ref Span<byte> destination,
         ref int written)
@@ -23,7 +23,7 @@ internal static class StringWriter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void WriteEscapedTo(
         this scoped ReadOnlySpan<char> data,
-        BuffersChain buffer,
+        BufferSequence buffer,
         Encoder encoder,
         ref Span<byte> destination,
         ref int written)
@@ -40,7 +40,7 @@ internal static class StringWriter
         WriteBlocks(data, buffer, encoder, ref destination, ref written);
     }
 
-    private static void WriteBlocks(scoped ReadOnlySpan<char> data, BuffersChain buffer, Encoder encoder, ref Span<byte> destination, ref int written)
+    private static void WriteBlocks(scoped ReadOnlySpan<char> data, BufferSequence buffer, Encoder encoder, ref Span<byte> destination, ref int written)
     {
         while (true)
         {
@@ -70,7 +70,7 @@ internal static class StringWriter
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void Escape(BuffersChain buffer, ref Span<byte> destination, ref int written, int bytesWritten)
+    private static void Escape(BufferSequence buffer, ref Span<byte> destination, ref int written, int bytesWritten)
     {
         var indexToEncode = HtmlEncoder.Default.FindFirstCharacterToEncodeUtf8(destination[..bytesWritten]);
 
@@ -91,7 +91,7 @@ internal static class StringWriter
     }
 
     [SkipLocalsInit]
-    private static void EscapeUtf8(ReadOnlySpan<byte> bytesUtf8ToEncode, BuffersChain buffer, ref Span<byte> destination, ref int written)
+    private static void EscapeUtf8(ReadOnlySpan<byte> bytesUtf8ToEncode, BufferSequence buffer, ref Span<byte> destination, ref int written)
     {
         byte[]? utf8BytesPooled = null;
         var length = bytesUtf8ToEncode.Length;
@@ -118,7 +118,7 @@ internal static class StringWriter
         in T data,
         ReadOnlySpan<char> format,
         IFormatProvider? provider,
-        BuffersChain buffer,
+        BufferSequence buffer,
         ref Span<byte> destination,
         ref int written) where T : IUtf8SpanFormattable
     {
@@ -160,7 +160,7 @@ internal static class StringWriter
 
     internal static void WriteEscapedUtf8To(
         this scoped ReadOnlySpan<byte> utf8Data,
-        BuffersChain buffer,
+        BufferSequence buffer,
         ref Span<byte> destination,
         ref int written)
     {
@@ -197,7 +197,7 @@ internal static class StringWriter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void WriteTo(
         this string data,
-        BuffersChain buffer,
+        BufferSequence buffer,
         Encoder encoder,
         ref Span<byte> destination,
         ref int written)
@@ -206,7 +206,7 @@ internal static class StringWriter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void WriteTo(
         this ReadOnlySpan<char> data,
-        BuffersChain buffer,
+        BufferSequence buffer,
         Encoder encoder)
     {
         var span = buffer.GetSpan();
@@ -219,7 +219,7 @@ internal static class StringWriter
 
     internal static void WriteTo(
         this scoped ReadOnlySpan<char> data,
-        BuffersChain buffer,
+        BufferSequence buffer,
         Encoder encoder,
         ref Span<byte> destination,
         ref int written)

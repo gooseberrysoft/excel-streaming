@@ -45,7 +45,7 @@ internal static class RowWriter
     }
 
     private static void AddAttributes(
-        BuffersChain buffer,
+        BufferSequence buffer,
         ref Span<byte> span,
         ref int written,
         in RowAttributes rowAttributes)

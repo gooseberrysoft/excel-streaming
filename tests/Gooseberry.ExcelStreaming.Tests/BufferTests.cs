@@ -128,14 +128,17 @@ public sealed class BufferTests
         data.CopyTo(buffer.GetSpan());
         buffer.Advance(written);
 
-        var target = new Queue<MemoryOwner>();
-        buffer.Flush(target, null, size);
+        var target = new BufferQueue();
+        buffer.Flush(target, size);
 
-        target.Count.Should().Be(1);
-        var flushed = target.Single().Memory;
+        target.IsEmpty.Should().BeFalse();
 
-        flushed.Length.Should().Be(written);
-        flushed.Span.SequenceEqual(data.AsSpan(0, written)).Should().BeTrue();
+        target.GetLength().Should().Be(written);
+
+        Span<byte> innerSpan = new byte[size];
+        target.Flush(innerSpan, out var flashedBytes);
+
+        innerSpan[..flashedBytes].SequenceEqual(data.AsSpan(0, written)).Should().BeTrue();
 
         buffer.RemainingCapacity.Should().Be(size);
         buffer.Written.Should().Be(0);

@@ -5,7 +5,7 @@ namespace Gooseberry.ExcelStreaming.Writers;
 
 internal static class DrawingWriter
 {
-    public static void Write(Drawing drawing, BuffersChain buffer, Encoder encoder)
+    public static void Write(Drawing drawing, BufferSequence buffer, Encoder encoder)
     {
         var span = buffer.GetSpan();
         var written = 0;

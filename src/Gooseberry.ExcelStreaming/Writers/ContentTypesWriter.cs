@@ -25,7 +25,7 @@ internal static class ContentTypesWriter
 
     private static ReadOnlySpan<byte> DrawingPostfix => "\" ContentType=\"application/vnd.openxmlformats-officedocument.drawing+xml\"/>"u8;
 
-    public static void Write(IReadOnlyCollection<Sheet> sheets, SheetDrawings sheetDrawings, BuffersChain buffer, Encoder encoder)
+    public static void Write(IReadOnlyCollection<Sheet> sheets, SheetDrawings sheetDrawings, BufferSequence buffer, Encoder encoder)
     {
         var span = buffer.GetSpan();
         var written = 0;

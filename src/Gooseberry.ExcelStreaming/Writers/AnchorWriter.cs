@@ -2,7 +2,7 @@ namespace Gooseberry.ExcelStreaming.Writers;
 
 internal static class AnchorWriter
 {
-    public static void Write(in AnchorCell cell, BuffersChain buffer)
+    public static void Write(in AnchorCell cell, BufferSequence buffer)
     {
         var written = 0;
         var span = buffer.GetSpan();
@@ -11,7 +11,7 @@ internal static class AnchorWriter
         buffer.Advance(written);
     }
 
-    public static void Write(in AnchorCell cell, BuffersChain buffer, ref Span<byte> span, ref int written)
+    public static void Write(in AnchorCell cell, BufferSequence buffer, ref Span<byte> span, ref int written)
     {
         "<xdr:col>"u8.WriteTo(buffer, ref span, ref written);
         Utf8SpanFormattableWriter.WriteValue(cell.Column, buffer, ref span, ref written);

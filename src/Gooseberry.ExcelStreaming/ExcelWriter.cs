@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -19,7 +20,7 @@ public sealed partial class ExcelWriter : IAsyncDisposable
     private readonly SharedStringKeeper _sharedStringKeeper;
 
     private readonly IArchiveWriter _archiveWriter;
-    private readonly BuffersChain _buffer;
+    private readonly BufferSequence _buffer;
     private readonly CellWritingContext _writingContext;
     private readonly Encoder _encoder;
     private IEntryWriter? _sheetWriter;
@@ -59,7 +60,7 @@ public sealed partial class ExcelWriter : IAsyncDisposable
         _encoder = Encoding.UTF8.GetEncoder();
         _sharedStringKeeper = new SharedStringKeeper(sharedStringTable, _encoder);
 
-        _buffer = new BuffersChain(DefaultBufferSize);
+        _buffer = new BufferSequence(DefaultBufferSize);
         _writingContext = new(_buffer, _encoder);
     }
 
@@ -87,11 +88,10 @@ public sealed partial class ExcelWriter : IAsyncDisposable
         _merges.Clear();
 
         var sheetId = _sheets.Count + 1;
-        
+
         _sheets.Add(new(name, sheetId));
 
         _sheetWriter = _archiveWriter.CreateEntry(PathResolver.GetSheetFullPath(sheetId));
-        _buffer.SetWriter(_sheetWriter);
 
         SheetWriter.WriteStartSheet(_buffer, configuration);
     }
@@ -111,9 +111,10 @@ public sealed partial class ExcelWriter : IAsyncDisposable
         _rowStarted = true;
         _rowCount += 1;
         _columnCount = 0;
-        
-        if(_rowCount % 10 == 0)
-            return _buffer.FlushCompleted(_sheetWriter!);
+
+        if (_rowCount % 10 == 0)
+            return _buffer.FlushCompleted(_sheetWriter);
+
         return ValueTask.CompletedTask;
     }
 
@@ -216,7 +217,6 @@ public sealed partial class ExcelWriter : IAsyncDisposable
 
         await _buffer.FlushAll(_sheetWriter!);
         _sheetWriter = null;
-        _buffer.SetWriter(_sheetWriter);
 
         await AddSheetRelationships(sheet.Id);
 
@@ -309,12 +309,25 @@ public sealed partial class ExcelWriter : IAsyncDisposable
             ThrowRowNotStarted();
     }
 
+    [DoesNotReturn]
     private static void ThrowRowNotStarted()
         => throw new InvalidOperationException("Row is not started yet.");
 
+    [DoesNotReturn]
     private static void ThrowCompleted()
         => throw new InvalidOperationException("Excel writer is already completed.");
 
+    [DoesNotReturn]
     private static void ThrowSheetNotStarted()
         => throw new InvalidOperationException("Sheet is not started.");
+
+    private sealed class SyncEntryWriter(ExcelWriter excelWriter) : ISyncEntryWriter
+    {
+        public bool TryWrite(in MemoryOwner buffer)
+        {
+            var sheetWriter = excelWriter._sheetWriter;
+
+            return sheetWriter != null && sheetWriter.TryWrite(buffer);
+        }
+    }
 }

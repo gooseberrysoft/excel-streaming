@@ -2,19 +2,19 @@ using System.Text;
 
 namespace Gooseberry.ExcelStreaming.Writers;
 
-internal sealed class CellWritingContext(BuffersChain buffer, Encoder encoder)
+internal sealed class CellWritingContext(BufferSequence buffer, Encoder encoder)
 {
-    private bool isCellValueOpened;
+    private bool _isCellValueOpened;
 
-    public BuffersChain Buffer => buffer;
+    public BufferSequence Buffer => buffer;
 
     public Encoder Encoder => encoder;
 
-    public bool IsCellValueOpened => isCellValueOpened;
+    public bool IsCellValueOpened => _isCellValueOpened;
 
     public void OpenCellValue()
-        => isCellValueOpened = true;
+        => _isCellValueOpened = true;
 
     public void CloseCellValue()
-        => isCellValueOpened = false;
+        => _isCellValueOpened = false;
 }

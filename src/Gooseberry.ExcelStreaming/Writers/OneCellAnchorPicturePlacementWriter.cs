@@ -6,7 +6,7 @@ namespace Gooseberry.ExcelStreaming.Writers;
 
 internal sealed class OneCellAnchorPicturePlacementWriter(AnchorCell from, Size size) : IPicturePlacementWriter
 {
-    public void Write(Picture picture, BuffersChain buffer, Encoder encoder)
+    public void Write(Picture picture, BufferSequence buffer, Encoder encoder)
     {
         var span = buffer.GetSpan();
         var written = 0;
@@ -16,7 +16,7 @@ internal sealed class OneCellAnchorPicturePlacementWriter(AnchorCell from, Size 
         buffer.Advance(written);
     }
 
-    public void Write(Picture picture, BuffersChain buffer, Encoder encoder, ref Span<byte> span, ref int written)
+    public void Write(Picture picture, BufferSequence buffer, Encoder encoder, ref Span<byte> span, ref int written)
     {
         "<xdr:oneCellAnchor><xdr:from>"u8.WriteTo(buffer, ref span, ref written);
 

@@ -6,13 +6,13 @@ namespace Gooseberry.ExcelStreaming.Styles;
 
 internal sealed class StylesWriter : IDisposable
 {
-    private readonly BuffersChain _buffer;
+    private readonly BufferSequence _buffer;
     private readonly Encoder _encoder;
     private const string Hex8 = "X8";
 
     public StylesWriter()
     {
-        _buffer = new BuffersChain(bufferMinSize: 16 * 1024);
+        _buffer = new BufferSequence(bufferMinSize: 16 * 1024);
         _encoder = Encoding.UTF8.GetEncoder();
 
         Constants.XmlPrefix.WriteTo(_buffer);

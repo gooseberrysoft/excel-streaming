@@ -5,7 +5,7 @@ namespace Gooseberry.ExcelStreaming.Writers;
 
 internal static class SheetWriter
 {
-    public static void WriteStartSheet(BuffersChain buffer, in SheetConfiguration? configuration)
+    public static void WriteStartSheet(BufferSequence buffer, in SheetConfiguration? configuration)
     {
         var span = buffer.GetSpan();
         var written = 0;
@@ -25,7 +25,7 @@ internal static class SheetWriter
     }
 
     public static void WriteEndSheet(
-        BuffersChain buffer,
+        BufferSequence buffer,
         Encoder encoder,
         Drawing drawing,
         IReadOnlyCollection<Merge> merges,
@@ -54,7 +54,7 @@ internal static class SheetWriter
 
     private static void WriteSheetView(
         in SheetConfiguration configuration,
-        BuffersChain buffer,
+        BufferSequence buffer,
         ref Span<byte> span,
         ref int written)
     {
@@ -78,7 +78,7 @@ internal static class SheetWriter
 
     private static void WriteFreezePanes(
         CellReference cellReference,
-        BuffersChain buffer,
+        BufferSequence buffer,
         ref Span<byte> span,
         ref int written)
     {
@@ -96,7 +96,7 @@ internal static class SheetWriter
 
     private static void WriteShowGridLines(
         bool showGridLines,
-        BuffersChain buffer,
+        BufferSequence buffer,
         ref Span<byte> span,
         ref int written)
     {
@@ -107,7 +107,7 @@ internal static class SheetWriter
 
     private static void WriteAutoFilter(
         in CellRange filterRange,
-        BuffersChain buffer,
+        BufferSequence buffer,
         Encoder encoder,
         ref Span<byte> span,
         ref int written)
@@ -130,7 +130,7 @@ internal static class SheetWriter
 
     private static void WriteColumns(
         IReadOnlyCollection<Column> columns,
-        BuffersChain buffer,
+        BufferSequence buffer,
         ref Span<byte> span,
         ref int written)
     {
@@ -160,7 +160,7 @@ internal static class SheetWriter
 
     private static void WriteMerges(
         IReadOnlyCollection<Merge> merges,
-        BuffersChain buffer,
+        BufferSequence buffer,
         ref Span<byte> span,
         ref int written)
     {
@@ -181,7 +181,7 @@ internal static class SheetWriter
 
     private static void WriteDrawing(
         Drawing drawing,
-        BuffersChain buffer,
+        BufferSequence buffer,
         Encoder encoder,
         ref Span<byte> span,
         ref int written)
@@ -196,7 +196,7 @@ internal static class SheetWriter
 
     private static void WriteHyperlinks(
         Dictionary<string, List<CellReference>> hyperlinks,
-        BuffersChain buffer,
+        BufferSequence buffer,
         ref Span<byte> span,
         ref int written)
     {

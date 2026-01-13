@@ -5,7 +5,7 @@ namespace Gooseberry.ExcelStreaming.Writers;
 internal static class BytesWriter
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static void WriteTo(this ReadOnlySpan<byte> data, BuffersChain buffer)
+    internal static void WriteTo(this ReadOnlySpan<byte> data, BufferSequence buffer)
     {
         var span = buffer.GetSpan();
         var written = 0;
@@ -16,7 +16,7 @@ internal static class BytesWriter
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static void WriteAdvanceTo(this ReadOnlySpan<byte> data, BuffersChain buffer, Span<byte> span, int written)
+    internal static void WriteAdvanceTo(this ReadOnlySpan<byte> data, BufferSequence buffer, Span<byte> span, int written)
     {
         if (data.TryCopyTo(span))
             buffer.Advance(written + data.Length);
@@ -24,7 +24,7 @@ internal static class BytesWriter
             GrowWrite(buffer, data, written);
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        static void GrowWrite(BuffersChain buffer, ReadOnlySpan<byte> data, int written)
+        static void GrowWrite(BufferSequence buffer, ReadOnlySpan<byte> data, int written)
         {
             buffer.Advance(written);
             data.CopyTo(buffer.GetSpan(data.Length));
@@ -47,7 +47,7 @@ internal static class BytesWriter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteTo(
         this byte[] data,
-        BuffersChain buffer,
+        BufferSequence buffer,
         ref Span<byte> destination,
         ref int written)
         => WriteTo(data.AsSpan(), buffer, ref destination, ref written);
@@ -55,7 +55,7 @@ internal static class BytesWriter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteTo(
         this ReadOnlySpan<byte> data,
-        BuffersChain buffer,
+        BufferSequence buffer,
         ref Span<byte> destination,
         ref int written)
     {
@@ -72,7 +72,7 @@ internal static class BytesWriter
 
     private static void WriteBlocks(
         ReadOnlySpan<byte> data,
-        BuffersChain buffer,
+        BufferSequence buffer,
         ref Span<byte> destination,
         ref int written)
     {

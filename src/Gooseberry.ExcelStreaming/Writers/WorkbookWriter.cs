@@ -19,7 +19,7 @@ internal static class WorkbookWriter
         "\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\"/>"u8;
 
 
-    public static void Write(IReadOnlyCollection<Sheet> sheets, BuffersChain buffer, Encoder encoder)
+    public static void Write(IReadOnlyCollection<Sheet> sheets, BufferSequence buffer, Encoder encoder)
     {
         var span = buffer.GetSpan();
         var written = 0;
