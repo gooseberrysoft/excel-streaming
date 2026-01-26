@@ -7,7 +7,7 @@ internal static class SharedStringCellWriter
     public static void Write(SharedStringReference sharedString, CellWritingContext context, StyleReference? style = null)
     {
         var buffer = context.Buffer;
-        var span = buffer.GetSpan();
+        var span = buffer.GetSpan(20);
         var written = 0;
 
         if (style.HasValue)
@@ -24,8 +24,6 @@ internal static class SharedStringCellWriter
         }
 
         context.OpenCellValue();
-
-        //"</v></c>"u8.WriteTo(buffer, ref span, ref written);
 
         buffer.Advance(written);
     }

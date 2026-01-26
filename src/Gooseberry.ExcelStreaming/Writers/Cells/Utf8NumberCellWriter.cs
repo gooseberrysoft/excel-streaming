@@ -9,15 +9,13 @@ internal static class Utf8NumberCellWriter
 
     private static ReadOnlySpan<byte> Prefix => "<c t=\"n\"><v>"u8;
     private static ReadOnlySpan<byte> ClosedPrefix => "</v></c><c t=\"n\"><v>"u8;
-    private static ReadOnlySpan<byte> Postfix => "</v></c>"u8;
 
     private static ReadOnlySpan<byte> StylePrefix => "<c t=\"n\" s=\""u8;
     private static ReadOnlySpan<byte> ClosedStylePrefix => "</v></c><c t=\"n\" s=\""u8;
     private static ReadOnlySpan<byte> StylePostfix => "\"><v>"u8;
 
-    private static readonly int StyleSize = StylePrefix.Length + NumberSize + StylePostfix.Length
-        + NumberSize
-        + Postfix.Length;
+    private static readonly int StyleSize = ClosedStylePrefix.Length + NumberSize + StylePostfix.Length
+        + NumberSize;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Write<T>(
@@ -45,6 +43,5 @@ internal static class Utf8NumberCellWriter
 
         buffer.Advance(written);
         context.OpenCellValue();
-        //Postfix.WriteAdvanceTo(buffer, span, written);
     }
 }

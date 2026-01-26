@@ -1,6 +1,5 @@
 using Gooseberry.ExcelStreaming.Extensions;
 using Gooseberry.ExcelStreaming.Styles;
-using Gooseberry.ExcelStreaming.Writers;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -13,15 +12,12 @@ internal static class Utf8DateTimeCellWriter
     private static ReadOnlySpan<byte> StylePrefix => "<c s=\""u8;
     private static ReadOnlySpan<byte> ClosedStylePrefix => "</v></c><c s=\""u8;
     private static ReadOnlySpan<byte> StylePostfix => "\"><v>"u8;
-    private static ReadOnlySpan<byte> Postfix => "</v></c>"u8;
 
     private static int DefaultStyleValue = StylesSheetBuilder.Default.DefaultDateStyle.Value;
     private static byte[] DefaultStyle = StylePrefix.Combine(Encoding.UTF8.GetBytes(DefaultStyleValue.ToString()), StylePostfix);
     private static byte[] ClosedDefaultStyle = "</v></c>"u8.Combine(DefaultStyle);
 
-    private static readonly int Size = StylePrefix.Length + NumberSize + StylePostfix.Length
-        + NumberSize
-        + Postfix.Length;
+    private static readonly int Size = ClosedStylePrefix.Length + NumberSize + StylePostfix.Length + NumberSize;
 
     public static void Write(DateTime value, CellWritingContext context, StyleReference style)
     {
@@ -45,10 +41,6 @@ internal static class Utf8DateTimeCellWriter
 
         FormatOADate(value, span, out var writtenBytes);
 
-        //span = span.Slice(writtenBytes);
-        //written += writtenBytes;
-
-        //Postfix.WriteAdvanceTo(buffer, span, written);
         buffer.Advance(written + writtenBytes);
         context.OpenCellValue();
     }
@@ -76,7 +68,6 @@ internal static class Utf8DateTimeCellWriter
 
         Utf8SpanFormattableWriter.WriteValue(value.ToOADate(), buffer, ref span, ref written);
 
-        //Postfix.WriteAdvanceTo(buffer, span, written);
         buffer.Advance(written);
         context.OpenCellValue();
     }

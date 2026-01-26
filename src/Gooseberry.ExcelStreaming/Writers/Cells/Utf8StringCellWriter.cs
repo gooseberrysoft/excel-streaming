@@ -9,12 +9,10 @@ internal static class Utf8StringCellWriter
     private static ReadOnlySpan<byte> StylePrefix => "<c t=\"str\" s=\""u8;
     private static ReadOnlySpan<byte> ClosedStylePrefix => "</v></c><c t=\"str\" s=\""u8;
     private static ReadOnlySpan<byte> StylePostfix => "\"><v>"u8;
-    private static ReadOnlySpan<byte> Postfix => "</v></c>"u8;
 
     private const int NumberSize = 20;
 
-    private static readonly int StyleSize = StylePrefix.Length + NumberSize + StylePostfix.Length
-        + Postfix.Length;
+    private static readonly int StyleSize = ClosedPrefix.Length + NumberSize + StylePostfix.Length + 25;
 
     public static void Write<T>(
         T value,
@@ -41,6 +39,5 @@ internal static class Utf8StringCellWriter
         
         buffer.Advance(written);
         context.OpenCellValue();
-        //Postfix.WriteAdvanceTo(buffer, span, written);
     }
 }

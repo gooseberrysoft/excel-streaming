@@ -12,13 +12,11 @@ internal static class StringCellWriter
 
     private static ReadOnlySpan<byte> Prefix => "<c t=\"str\"><v>"u8;
     private static ReadOnlySpan<byte> ClosedPrefix => "</v></c><c t=\"str\"><v>"u8;
-    //private static ReadOnlySpan<byte> Postfix => "</v></c>"u8;
 
     private static ReadOnlySpan<byte> StylePrefix => "<c t=\"str\" s=\""u8;
     private static ReadOnlySpan<byte> ClosedStylePrefix => "</v></c><c t=\"str\" s=\""u8;
     private static ReadOnlySpan<byte> StylePostfix => "\"><v>"u8;
-
-    private static readonly int RegularSize = Prefix.Length;
+    private static int DefaultBufferSize = ClosedStylePrefix.Length + 25;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Write(ReadOnlySpan<char> value, CellWritingContext context, StyleReference? style)
@@ -27,7 +25,7 @@ internal static class StringCellWriter
             ThrowCharsLimitExceeded();
 
         var buffer = context.Buffer;
-        var span = buffer.GetSpan(RegularSize);
+        var span = buffer.GetSpan(DefaultBufferSize);
         var written = 0;
 
         if (style.HasValue)
@@ -41,7 +39,6 @@ internal static class StringCellWriter
 
         value.WriteEscapedTo(buffer, context.Encoder, ref span, ref written);
 
-        //Postfix.WriteAdvanceTo(buffer, span, written);
         buffer.Advance(written);
         context.OpenCellValue();
     }
@@ -53,7 +50,7 @@ internal static class StringCellWriter
             ThrowCharsLimitExceeded();
 
         var buffer = context.Buffer;
-        var span = buffer.GetSpan(RegularSize);
+        var span = buffer.GetSpan(DefaultBufferSize);
         var written = 0;
 
         if (style.HasValue)
@@ -67,7 +64,6 @@ internal static class StringCellWriter
 
         value.WriteEscapedUtf8To(buffer, ref span, ref written);
 
-        //Postfix.WriteAdvanceTo(buffer, span, written);
         buffer.Advance(written);
         context.OpenCellValue();
     }

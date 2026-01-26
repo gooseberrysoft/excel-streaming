@@ -3,6 +3,7 @@
 namespace Gooseberry.ExcelStreaming.Benchmarks;
 
 [MemoryDiagnoser]
+[MinColumn, MaxColumn]
 public class RealWorldReportBenchmarks
 {
     [Params(100, 1000, 10_000, 100_000, 500_000)]
