@@ -567,6 +567,37 @@ public sealed class ExcelWriterTests
     }
 
     [Fact]
+    public async Task StartSheet_WritesHiddenColumn()
+    {
+        using var outputStream = new MemoryStream();
+
+        await using (var writer = new ExcelWriter(outputStream))
+        {
+            await writer.StartSheet(
+                "test sheet",
+                new SheetConfiguration(
+                    new[]
+                    {
+                        new Column(Width: 10m),
+                        new Column(Width: 15m, IsHidden: true)
+                    }));
+
+            await writer.Complete();
+        }
+
+        outputStream.Seek(0, SeekOrigin.Begin);
+
+        var sheets = ExcelReader.ReadSheets(outputStream);
+
+        var expectedSheet = new Excel.Sheet(
+            "test sheet",
+            Array.Empty<Row>(),
+            new[] { new Column(10m), new Column(15m, IsHidden: true) });
+
+        sheets.ShouldBeEquivalentTo(expectedSheet);
+    }
+
+    [Fact]
     public async Task StartSheet_WritesCorrectColumnWidths1()
     {
         using var outputStream = new MemoryStream();
