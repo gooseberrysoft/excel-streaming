@@ -2,7 +2,12 @@
 
 namespace Gooseberry.ExcelStreaming;
 
-public readonly struct SharedStringReference(int value)
+public readonly struct SharedStringReference
 {
-    internal int Value { get; } = value;
+    internal SharedStringReference(int value)
+    {
+        Value = value;
+    }
+
+    internal int Value { get; }
 }

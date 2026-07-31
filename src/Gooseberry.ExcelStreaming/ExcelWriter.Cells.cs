@@ -222,18 +222,11 @@ public sealed partial class ExcelWriter
     {
         return data == null
             ? AddEmptyCell(style)
-            : AddStringReferenceCell(_sharedStringKeeper.GetOrAdd(data), style);
+            : AddStringReferenceCell(_sharedStrings.GetOrAdd(data), style);
     }
 
-    public ExcelWriter AddCell(SharedStringReference sharedString, StyleReference? style = null)
-    {
-        if (!_sharedStringKeeper.IsValidReference(sharedString))
-            throw new ArgumentException(
-                "Invalid shared string reference. String not found in the table. Check sharedStringTable in ExcelWriter constructor.",
-                nameof(sharedString));
-
-        return AddStringReferenceCell(sharedString, style);
-    }
+    public ExcelWriter AddCell(SharedStringReference sharedString, StyleReference? style = null) 
+        => AddStringReferenceCell(sharedString, style);
 
     private ExcelWriter AddStringReferenceCell(SharedStringReference sharedString, StyleReference? style = null)
     {

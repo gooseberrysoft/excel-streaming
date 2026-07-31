@@ -4,7 +4,6 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using Gooseberry.ExcelStreaming.Buffers;
 using Gooseberry.ExcelStreaming.Pictures;
-using Gooseberry.ExcelStreaming.SharedStrings;
 using Gooseberry.ExcelStreaming.Styles;
 using Gooseberry.ExcelStreaming.Writers;
 
@@ -17,7 +16,7 @@ public sealed partial class ExcelWriter : IAsyncDisposable
     private readonly List<Sheet> _sheets = new(1);
 
     private readonly StylesSheet _styles;
-    private readonly SharedStringKeeper _sharedStringKeeper;
+    private readonly SharedStringSheet _sharedStrings;
 
     private readonly IArchiveWriter _archiveWriter;
     private readonly BufferSequence _buffer;
@@ -58,7 +57,7 @@ public sealed partial class ExcelWriter : IAsyncDisposable
         _archiveWriter = async ? new AsyncArchiveWriter(outputArchive, token) : new SyncArchiveWriter(outputArchive, token);
         _styles = styles ?? StylesSheetBuilder.Default;
         _encoder = Encoding.UTF8.GetEncoder();
-        _sharedStringKeeper = new SharedStringKeeper(sharedStringTable, _encoder);
+        _sharedStrings = new(sharedStringTable);
 
         _buffer = new BufferSequence(DefaultBufferSize);
         _writingContext = new(_buffer, _encoder);
@@ -68,6 +67,8 @@ public sealed partial class ExcelWriter : IAsyncDisposable
     /// Returns row count for current sheet
     /// </summary>
     public uint RowCount => _rowCount;
+
+    public SharedStringList SharedStrings => _sharedStrings.Items;
 
     public async ValueTask StartSheet(string name, SheetConfiguration? configuration = null)
     {
@@ -192,7 +193,7 @@ public sealed partial class ExcelWriter : IAsyncDisposable
         if (!_isCompleted)
             await Complete();
 
-        _sharedStringKeeper.Dispose();
+        _sharedStrings.Dispose();
         _buffer.Dispose();
         _interpolatedStringBuffer?.Dispose();
     }
@@ -261,7 +262,7 @@ public sealed partial class ExcelWriter : IAsyncDisposable
         => _archiveWriter.WriteEntry("_rels/.rels", Constants.RelationshipsContent);
 
     private ValueTask AddSharedStringTable()
-        => _sharedStringKeeper.WriteTo(_archiveWriter, "xl/sharedStrings.xml");
+        => _sharedStrings.WriteTo(_buffer, _encoder, _archiveWriter, "xl/sharedStrings.xml");
 
     private ValueTask AddDrawingRelationships(int sheetId)
     {
