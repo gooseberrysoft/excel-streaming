@@ -150,7 +150,12 @@ internal static class SheetWriter
             "\" width=\""u8.WriteTo(buffer, ref span, ref written);
             column.Width.WriteTo(buffer, ref span, ref written);
 
-            "\" customWidth=\"1\"/>"u8.WriteTo(buffer, ref span, ref written);
+            "\" customWidth=\"1\""u8.WriteTo(buffer, ref span, ref written);
+
+            if (column.IsHidden)
+                " hidden=\"true\""u8.WriteTo(buffer, ref span, ref written);
+
+            "/>"u8.WriteTo(buffer, ref span, ref written);
 
             index++;
         }
