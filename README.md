@@ -22,7 +22,7 @@ await using var writer = new ExcelWriter(file, token: cancellationToken);
 
 // optional sheet configuration
 var sheetConfig = new SheetConfiguration(
-    Columns: [new Column(Width: 10m), new Column(Width: 13m)], // column width
+    Columns: [new Column(Width: 10m), new Column(Width: 13m, IsHidden: true)], // column width and visibility
     FrozenColumns: 1, // freeze pane: colums count
     FrozenRows: 3, // freeze pane: rows count
     ShowGridLines: true,

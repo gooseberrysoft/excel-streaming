@@ -140,7 +140,9 @@ public static class ExcelReader
         IReadOnlyCollection<Column> GetColumns(WorksheetPart sheetPart)
         {
             return sheetPart.Worksheet!.Descendants<DocumentFormat.OpenXml.Spreadsheet.Column>()
-                .Select(column => new Column((decimal)column.Width!.Value))
+                .Select(column => new Column(
+                    (decimal)column.Width!.Value,
+                    column.Hidden?.Value ?? false))
                 .ToArray();
         }
 
