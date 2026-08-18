@@ -39,18 +39,42 @@ internal sealed class SequenceList<T> : IDisposable, IEnumerable<ReadOnlyMemory<
     /// <returns></returns>
     public T this[int index]
     {
-        set => SetValue(index, value);
-        get => GetValue(index);
+        set
+        {
+            ref var oldValue = ref GetRefValue(index);
+            oldValue = value;
+        }
+        get => GetRefValue(index);
+    }
+
+    public ref T GetRefValue(int index)
+    {
+        if (index > lastIndex)
+            ThrowInvalidArgument(index);
+
+        var bucketNumber = GetBucketNumber(index);
+        var bucketElementIndex = GetBucketElementIndex(bucketNumber, index);
+
+        return ref buckets[bucketNumber - 1][bucketElementIndex];
     }
 
     public IEnumerator<ReadOnlyMemory<T>> GetEnumerator()
     {
-        var bucketNumber = 1;
+        var remaining = lastIndex + 1;
+        if (remaining <= 0)
+            yield break;
+
+        var bucketNumber = 0;
         foreach (var bucket in buckets)
         {
-            var count = (int)(b1 * Math.Pow(q, bucketNumber));
+            var bucketSize = (int)(b1 * Math.Pow(q, bucketNumber));
+            var take = Math.Min(bucketSize, remaining);
 
-            yield return bucket.AsMemory(0, count);
+            yield return bucket.AsMemory(0, take);
+
+            remaining -= take;
+            if (remaining <= 0)
+                break;
 
             bucketNumber++;
         }
@@ -66,6 +90,7 @@ internal sealed class SequenceList<T> : IDisposable, IEnumerable<ReadOnlyMemory<
         buckets.Clear();
 
         length = 0;
+        lastIndex = -1;
     }
 
     private void Extend()
@@ -75,28 +100,6 @@ internal sealed class SequenceList<T> : IDisposable, IEnumerable<ReadOnlyMemory<
 
         var rentedArray = ArrayPool<T>.Shared.Rent(nextSize);
         buckets.Add(rentedArray);
-    }
-
-    private void SetValue(int index, T value)
-    {
-        if (index > lastIndex)
-            ThrowInvalidArgument(index);
-
-        var bucketNumber = GetBucketNumber(index);
-        var bucketElementIndex = GetBucketElementIndex(bucketNumber, index);
-
-        buckets[bucketNumber - 1][bucketElementIndex] = value;
-    }
-
-    private T GetValue(int index)
-    {
-        if (index > lastIndex)
-            ThrowInvalidArgument(index);
-
-        var bucketNumber = GetBucketNumber(index);
-        var bucketElementIndex = GetBucketElementIndex(bucketNumber, index);
-
-        return buckets[bucketNumber - 1][bucketElementIndex];
     }
 
     private static int GetBucketNumber(int elementIndex)
@@ -112,7 +115,7 @@ internal sealed class SequenceList<T> : IDisposable, IEnumerable<ReadOnlyMemory<
             < b1 * (q * q * q * q * q * q * q - 1) / (q - 1) => 7,
             < b1 * (q * q * q * q * q * q * q * q - 1) / (q - 1) => 8,
 
-            _ => (int)Math.Floor(Math.Log((elementIndex * (q - 1.0)) / b1 + 1.0) / LnQ)
+            _ => (int)Math.Floor(Math.Log((elementIndex * (q - 1.0)) / b1 + 1.0) / LnQ) + 1
         };
     }
 

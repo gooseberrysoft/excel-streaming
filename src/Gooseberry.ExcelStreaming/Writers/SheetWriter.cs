@@ -142,20 +142,27 @@ internal static class SheetWriter
         {
             // column width will be applied to columns with indexes between min and max
             "<col min=\""u8.WriteTo(buffer, ref span, ref written);
-            Utf8SpanFormattableWriter.WriteValue(index, buffer, ref span, ref written);
+            Utf8SpanFormattableWriter.WriteValue(column.ColumnsRange?.MinIndex ?? index, buffer, ref span, ref written);
 
             "\" max=\""u8.WriteTo(buffer, ref span, ref written);
-            Utf8SpanFormattableWriter.WriteValue(index, buffer, ref span, ref written);
+            Utf8SpanFormattableWriter.WriteValue(column.ColumnsRange?.MaxIndex ?? index, buffer, ref span, ref written);
 
-            "\" width=\""u8.WriteTo(buffer, ref span, ref written);
-            Utf8SpanFormattableWriter.WriteValue(column.Width, buffer, ref span, ref written);
+            "\""u8.WriteTo(buffer, ref span, ref written);
 
-            "\" customWidth=\"1\""u8.WriteTo(buffer, ref span, ref written);
+            if (column.Width.HasValue)
+            {
+                " width=\""u8.WriteTo(buffer, ref span, ref written);
+                Utf8SpanFormattableWriter.WriteValue(column.Width.Value, buffer, ref span, ref written);
+                "\" customWidth=\"1\""u8.WriteTo(buffer, ref span, ref written);
+            }
 
             if (column.IsHidden)
-                " hidden=\"true\""u8.WriteTo(buffer, ref span, ref written);
+                " hidden=\"1\""u8.WriteTo(buffer, ref span, ref written);
 
             "/>"u8.WriteTo(buffer, ref span, ref written);
+
+            if (column.ColumnsRange.HasValue)
+                index = column.ColumnsRange.Value.MaxIndex;
 
             index++;
         }

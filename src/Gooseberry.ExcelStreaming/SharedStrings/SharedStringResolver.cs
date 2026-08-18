@@ -13,7 +13,6 @@ public sealed class SharedStringResolver<TKey>(
     private List<TKey> _keyBatch = new(providerBatchSize);
     private readonly List<Task> _tasks = new();
 
-
     public SharedStringReference Add(TKey key)
     {
         if (_map.TryGetValue(key, out var value))
@@ -64,7 +63,10 @@ public sealed class SharedStringResolver<TKey>(
         if (defaultValue != null && keys.Count > count)
         {
             foreach (var key in keys)
-                sharedStrings[_map[key]] ??= defaultValue;
+            {
+                ref var value = ref sharedStrings.GetRefValue(_map[key]);
+                value ??= defaultValue;
+            }
         }
     }
 }

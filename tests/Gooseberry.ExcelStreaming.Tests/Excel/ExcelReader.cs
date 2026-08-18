@@ -67,15 +67,14 @@ public static class ExcelReader
 
         return spreadsheet.WorkbookPart!.Parts!
             .Where(part => part.OpenXmlPart is WorksheetPart)
-            .Select(
-                part =>
-                    new Sheet(
-                        Name: sheets[part.RelationshipId],
-                        GetRows((WorksheetPart)part.OpenXmlPart),
-                        GetColumns((WorksheetPart)part.OpenXmlPart),
-                        GetMerges((WorksheetPart)part.OpenXmlPart),
-                        GetPictures((WorksheetPart)part.OpenXmlPart),
-                        GetAutoFilter((WorksheetPart)part.OpenXmlPart)))
+            .Select(part =>
+                new Sheet(
+                    Name: sheets[part.RelationshipId],
+                    GetRows((WorksheetPart)part.OpenXmlPart),
+                    GetColumns((WorksheetPart)part.OpenXmlPart),
+                    GetMerges((WorksheetPart)part.OpenXmlPart),
+                    GetPictures((WorksheetPart)part.OpenXmlPart),
+                    GetAutoFilter((WorksheetPart)part.OpenXmlPart)))
             .ToArray();
 
         IReadOnlyCollection<Picture> GetPictures(WorksheetPart sheetPart)
@@ -135,14 +134,12 @@ public static class ExcelReader
         {
             return sheetPart.Worksheet!.GetFirstChild<AutoFilter>()?.Reference?.Value;
         }
-        
+
         // sheetPart.DrawingsPart.RootElement.Descendants<OneCellAnchor>().First().Descendants<Picture>().First()
         IReadOnlyCollection<Column> GetColumns(WorksheetPart sheetPart)
         {
             return sheetPart.Worksheet!.Descendants<DocumentFormat.OpenXml.Spreadsheet.Column>()
-                .Select(column => new Column(
-                    (decimal)column.Width!.Value,
-                    column.Hidden?.Value ?? false))
+                .Select(column => new Column(Width:(decimal)column.Width!.Value, IsHidden: column.Hidden?.Value ?? false))
                 .ToArray();
         }
 
@@ -208,14 +205,15 @@ public static class ExcelReader
 
         return styles.CellFormats
             !.OfType<CellFormat>()
-            .Select(
-                s =>
-                    new Style(
-                        Format: numberFormats.TryGetValue(s.NumberFormatId!, out var numberFormat) ? numberFormat : new Format((int)s.NumberFormatId!.Value),
-                        Fill: s.FillId?.HasValue == true ? fills[(int)s.FillId.Value] : null,
-                        Borders: s.BorderId?.HasValue == true ? borders[(int)s.BorderId.Value] : null,
-                        Font: s.FontId?.HasValue == true ? fonts[(int)s.FontId.Value] : null,
-                        Alignment: s.Alignment != null ? GetAlignment(s.Alignment) : null));
+            .Select(s =>
+                new Style(
+                    Format: numberFormats.TryGetValue(s.NumberFormatId!, out var numberFormat)
+                        ? numberFormat
+                        : new Format((int)s.NumberFormatId!.Value),
+                    Fill: s.FillId?.HasValue == true ? fills[(int)s.FillId.Value] : null,
+                    Borders: s.BorderId?.HasValue == true ? borders[(int)s.BorderId.Value] : null,
+                    Font: s.FontId?.HasValue == true ? fonts[(int)s.FontId.Value] : null,
+                    Alignment: s.Alignment != null ? GetAlignment(s.Alignment) : null));
     }
 
     private static Fill GetFill(DocumentFormat.OpenXml.Spreadsheet.Fill fill)

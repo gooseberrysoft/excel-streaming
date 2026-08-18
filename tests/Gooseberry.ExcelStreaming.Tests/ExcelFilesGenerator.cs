@@ -6,6 +6,10 @@ using System.Text;
 using Gooseberry.ExcelStreaming.Styles;
 using Gooseberry.ExcelStreaming.Tests.ExternalZip;
 using Xunit;
+using Alignment = Gooseberry.ExcelStreaming.Styles.Alignment;
+using Border = Gooseberry.ExcelStreaming.Styles.Border;
+using Borders = Gooseberry.ExcelStreaming.Styles.Borders;
+using Color = System.Drawing.Color;
 using Fill = Gooseberry.ExcelStreaming.Styles.Fill;
 using Font = Gooseberry.ExcelStreaming.Styles.Font;
 
@@ -13,7 +17,7 @@ namespace Gooseberry.ExcelStreaming.Tests;
 
 public sealed class ExcelFilesGenerator
 {
-    private const string? Skip = "Null me for manual run";
+    private const string? Skip = null; //"Null me for manual run";
     private const string? IgnoreZip = "ignore";
 
     const string BasePath = "c:\\temp\\excelWriter\\";
@@ -453,5 +457,83 @@ public sealed class ExcelFilesGenerator
 
 
         await writer.Complete();
+    }
+
+    [Fact(Skip = Skip)]
+    public async Task ColumnConfiguration()
+    {
+        await using var outputStream = new FileStream(BasePath + "ColumnConfig.xlsx", FileMode.Create);
+        await using var writer = new ExcelWriter(outputStream);
+
+        Column[] columns =
+        [
+            new Column(new Column.Range(1), Width: 100),
+            new Column(new Column.Range(2, 3), Width: 25),
+            new Column(new Column.Range(5, 7), Width: 55),
+            new Column(IsHidden: true)
+        ];
+
+        await writer.StartSheet("test#1", new SheetConfiguration(Columns: columns));
+
+        for (var row = 0; row < 1000; row++)
+        {
+            await writer.StartRow();
+
+            for (var column = 0; column < 10; column++)
+            {
+                writer.AddCell(column + row);
+            }
+        }
+
+        await writer.Complete();
+    }
+
+    [Fact(Skip = Skip)]
+    public async Task LoadingStringsByKeys()
+    {
+        await using var outputStream = new FileStream(BasePath + "LoadedSharedStrings.xlsx", FileMode.Create);
+        await using var writer = new ExcelWriter(outputStream);
+
+        var provider = new TestProvider(new Dictionary<int, string> { { 0, "zero" }, { 2, "two" }, { 3, "three" }, { 7, "seven" } });
+        var sharedStringResolver = new SharedStringResolver<int>(providerBatchSize: 2, writer.SharedStrings, provider);
+        var anotherSharedStringResolver =
+            new SharedStringResolver<int>(providerBatchSize: 2, writer.SharedStrings, provider, defaultValue: "Not Found");
+
+        await writer.StartSheet("test#1", new SheetConfiguration());
+
+        for (var row = 0; row < 10; row++)
+        {
+            await writer.StartRow();
+
+            var stringRef = sharedStringResolver.Add(row);
+            var otherStringRef = anotherSharedStringResolver.Add(row);
+
+            writer
+                .AddCell(row)
+                .AddCell(stringRef)
+                .AddCell(otherStringRef);
+        }
+
+        await sharedStringResolver.Complete();
+        await anotherSharedStringResolver.Complete();
+
+        await writer.Complete();
+    }
+
+    private sealed class TestProvider(Dictionary<int, string> map) : IStringProvider<int>
+    {
+        public async Task<IEnumerable<KeyValuePair<int, string>>> GetStrings(IReadOnlyCollection<int> keys)
+        {
+            await Task.Delay(100);
+
+            return Map();
+
+            IEnumerable<KeyValuePair<int, string>> Map()
+            {
+                foreach (var key in keys)
+                    if (map.TryGetValue(key, out var value))
+                        yield return KeyValuePair.Create(key, value);
+            }
+        }
     }
 }

@@ -590,7 +590,7 @@ public sealed class ExcelWriterTests
         var expectedSheet = new Excel.Sheet(
             "test sheet",
             Array.Empty<Row>(),
-            new[] { new Column(10m), new Column(15m, IsHidden: true) });
+            new[] { new Column(10m), new Column(Width: 15m, IsHidden: true) });
 
         sheets.ShouldBeEquivalentTo(expectedSheet);
     }

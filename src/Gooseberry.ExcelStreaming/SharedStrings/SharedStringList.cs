@@ -15,7 +15,10 @@ public sealed class SharedStringList
 
     public string? this[SharedStringReference index]
     {
-        set => _strings[index.Value] = value;
-        get => _strings[index.Value];
+        get => _strings[index.Value - _offset];
+        set => _strings[index.Value - _offset] = value;
     }
+
+    public ref string? GetRefValue(SharedStringReference index)
+        => ref _strings.GetRefValue(index.Value - _offset);
 }
