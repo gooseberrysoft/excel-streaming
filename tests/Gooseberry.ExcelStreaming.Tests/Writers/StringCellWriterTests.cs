@@ -91,7 +91,7 @@ public sealed class StringCellWriterTests
         using var buffer = new BufferSequence(bufferMinSize: 32);
         var context = new CellWritingContext(buffer, Encoding.UTF8.GetEncoder());
 
-        var valueBytes = Encoding.UTF8.GetBytes("héllo"); // contains multibyte char
+        var valueBytes = Encoding.UTF8.GetBytes("hÃ©llo"); // contains multibyte char
         StringCellWriter.WriteUtf8(valueBytes, context, style: null);
 
         var bytes = new byte[buffer.Written];
