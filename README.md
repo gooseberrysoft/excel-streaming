@@ -22,7 +22,7 @@ await using var writer = new ExcelWriter(file, token: cancellationToken);
 
 // optional sheet configuration
 var sheetConfig = new SheetConfiguration(
-    Columns: [new Column(Width: 10m), new Column(Width: 13m, IsHidden: true)], // column width and visibility
+    Columns: [new(new Column.Range(2, 3), Width: 10m), new (new Column.Range(5, 7), Width: 13m, IsHidden: true)], // column width and visibility
     FrozenColumns: 1, // freeze pane: colums count
     FrozenRows: 3, // freeze pane: rows count
     ShowGridLines: true,
@@ -48,7 +48,8 @@ await foreach(var record in store.GetRecordsAsync(cancellationToken))
         .AddCell("string") // string
         .AddCell('#') // char
         .AddCellUtf8String("string"u8) // utf8 string
-        .AddCellSharedString("shared"); // shared string
+        .AddCellSharedString("shared") // shared string
+            .MergeCells(colSpan: 1, rowSpan: 1); // merging cells 
    
     // hyperlink
     writer.AddCell(new Hyperlink("https://[address]", "Label text")); 
@@ -165,7 +166,7 @@ or [StandardFormat enum value](https://github.com/gooseberrysoft/excel-streaming
 ### Shared strings ###
 Shared strings decrease the size of the resulting file when it contains repeated strings. It's implemented as unique list of strings, and cell contains only reference to the list index.
 ```csharp
-// 1. We can use global shared strings table
+// 1. Global shared strings table can be used
 
 var tableBuilder = new SharedStringTableBuilder();
 
@@ -192,6 +193,13 @@ writer.AddCellSharedString("Some string from exteranal store");
 writer.AddCellSharedString("Some string from exteranal store");
 
 await writer.Complete();
+```
+
+### Shared strings maps and writing in advance ###
+SharedStringMap class can be used for mapping non-string type to shared string representation of it.
+The SharedStringResolver class allows you to asynchronously load shared strings by keys.
+```csharp
+TODO: smaples with SharedStringMap<TKey> and SharedStringResolver<TKey>
 ```
 
 ### Benchmarks & performance ###

@@ -467,10 +467,10 @@ public sealed class ExcelFilesGenerator
 
         Column[] columns =
         [
-            new Column(new Column.Range(1), Width: 100),
-            new Column(new Column.Range(2, 3), Width: 25),
-            new Column(new Column.Range(5, 7), Width: 55),
-            new Column(IsHidden: true)
+            new(new Column.Range(1), Width: 100),
+            new(new Column.Range(2, 3), Width: 25),
+            new(new Column.Range(5, 7), Width: 55),
+            new(IsHidden: true)
         ];
 
         await writer.StartSheet("test#1", new SheetConfiguration(Columns: columns));
