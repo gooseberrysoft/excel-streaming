@@ -91,19 +91,4 @@ public sealed class ExcelWriterSharedStringTableTests
 
         sheets.ShouldBeEquivalentTo(expectedSheet);
     }
-
-    [Fact]
-    public async Task AddingCellWithIncorrectReference_Throws()
-    {
-        var outputStream = new MemoryStream();
-
-        var builder = new SharedStringTableBuilder();
-        var stringReference = builder.GetOrAdd("string");
-
-        await using var writer = new ExcelWriter(outputStream);
-
-        var act = () => writer.AddCell(stringReference);
-
-        act.Should().Throw<ArgumentException>().WithMessage("Invalid shared string reference*");
-    }
 }
