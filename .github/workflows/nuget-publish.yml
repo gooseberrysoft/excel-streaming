@@ -2,28 +2,35 @@ on:
   workflow_dispatch
 
 jobs:
-  build:
+  build-and-publish:
     timeout-minutes: 5
     runs-on: ubuntu-latest
     name: Push to NuGet.org
+    permissions:
+      id-token: write  # enable GitHub OIDC token issuance for this job
+    
     steps:
-
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Setup .NET @ Latest
+      - name: Setup .NET Core @ Latest
         uses: actions/setup-dotnet@v5
-        with:
+        with:    
           dotnet-version: |
             9.0.x
             10.0.x
-        env:
-          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}        
-          
+
       - name: Build solution and generate NuGet package
         run: 
           dotnet build --configuration Release
 
-      - name: Push generated package to Nuget.org registry
-        run: dotnet nuget push "**/*.nupkg" --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_KEY}} --skip-duplicate 
+      # Get a short-lived NuGet API key
+      - name: NuGet login (OIDC → temp API key)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: sharp-juice
     
+      # Push the package
+      - name: NuGet push
+        run: dotnet nuget push "**/*.nupkg" --api-key ${{steps.login.outputs.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
