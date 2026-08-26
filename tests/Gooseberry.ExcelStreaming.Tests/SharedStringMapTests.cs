@@ -10,11 +10,11 @@ public sealed class SharedStringMapTests
     {
         // Arrange
         var sharedStrings = new SharedStringList(new SequenceList<string?>(), 0);
-        var map = new SharedStringMap<string>(sharedStrings);
+        var map = new SharedStringMap<string>(sharedStrings, k => "value");
 
         // Act
-        var first = map.Add("key", _ => "value");
-        var second = map.Add("key", _ => "another value");
+        var first = map.GetOrAdd("key");
+        var second = map.GetOrAdd("key");
 
         // Assert
         first.Should().Be(second);
@@ -28,11 +28,12 @@ public sealed class SharedStringMapTests
     {
         // Arrange
         var sharedStrings = new SharedStringList(new SequenceList<string?>(), 0);
-        var map = new SharedStringMap<string>(sharedStrings);
+        var map = new SharedStringMap<string>(sharedStrings,
+            new Dictionary<string, string> { { "first", "value1" }, { "second", "value2" } });
 
         // Act
-        var first = map.Add("first", _ => "value1");
-        var second = map.Add("second", _ => "value2");
+        var first = map.GetOrAdd("first");
+        var second = map.GetOrAdd("second");
 
         // Assert
         first.Should().NotBe(second);
