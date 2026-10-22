@@ -11,9 +11,9 @@ public sealed class SharedStringResolverTests
     {
         var sharedStringList = new SharedStringList(new SequenceList<string?>(), 0);
 
-        var provider = Substitute.For<IStringProvider<string>>();
+        var provider = Substitute.For<IStringProvider<string, string>>();
 
-        var resolver = new SharedStringResolver<string>(providerBatchSize: 10, sharedStringList, provider);
+        var resolver = new SharedStringResolver<string, SharedStringReference, string>(providerBatchSize: 10, sharedStringList, provider);
 
         var r1 = resolver.Add("key");
         var r2 = resolver.Add("key");
@@ -26,7 +26,7 @@ public sealed class SharedStringResolverTests
     {
         var sharedStringList = new SharedStringList(new SequenceList<string?>(), 0);
 
-        var provider = Substitute.For<IStringProvider<string>>();
+        var provider = Substitute.For<IStringProvider<string, string>>();
 
         // When provider receives the batch ["a","b"] return mapped values
         provider.GetStrings(Arg.Any<IReadOnlyCollection<string>>())
@@ -37,7 +37,7 @@ public sealed class SharedStringResolverTests
                 return Task.FromResult<IEnumerable<KeyValuePair<string, string>>>(result);
             });
 
-        var resolver = new SharedStringResolver<string>(providerBatchSize: 2, sharedStringList, provider);
+        var resolver = new SharedStringResolver<string, SharedStringReference, string>(providerBatchSize: 2, sharedStringList, provider);
 
         var refA = resolver.Add("a");
         var refB = resolver.Add("b");
@@ -53,7 +53,7 @@ public sealed class SharedStringResolverTests
     {
         var sharedStringList = new SharedStringList(new SequenceList<string?>(), 0);
 
-        var provider = Substitute.For<IStringProvider<int>>();
+        var provider = Substitute.For<IStringProvider<int, string>>();
 
         provider.GetStrings(Arg.Any<IReadOnlyCollection<int>>())
             .Returns(call =>
@@ -63,7 +63,7 @@ public sealed class SharedStringResolverTests
                 return Task.FromResult<IEnumerable<KeyValuePair<int, string>>>(result);
             });
 
-        var resolver = new SharedStringResolver<int>(providerBatchSize: 2, sharedStringList, provider);
+        var resolver = new SharedStringResolver<int, SharedStringReference, string>(providerBatchSize: 2, sharedStringList, provider);
 
         var refA = resolver.Add(1);
         var refB = resolver.Add(2);
@@ -83,7 +83,7 @@ public sealed class SharedStringResolverTests
     {
         var sharedStringList = new SharedStringList(new SequenceList<string?>(), 0);
 
-        var provider = Substitute.For<IStringProvider<string>>();
+        var provider = Substitute.For<IStringProvider<string, string>>();
 
         // Provider returns only entry for "present" key, omits "missing"
         provider.GetStrings(Arg.Any<IReadOnlyCollection<string>>())
@@ -97,7 +97,7 @@ public sealed class SharedStringResolverTests
                 return Task.FromResult<IEnumerable<KeyValuePair<string, string>>>(result);
             });
 
-        var resolver = new SharedStringResolver<string>(providerBatchSize: 2, sharedStringList, provider, defaultValue);
+        var resolver = new SharedStringResolver<string, SharedStringReference, string>(providerBatchSize: 2, sharedStringList, provider, defaultValue);
 
         var refPresent = resolver.Add("present");
         var refMissing = resolver.Add("missing");

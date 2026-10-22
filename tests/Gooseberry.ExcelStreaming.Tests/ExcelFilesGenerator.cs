@@ -495,13 +495,13 @@ public sealed class ExcelFilesGenerator
         await using var writer = new ExcelWriter(outputStream);
 
         var provider = new TestProvider(new Dictionary<int, string> { { 0, "zero" }, { 2, "two" }, { 3, "three" }, { 7, "seven" } });
-        var sharedStringResolver = new SharedStringResolver<int>(providerBatchSize: 2, writer.SharedStrings, provider);
+        var sharedStringResolver = new SharedStringResolver<int, SharedStringReference, string>(providerBatchSize: 2, writer.SharedStrings, provider);
         var anotherSharedStringResolver =
-            new SharedStringResolver<int>(providerBatchSize: 2, writer.SharedStrings, provider, defaultValue: "Not Found");
+            new SharedStringResolver<int, SharedStringReference, string>(providerBatchSize: 2, writer.SharedStrings, provider, defaultValue: "Not Found");
 
         await writer.StartSheet("test#1", new SheetConfiguration());
 
-        for (var row = 0; row < 10; row++)
+        for (var row = 0; row < 10000; row++)
         {
             await writer.StartRow();
 
@@ -520,7 +520,7 @@ public sealed class ExcelFilesGenerator
         await writer.Complete();
     }
 
-    private sealed class TestProvider(Dictionary<int, string> map) : IStringProvider<int>
+    private sealed class TestProvider(Dictionary<int, string> map) : IStringProvider<int, string>
     {
         public async Task<IEnumerable<KeyValuePair<int, string>>> GetStrings(IReadOnlyCollection<int> keys)
         {

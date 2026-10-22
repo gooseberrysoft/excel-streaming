@@ -2,23 +2,31 @@ using System.Collections.Concurrent;
 
 namespace Gooseberry.ExcelStreaming;
 
-public sealed class SharedStringResolver<TKey>(
+public interface IStringReferences<out T, TStrings>
+{
+    void SetStrings(SharedStringList sharedStrings, TStrings values);
+
+    static abstract T Create(SharedStringList sharedStrings, string? defaultValue);
+}
+
+public sealed class SharedStringResolver<TKey, TStringRef, TStrings>(
     int providerBatchSize,
     SharedStringList sharedStrings,
-    IStringProvider<TKey> stringProvider,
+    IStringProvider<TKey, TStrings> stringProvider,
     string? defaultValue = null)
     where TKey : notnull
+    where TStringRef : IStringReferences<TStringRef, TStrings>
 {
-    private readonly ConcurrentDictionary<TKey, SharedStringReference> _map = new();
+    private readonly ConcurrentDictionary<TKey, TStringRef> _map = new();
     private List<TKey> _keyBatch = new(providerBatchSize);
     private readonly List<Task> _tasks = new();
 
-    public SharedStringReference Add(TKey key)
+    public TStringRef Add(TKey key)
     {
         if (_map.TryGetValue(key, out var value))
             return value;
 
-        var reference = sharedStrings.GetNextReference();
+        var reference = TStringRef.Create(sharedStrings, defaultValue);
         _map.TryAdd(key, reference);
 
         _keyBatch.Add(key);
@@ -52,21 +60,8 @@ public sealed class SharedStringResolver<TKey>(
     private async Task LoadStrings(List<TKey> keys)
     {
         var result = await stringProvider.GetStrings(keys);
-        var count = 0;
-
+        
         foreach (var (key, value) in result)
-        {
-            count++;
-            sharedStrings[_map[key]] = value;
-        }
-
-        if (defaultValue != null && keys.Count > count)
-        {
-            foreach (var key in keys)
-            {
-                ref var value = ref sharedStrings.GetRefValue(_map[key]);
-                value ??= defaultValue;
-            }
-        }
+            _map[key].SetStrings(sharedStrings, value);
     }
 }
