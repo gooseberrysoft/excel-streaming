@@ -13,6 +13,7 @@ public sealed class SharedStringResolver<TKey, TStringRef, TStrings>(
     int providerBatchSize,
     SharedStringList sharedStrings,
     IStringProvider<TKey, TStrings> stringProvider,
+    CancellationToken token,
     string? defaultValue = null)
     where TKey : notnull
     where TStringRef : IStringReferences<TStringRef, TStrings>
@@ -59,7 +60,7 @@ public sealed class SharedStringResolver<TKey, TStringRef, TStrings>(
 
     private async Task LoadStrings(List<TKey> keys)
     {
-        var result = await stringProvider.GetStrings(keys);
+        var result = await stringProvider.GetStrings(keys, token);
         
         foreach (var (key, value) in result)
             _map[key].SetStrings(sharedStrings, value);
