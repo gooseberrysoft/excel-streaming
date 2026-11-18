@@ -97,7 +97,7 @@ public sealed class SharedStringResolverTests
                 return Task.FromResult<IEnumerable<KeyValuePair<string, string>>>(result);
             });
 
-        var resolver = new SharedStringResolver<string, SharedStringReference, string>(providerBatchSize: 2, sharedStringList, provider, CancellationToken.None, defaultValue);
+        var resolver = new SharedStringResolver<string, SharedStringReference, string>(providerBatchSize: 2, sharedStringList, provider, CancellationToken.None, defaultValue: defaultValue);
 
         var refPresent = resolver.Add("present");
         var refMissing = resolver.Add("missing");
